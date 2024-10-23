@@ -1,0 +1,18 @@
+[package]
+org = "ballerinax"
+name = "mx_mt_data_mapper"
+version = "0.1.0"
+distribution = "2201.10.0"
+
+
+[[dependency]]
+org="ballerinax"
+name="iso20022records"
+version="1.0.0"
+repository="local"
+
+[[dependency]]
+org="ballerinax"
+name="swiftmt"
+version="1.0.0"
+repository="local"
