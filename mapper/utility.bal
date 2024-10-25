@@ -247,3 +247,26 @@ isolated function getRemitenceInformationFromPmtIdOrRmtInf(SwiftMxRecords:Paymen
     
     return { name, Nrtv: {\#content, number} };
 }
+
+isolated function getBankOperationCodeFromPaymentTypeInformation22(SwiftMxRecords:PaymentTypeInformation28? PmtTpInf) returns string {
+    if (PmtTpInf == ()) {
+        return "";
+    }
+
+    SwiftMxRecords:ServiceLevel8Choice[]? svcLvl = PmtTpInf.SvcLvl;
+
+    if (svcLvl == ()) {
+        return "";
+    }
+
+    if (svcLvl.length() > 0) {
+        SwiftMxRecords:ServiceLevel8Choice svcLvl0 = svcLvl[0];
+
+        if (svcLvl0.Cd != ()) {
+            return svcLvl0.Cd.toString();
+        }
+    }
+
+    return "";
+    
+}
