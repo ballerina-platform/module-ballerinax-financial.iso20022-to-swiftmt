@@ -270,3 +270,31 @@ isolated function getBankOperationCodeFromPaymentTypeInformation22(SwiftMxRecord
     return "";
     
 }
+
+isolated function getNamesArrayFromNameString(string nameString) returns SwiftMtRecords:Nm[] {
+    string[] names = regex:split(nameString, " ");
+
+    SwiftMtRecords:Nm[] result = [];
+
+    foreach int i in 0...names.length() - 1 {
+        result.push({
+            \#content: names[i],
+            number: (i + 1).toString()
+        });
+    }
+
+    return result;
+}
+
+isolated function getMtAddressLinesFromMxAddresses(string[] addresses) returns SwiftMtRecords:AdrsLine[] {
+    SwiftMtRecords:AdrsLine[] result = [];
+
+    foreach int i in 0...addresses.length() - 1 {
+        result.push({
+            \#content: addresses[i],
+            number: (i + 1).toString()
+        });
+    }
+
+    return result;
+}

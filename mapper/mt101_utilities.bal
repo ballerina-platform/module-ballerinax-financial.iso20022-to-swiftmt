@@ -43,7 +43,26 @@ returns SwiftMtRecords:MT50C? | SwiftMtRecords:MT50L? {
 
 isolated function getMT101OrderingCustomerFromPain001Document(SwiftMxRecords:Pain001Document document) 
 returns SwiftMtRecords:MT50F? | SwiftMtRecords:MT50G? | SwiftMtRecords:MT50H? {
-    return ();
+    SwiftMxRecords:CustomerCreditTransferInitiationV12 cstmrDrctDbtInitn = document.CstmrCdtTrfInitn;
+    SwiftMxRecords:PaymentInstruction44[] payments = cstmrDrctDbtInitn.PmtInf;
+
+    if (payments.length() == 0) {
+        return ();
+    }
+
+    SwiftMxRecords:PaymentInstruction44 firstTransaction = payments[0];
+
+    if(firstTransaction.Dbtr.Nm != () && firstTransaction.Dbtr.PstlAdr != ()) {
+        return <SwiftMtRecords:MT50F> {
+            name: "50F",
+            Nm : getNamesArrayFromNameString(firstTransaction.Dbtr?.Nm.toString()),
+            CdTyp: [],
+            PrtyIdn: {\#content: "", number: "1"},
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>firstTransaction.Dbtr?.PstlAdr?.AdrLine),
+            CntyNTw: []
+        };
+    }
+
 }
 
 isolated function getMT101AccountServicingInstitutionFromPain001Document(SwiftMxRecords:Pain001Document document) 
