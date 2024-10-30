@@ -3,10 +3,22 @@ import ballerinax/swiftmt as SwiftMtRecords;
 import ballerina/regex;
 import ballerina/time;
 
+# Create the block 1 of the MT message from the supplementary data of the MX message
+# Currently, this function is empty, but if we decide to add any logic to create the block 1 from the supplementary data,
+# we can add it here.
+# 
+# + supplementaryData - The supplementary data of the MX message
+# + return - The block 1 of the MT message or an error if the block 1 cannot be created
 isolated function createMtBlock1FromSupplementaryData(SwiftMxRecords:SupplementaryData1[]? supplementaryData) returns SwiftMtRecords:Block1? | error {
     return ();
 }
 
+# Create the block 2 of the MT message from the supplementary data of the MX message
+# Currently, this function extracts the message type from the supplementary data if it is not provided directly.
+# 
+# + mtMessageId - The message type of the MT message
+# + supplementaryData - The supplementary data of the MX message
+# + return - The block 2 of the MT message or an error if the block 2 cannot be created
 isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, SwiftMxRecords:SupplementaryData1[]? supplementaryData) returns SwiftMtRecords:Block2 | error {
     // TODO : Implement the function to create Block2 from SupplementaryData1
     
@@ -35,10 +47,20 @@ isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, Swift
     return result;
 }
 
+# Create the block 3 of the MT message from the supplementary data of the MX message
+# Currently, this function is empty, but if we decide to add any logic to create the block 3 from the supplementary data,
+# 
+# + supplementaryData - The supplementary data of the MX message
+# + return - The block 3 of the MT message or an error if the block 3 cannot be created
 isolated function createMtBlock3FromSupplementaryData(SwiftMxRecords:SupplementaryData1[]? supplementaryData) returns SwiftMtRecords:Block3? | error {
     return ();
 }
 
+# Create the block 5 of the MT message from the supplementary data of the MX message
+# Currently, this function is empty, but if we decide to add any logic to create the block 5 from the supplementary data,
+# 
+# + supplementaryData - The supplementary data of the MX message
+# + return - The block 5 of the MT message or an error if the block 5 cannot be created
 isolated function createMtBlock5FromSupplementaryData(SwiftMxRecords:SupplementaryData1[]? supplementaryData) returns SwiftMtRecords:Block5? | error {
     return ();
 }
@@ -59,6 +81,11 @@ isolated function getActiveOrHistoricCurrencyAndAmountValue(SwiftMxRecords:Activ
     return ccyAndAmount.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString();
 }
 
+# Convert an ISO date string to a Swift MT date record
+# 
+# + isoDate - The ISO date string
+# + number - The number of the date record
+# + return - The Swift MT date record or an error if the date cannot be converted
 isolated function convertISODateStringToSwiftMtDate(string isoDate, string number = "1") returns SwiftMtRecords:Dt | error {
     time:Utc isoTime = check time:utcFromString(isoDate);
     time:Civil civilTime = time:utcToCivil(isoTime);
@@ -77,14 +104,10 @@ isolated function convertISODateStringToSwiftMtDate(string isoDate, string numbe
     return result;
 }
 
-enum RemittanceInformationCode {
-    INVOICE = "INV",
-    INTERNATIONAL_PAYMENT_INSTRUCTION = "IPI",
-    REFERENCE_FOR_BENEFICIARY = "RFB",
-    REFERENCE_OF_CUSTOMER = "ROC",
-    TRADE_SERVICES_UTILITY_TRANSACTION = "TSU"
-};
-
+# Get the empty string if the value is null
+# 
+# + value - The value
+# + return - The value or an empty string if the value is null
 isolated function getEmptyStrIfNull(anydata? value) returns string {
     if (value == ()) {
         return "";
@@ -93,7 +116,11 @@ isolated function getEmptyStrIfNull(anydata? value) returns string {
     return value.toString();
 }
 
-
+# Get details of charges from the charge bearer type
+# 
+# + chargeBearer - The charge bearer type
+# + number - The number of the charge record
+# + return - The charge record
 isolated function getDetailsOfChargesFromChargeBearerType1Code(SwiftMxRecords:ChargeBearerType1Code? chargeBearer = (), string number = "1") returns SwiftMtRecords:Cd {
     string chargeBearerType = "";
 
@@ -121,6 +148,10 @@ isolated function getDetailsOfChargesFromChargeBearerType1Code(SwiftMxRecords:Ch
     return result;
 }
 
+# Convert a decimal number to a Swift Mt decimal number string
+# 
+# + number - The decimal number
+# + return - The Swift Mt decimal number string
 isolated function convertDecimalNumberToSwiftDecimal(decimal? number) returns string {
     if (number == ()) {
         return "";
@@ -129,6 +160,10 @@ isolated function convertDecimalNumberToSwiftDecimal(decimal? number) returns st
     return regex:replace(number.toString(), "\\.", ",");
 }
 
+# Convert the charges from the MX message to the MT71F or MT71G message
+# 
+# + charges - The charges from the MX message
+# + return - The MT71F or MT71G message or an error if the conversion fails
 isolated function convertCharges16toMT71a(SwiftMxRecords:Charges16[]? charges) returns (SwiftMtRecords:MT71F | SwiftMtRecords:MT71G)[] {
     (SwiftMtRecords:MT71F | SwiftMtRecords:MT71G)[] result = [];
 
@@ -163,6 +198,10 @@ isolated function convertCharges16toMT71a(SwiftMxRecords:Charges16[]? charges) r
     return result;
 }
 
+# Convert the charges from the MX message to the MT71F message
+# 
+# + charges - The charges from the MX message
+# + return - The MT71F message or an error if the conversion fails
 isolated function convertCharges16toMT71F(SwiftMxRecords:Charges16[]? charges) returns SwiftMtRecords:MT71F | error {
     (SwiftMtRecords:MT71F | SwiftMtRecords:MT71G)[] mt71a = convertCharges16toMT71a(charges);
 
@@ -175,6 +214,10 @@ isolated function convertCharges16toMT71F(SwiftMxRecords:Charges16[]? charges) r
     return error("Failed to convert Charges16 to MT71F");
 }
 
+# Convert the charges from the MX message to the MT71G message
+# 
+# + charges - The charges from the MX message
+# + return - The MT71G message or an error if the conversion fails
 isolated function convertCharges16toMT71G(SwiftMxRecords:Charges16[]? charges) returns SwiftMtRecords:MT71G | error {
     (SwiftMtRecords:MT71F | SwiftMtRecords:MT71G)[] mt71a = convertCharges16toMT71a(charges);
 
@@ -187,6 +230,11 @@ isolated function convertCharges16toMT71G(SwiftMxRecords:Charges16[]? charges) r
     return error("Failed to convert Charges16 to MT71G");
 }
 
+# Convert SwiftMx time to MT13C time
+# 
+# + SttlmTmIndctn - The settlement date time indication
+# + SttlmTmReq - The settlement time request
+# + return - The MT13C message or an error if the conversion fails
 isolated function convertTimeToMT13C(SwiftMxRecords:SettlementDateTimeIndication1? SttlmTmIndctn, SwiftMxRecords:SettlementTimeRequest2? SttlmTmReq) 
 returns SwiftMtRecords:MT13C? | error {
     string cd = "";
@@ -232,7 +280,11 @@ returns SwiftMtRecords:MT13C? | error {
     };
 }
 
-
+# Get the remittance information from the payment identification or remittance information
+# 
+# + PmtId - The payment identification
+# + RmtInf - The remittance information
+# + return - The MT70 message
 isolated function getRemitenceInformationFromPmtIdOrRmtInf(SwiftMxRecords:PaymentIdentification13? PmtId, SwiftMxRecords:RemittanceInformation22? RmtInf) returns SwiftMtRecords:MT70 {
 
     string name = "70";
@@ -248,6 +300,10 @@ isolated function getRemitenceInformationFromPmtIdOrRmtInf(SwiftMxRecords:Paymen
     return { name, Nrtv: {\#content, number} };
 }
 
+# Get the bank operation code from the payment type information
+# 
+# + PmtTpInf - The payment type information
+# + return - The bank operation code
 isolated function getBankOperationCodeFromPaymentTypeInformation22(SwiftMxRecords:PaymentTypeInformation28? PmtTpInf) returns string {
     if (PmtTpInf == ()) {
         return "";
@@ -271,6 +327,10 @@ isolated function getBankOperationCodeFromPaymentTypeInformation22(SwiftMxRecord
     
 }
 
+# Get the names array from the name string
+# 
+# + nameString - The name string
+# + return - The names array
 isolated function getNamesArrayFromNameString(string nameString) returns SwiftMtRecords:Nm[] {
     string[] names = regex:split(nameString, " ");
 
@@ -286,6 +346,11 @@ isolated function getNamesArrayFromNameString(string nameString) returns SwiftMt
     return result;
 }
 
+
+# Get the address lines from the addresses
+# 
+# + addresses - The addresses
+# + return - The address lines
 isolated function getMtAddressLinesFromMxAddresses(string[] addresses) returns SwiftMtRecords:AdrsLine[] {
     SwiftMtRecords:AdrsLine[] result = [];
 
@@ -293,6 +358,26 @@ isolated function getMtAddressLinesFromMxAddresses(string[] addresses) returns S
         result.push({
             \#content: addresses[i],
             number: (i + 1).toString()
+        });
+    }
+
+    return result;
+}
+
+# Get the country and town from the country and town
+# 
+# + country - The country
+# + town - The town
+# + return - The country and town
+isolated function getMtCountryAndTownFromMxCountryAndTown(string country, string town) returns SwiftMtRecords:CntyNTw[] {
+    SwiftMtRecords:CntyNTw[] result = [];
+
+    string countryAndTown = country + town;
+
+    if (countryAndTown != "") {
+        result.push({
+            \#content: countryAndTown,
+            number: "1"
         });
     }
 

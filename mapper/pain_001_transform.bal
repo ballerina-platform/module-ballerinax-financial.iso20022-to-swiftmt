@@ -1,11 +1,10 @@
 import ballerinax/swiftmt as SwiftMtRecords;
 import ballerinax/iso20022records as SwiftMxRecords;
 
-type MTFieldWithOptions record {|
-    string? name;
-    record {}? data;
-|};
-
+# Create the MT101 message from the Pain001 document
+# 
+# + document - The Pain001 document
+# + return - The MT101 message or an error if the transformation fails
 isolated function transformPain001DocumentToMT101(SwiftMxRecords:Pain001Document document) returns SwiftMtRecords:MT101Message | error {
 
     SwiftMxRecords:CustomerCreditTransferInitiationV12 cstmrCdtTrfInitn = document.CstmrCdtTrfInitn;
@@ -89,6 +88,14 @@ isolated function transformPain001DocumentToMT101(SwiftMxRecords:Pain001Document
     return message;
 }
 
+
+# Create the Transactions of the MT101 message
+# 
+# + mxTransactions - The MX transactions
+# + instructingParty - The instructing party
+# + orderingCustomer - The ordering customer
+# + accountServicingInstitution - The account servicing institution
+# + return - The MT101 transactions or an error if the transformation fails
 isolated function createMT101Transactions(
     SwiftMxRecords:PaymentInstruction44[] mxTransactions,
     SwiftMtRecords:MT50C? | SwiftMtRecords:MT50L? instructingParty,

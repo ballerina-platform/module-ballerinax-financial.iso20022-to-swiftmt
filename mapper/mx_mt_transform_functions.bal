@@ -1,6 +1,7 @@
 import ballerinax/iso20022records as SwiftMxRecords;
 
-isolated map<isolated function (record {}) returns MtMessage | error> mxToMtTransformFunctionMap = {
+# This map contains the functions pointers to transform functions for each MX message type
+final readonly & map<isolated function (record {}) returns MtMessage | error> mxToMtTransformFunctionMap = {
     PAIN001 : transformPain001Message,
     PACS008 : transformPacs008Message,
     PAIN008 : transformPain008Message
@@ -8,12 +9,20 @@ isolated map<isolated function (record {}) returns MtMessage | error> mxToMtTran
     // ... Add more functions here
 };
 
+# Transform the Pain001 message to Swift MT message
+# 
+# + mxMessage - The MX message record
+# + return - The MT message or an error if the transformation fails
 isolated function transformPain001Message(record {} mxMessage) returns MtMessage | error {
     SwiftMxRecords:Pain001Document pain001Document = <SwiftMxRecords:Pain001Document>mxMessage;
     MtMessage mtMessage = {mtTypeName: MT101, mtData: check transformPain001DocumentToMT101(pain001Document)};
     return mtMessage;
 }
 
+# Transform the Pacs008 message to Swift MT message
+# 
+# + mxMessage - The MX message record
+# + return - The MT message or an error if the transformation fails
 isolated function transformPacs008Message(record {} mxMessage) returns MtMessage | error {
     SwiftMxRecords:Pacs008Document pacs008Document = <SwiftMxRecords:Pacs008Document>mxMessage;
 
@@ -38,7 +47,10 @@ isolated function transformPacs008Message(record {} mxMessage) returns MtMessage
     return error("Unsupported PACS008 message type");
 }
 
-
+# Transform the Pain008 message to Swift MT message
+# 
+# + mxMessage - The MX message record
+# + return - The MT message or an error if the transformation fails
 isolated function transformPain008Message(record {} mxMessage) returns MtMessage | error {
     SwiftMxRecords:Pain008Document pain008Document = <SwiftMxRecords:Pain008Document>mxMessage;
     MtMessage mtMessage = {mtTypeName: MT104, mtData: check transformPain008DocumentToMT104(pain008Document)};

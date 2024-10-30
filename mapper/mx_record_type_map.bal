@@ -2,6 +2,7 @@ import ballerina/regex;
 import ballerinax/iso20022records as SwiftMxRecords;
 import ballerina/data.xmldata;
 
+# Define the MX record type map
 final readonly & map<typedesc<record {}>> mxRecordTypeMap = {
     PAIN001 : SwiftMxRecords:Pain001Document,
     PACS008 : SwiftMxRecords:Pacs008Document,
@@ -17,6 +18,7 @@ final readonly & map<typedesc<record {}>> mxRecordTypeMap = {
     CAMT052 : SwiftMxRecords:Camt052Document
 };
 
+# Define the namespace attribute key
 final string namespaceAttributeKey = "{http://www.w3.org/2000/xmlns/}xmlns";
 
 

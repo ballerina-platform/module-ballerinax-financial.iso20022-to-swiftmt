@@ -1,10 +1,18 @@
 import ballerinax/swiftmt as SwiftMtRecords;
 import ballerinax/iso20022records as SwiftMxRecords;
 
+# Gets the mt message type the PACS008 document should be transformed to
+# 
+# + document - The PACS008 document
+# + return - The mt message type as a string
 isolated function getPac008TransformType(SwiftMxRecords:Pacs008Document document) returns string {
     return MT103;
 }
 
+# Transforms a PACS008 document to an MT102 message
+# 
+# + document - The PACS008 document
+# + return - The MT102 message or an error if the transformation fails
 isolated function transformPacs008DocumentToMT102(SwiftMxRecords:Pacs008Document document) returns SwiftMtRecords:MT102Message | error {
     SwiftMxRecords:FIToFICustomerCreditTransferV12 fiToFiCstmrCdtTrf = document.FIToFICstmrCdtTrf;
 
@@ -26,6 +34,10 @@ isolated function transformPacs008DocumentToMT102(SwiftMxRecords:Pacs008Document
     return mtMessage;
 }
 
+# Transforms a PACS008 document to an MT102STP message
+# 
+# + document - The PACS008 document
+# + return - The MT102STP message or an error if the transformation fails
 isolated function transformPacs008DocumentToMT102STP(SwiftMxRecords:Pacs008Document document) returns SwiftMtRecords:MT102STPMessage | error {
     SwiftMxRecords:FIToFICustomerCreditTransferV12 fiToFiCstmrCdtTrf = document.FIToFICstmrCdtTrf;
 
@@ -47,6 +59,12 @@ isolated function transformPacs008DocumentToMT102STP(SwiftMxRecords:Pacs008Docum
     return mtMessage;
 }
 
+
+# Creates the block 4 of an MT102 message from a PACS008 document
+# 
+# + document - The PACS008 document
+# + isSTP - A boolean indicating whether the message is an STP message
+# + return - The block 4 of the MT102 message or an error if the transformation fails
 isolated function createMT102Block4(SwiftMxRecords:Pacs008Document document, boolean isSTP) returns SwiftMtRecords:MT102Block4 | SwiftMtRecords:MT102STPBlock4 | error {
     
     SwiftMxRecords:GroupHeader113 grpHdr = document.FIToFICstmrCdtTrf.GrpHdr;
@@ -169,6 +187,13 @@ isolated function createMT102Block4(SwiftMxRecords:Pacs008Document document, boo
     }
 }
 
+# Creates the transactions of an MT102 message from a PACS008 document
+# 
+# + mxTransactions - The credit transfer transactions
+# + orderingCustomer - The ordering customer
+# + orderingInstitution - The ordering institution
+# + isSTP - A boolean indicating whether the message is an STP message
+# + return - The transactions of the MT102 message or an error if the transformation fails
 isolated function createMT102Transactions(
     SwiftMxRecords:CreditTransferTransaction64[] mxTransactions,
     SwiftMtRecords:MT50A? | SwiftMtRecords:MT50F? | SwiftMtRecords:MT50K? orderingCustomer,
@@ -268,11 +293,18 @@ returns SwiftMtRecords:MT102Transaction[] | SwiftMtRecords:MT102STPTransaction[]
         return transactions;
     }
 }
+
+# This enum represents the different types of MT103 messages
 enum MT103Type {
     MT103,
     MT103_STP,
     MT103_REMIT
 }
+
+# Transforms a PACS008 document to an MT103 message
+# 
+# + document - The PACS008 document
+# + return - The MT103 message or an error if the transformation fails
 isolated function transformPacs008DocumentToMT103(SwiftMxRecords:Pacs008Document document) returns SwiftMtRecords:MT103Message | error {
     SwiftMxRecords:FIToFICustomerCreditTransferV12 fiToFiCstmrCdtTrf = document.FIToFICstmrCdtTrf;
 
@@ -294,6 +326,10 @@ isolated function transformPacs008DocumentToMT103(SwiftMxRecords:Pacs008Document
     return mtMessage;
 }
 
+# Transforms a PACS008 document to an MT103STP message
+# 
+# + document - The PACS008 document
+# + return - The MT103STP message or an error if the transformation fails
 isolated function transformPacs008DocumentToMT103STP(SwiftMxRecords:Pacs008Document document) returns SwiftMtRecords:MT103STPMessage | error {
     SwiftMxRecords:FIToFICustomerCreditTransferV12 fiToFiCstmrCdtTrf = document.FIToFICstmrCdtTrf;
 
@@ -315,6 +351,10 @@ isolated function transformPacs008DocumentToMT103STP(SwiftMxRecords:Pacs008Docum
     return mtMessage;
 }
 
+# Transforms a PACS008 document to an MT103REMIT message
+# 
+# + document - The PACS008 document
+# + return - The MT103REMIT message or an error if the transformation fails
 isolated function transformPacs008DocumentToMT103REMIT(SwiftMxRecords:Pacs008Document document) returns SwiftMtRecords:MT103REMITMessage | error {
     SwiftMxRecords:FIToFICustomerCreditTransferV12 fiToFiCstmrCdtTrf = document.FIToFICstmrCdtTrf;
 
@@ -336,6 +376,11 @@ isolated function transformPacs008DocumentToMT103REMIT(SwiftMxRecords:Pacs008Doc
     return mtMessage;
 }
 
+# Creates the block 4 of an MT103 message from a PACS008 document
+# 
+# + document - The PACS008 document
+# + messageType - The type of the MT103 message
+# + return - The block 4 of the MT103 message or an error if the transformation fails
 isolated function createMT103Block4(SwiftMxRecords:Pacs008Document document, MT103Type messageType) returns SwiftMtRecords:MT103Block4 | SwiftMtRecords:MT103STPBlock4 | SwiftMtRecords:MT103REMITBlock4 | error {
     SwiftMxRecords:FIToFICustomerCreditTransferV12 fiToFiCstmrCdtTrf = document.FIToFICstmrCdtTrf;
     SwiftMxRecords:CreditTransferTransaction64[] transactions = fiToFiCstmrCdtTrf.CdtTrfTxInf;

@@ -35,6 +35,10 @@ const string MT210 = "MT210";
 const string MT292 = "MT292";
 const string MT295 = "MT295";
 
+# This record is used to store any type of MT message record and the type name
+# 
+# + mtTypeName - The MT record type name
+# + mtData - The MT record
 type MtMessage record {|
     // The MT record type name
     string mtTypeName;
@@ -42,6 +46,10 @@ type MtMessage record {|
     record{} mtData;
 |};
 
+# This record is used to store any type of MX message record and the type name
+# 
+# + mxTypeName - The MX record type name
+# + mxData - The MX record
 type MxMessage record {|
     // The MX record type name
     string mxTypeName;

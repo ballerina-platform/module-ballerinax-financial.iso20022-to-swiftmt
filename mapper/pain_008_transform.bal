@@ -1,6 +1,10 @@
 import ballerinax/swiftmt as SwiftMtRecords;
 import ballerinax/iso20022records as SwiftMxRecords;
 
+# Create the MT104 message from the Pain008 document
+# 
+# + document - The Pain008 document
+# + return - The MT104 message or an error if the transformation fails
 isolated function transformPain008DocumentToMT104(SwiftMxRecords:Pain008Document document) returns SwiftMtRecords:MT104Message | error {
     SwiftMxRecords:CustomerDirectDebitInitiationV11 cstmrDrctDbtInitn = document.CstmrDrctDbtInitn;
 
@@ -145,6 +149,13 @@ isolated function transformPain008DocumentToMT104(SwiftMxRecords:Pain008Document
     };
 }
 
+# Create the MT104 transactions from the Pain008 document
+# 
+# + mxTransactions - The Pain008 transactions
+# + instrutingParty - The instructing party
+# + creditor - The creditor
+# + creditorsBank - The creditor's bank
+# + return - The MT104 transactions
 isolated function createMT104Transactions(
     SwiftMxRecords:PaymentInstruction45[] mxTransactions,
     SwiftMtRecords:MT50C? | SwiftMtRecords:MT50L? instrutingParty,
