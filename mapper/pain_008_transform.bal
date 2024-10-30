@@ -295,5 +295,3 @@ isolated function createMT104Transactions(
 
     return transactions;
 }
-
-
