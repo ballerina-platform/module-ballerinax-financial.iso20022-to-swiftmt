@@ -51,13 +51,6 @@ const string MT210 = "MT210";
 const string MT292 = "MT292";
 const string MT295 = "MT295";
 
-# Code number of the message fields
-const string MT20 = "20";
-const string MT21R = "21R";
-const string MT28D = "28D";
-const string MT30 = "30";
-const string MT25 = "25";
-
 # This record is used to store any type of MT message record and the type name
 #
 # + mtTypeName - The MT record type name

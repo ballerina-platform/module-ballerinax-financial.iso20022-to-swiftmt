@@ -29,21 +29,21 @@ function transformPain001DocumentToMT101(SwiftMxRecords:Pain001Document document
         block3: (),
         block4: {
             MT20: {
-                name: MT20,
+                name: "20",
                 msgId: {
                     \#content: ((document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId != ()) ? document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId.toString() : ""),
                     number: "1"
                 }
             },
             MT21R: {
-                name: MT21R,
+                name: "21R",
                 Ref: {
                     \#content: document.CstmrCdtTrfInitn.GrpHdr.MsgId,
                     number: "1"
                 }
             },
             MT28D: {
-                name: MT28D,
+                name: "28D",
                 MsgIdx: {
                     \#content: "",
                     number: "1"
@@ -54,11 +54,11 @@ function transformPain001DocumentToMT101(SwiftMxRecords:Pain001Document document
                 }
             },
             MT30: {
-                name: MT30,
+                name: "30",
                 Dt: check convertISODateStringToSwiftMtDate(document.CstmrCdtTrfInitn.PmtInf[0].ReqdExctnDt.Dt.toString(), "1")
             },
             MT25: {
-                name: MT25,
+                name: "25",
                 Auth: {
                     \#content: "",
                     number: "1"
