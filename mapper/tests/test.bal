@@ -261,3 +261,116 @@ function testTransformPacs008DocumentToMT102() returns error? {
     }
 }
 
+@test:Config {}
+function testTransformPacs008DocumentToMT102STP() returns error? {
+    xml documentXML = xml `
+        <Pacs008Document>
+            <FIToFICstmrCdtTrf>
+                <GrpHdr>
+                    <MsgId>ABC123456789</MsgId>
+                    <CreDtTm>2024-11-04T12:30:00Z</CreDtTm>
+                    <NbOfTxs>1</NbOfTxs>
+                    <SttlmInf>
+                        <SttlmMtd></SttlmMtd>
+                    </SttlmInf>
+                    <InstgAgt>
+                        <FinInstnId>
+                            <BIC>DEUTDEFF</BIC>
+                        </FinInstnId>
+                    </InstgAgt>
+                    <InstdAgt>
+                        <FinInstnId>
+                            <BIC>CHASUS33</BIC>
+                        </FinInstnId>
+                    </InstdAgt>
+                </GrpHdr>
+                <CdtTrfTxInf>
+                    <PmtId>
+                        <InstrId>INSTR123456789</InstrId>
+                        <EndToEndId>E2E123456789</EndToEndId>
+                        <TxId>TX123456789</TxId>
+                    </PmtId>
+                    <IntrBkSttlmAmt>\
+                        <ActiveCurrencyAndAmount_SimpleType Ccy="USD">
+                            <ActiveCurrencyAndAmount_SimpleType>100.00</ActiveCurrencyAndAmount_SimpleType>
+                        </ActiveCurrencyAndAmount_SimpleType>
+                    </IntrBkSttlmAmt>
+                    <IntrBkSttlmDt>2024-11-04</IntrBkSttlmDt>
+                    <ChrgsInf>
+                        <Amt>\
+                            <ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="USD">
+                                <ActiveOrHistoricCurrencyAndAmount_SimpleType>5.00</ActiveOrHistoricCurrencyAndAmount_SimpleType>
+                            </ActiveOrHistoricCurrencyAndAmount_SimpleType>
+                        </Amt>
+                        <Agt>
+                            <FinInstnId>
+                                <BIC>DEUTDEFF</BIC>
+                            </FinInstnId>
+                        </Agt>
+                        <Tp>
+                            <Prtry>CHRG</Prtry>
+                            <Cd>CRED</Cd>
+                        </Tp>
+                    </ChrgsInf>
+                    <ChrgBr></ChrgBr>
+                    <Dbtr>
+                        <Nm>John Doe</Nm>
+                        <PstlAdr>
+                            <StrtNm>Main Street</StrtNm>
+                            <BldgNb>1</BldgNb>
+                            <PstCd>12345</PstCd>
+                            <TwnNm>Sampletown</TwnNm>
+                            <Ctry>US</Ctry>
+                        </PstlAdr>
+                    </Dbtr>
+                    <DbtrAcct>
+                        <Id>
+                            <IBAN>US12345678901234567890</IBAN>
+                        </Id>
+                    </DbtrAcct>
+                    <DbtrAgt>
+                        <FinInstnId>
+                            <BIC>DEUTDEFF</BIC>
+                        </FinInstnId>
+                    </DbtrAgt>
+                    <CdtrAgt>
+                        <FinInstnId>
+                            <BIC>CHASUS33</BIC>
+                        </FinInstnId>
+                    </CdtrAgt>
+                    <Cdtr>
+                        <Nm>Jane Smith</Nm>
+                        <PstlAdr>
+                            <StrtNm>Second Street</StrtNm>
+                            <BldgNb>2</BldgNb>
+                            <PstCd>54321</PstCd>
+                            <TwnNm>Example City</TwnNm>
+                            <Ctry>US</Ctry>
+                        </PstlAdr>
+                    </Cdtr>
+                    <CdtrAcct>
+                        <Id>
+                            <IBAN>US09876543210987654321</IBAN>
+                        </Id>
+                    </CdtrAcct>
+                    <RmtInf>
+                        <Ustrd>Payment for invoice #12345</Ustrd>
+                    </RmtInf>
+                </CdtTrfTxInf>
+            </FIToFICstmrCdtTrf>
+        </Pacs008Document>
+    `;
+
+    pacsIsoRecord:Pacs008Document pacs008Message =
+        <pacsIsoRecord:Pacs008Document>(check swiftmx:fromIso20022(documentXML, pacsIsoRecord:Pacs008Document));
+    swiftmt:MT102STPMessage|error mt102stpMessage = transformPacs008DocumentToMT102STP(pacs008Message);
+
+    if (mt102stpMessage is swiftmt:MT102STPMessage) {
+        test:assertEquals(mt102stpMessage.block2.messageType, "102STP");
+    } else {
+        test:assertFail("Error occurred while transforming Pacs008 to MT102");
+    }
+}
+
+
+

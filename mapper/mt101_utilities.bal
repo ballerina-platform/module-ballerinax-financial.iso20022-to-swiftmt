@@ -14,22 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/financial.iso20022.payment_initiation as SwiftMxRecords;
+import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
 # Get the instructing party from the Pain001 document.
 #
 # + document - The Pain001 document
 # + return - The instructing party or an empty record
-isolated function getMT101InstructingPartyFromPain001Document(SwiftMxRecords:Pain001Document document)
+isolated function getMT101InstructingPartyFromPain001Document(painIsoRecord:Pain001Document document)
 returns swiftmt:MT50C?|swiftmt:MT50L? {
-    SwiftMxRecords:Party52Choice? id = document.CstmrCdtTrfInitn.GrpHdr.InitgPty.Id;
+    painIsoRecord:Party52Choice? id = document.CstmrCdtTrfInitn.GrpHdr.InitgPty.Id;
 
     if (id is ()) {
         return ();
     }
 
-    SwiftMxRecords:OrganisationIdentification39? OrgId = id?.OrgId;
+    painIsoRecord:OrganisationIdentification39? OrgId = id?.OrgId;
 
     if (OrgId != ()) {
         return {
@@ -41,10 +41,10 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
         };
     }
 
-    SwiftMxRecords:PersonIdentification18? PrvtId = id?.PrvtId;
+    painIsoRecord:PersonIdentification18? PrvtId = id?.PrvtId;
 
     if (PrvtId != ()) {
-        SwiftMxRecords:GenericPersonIdentification2[]? Othr = id?.PrvtId?.Othr;
+        painIsoRecord:GenericPersonIdentification2[]? Othr = id?.PrvtId?.Othr;
 
         if (Othr != () && Othr.length() > 0) {
             return {
@@ -64,16 +64,16 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
 #
 # + document - The Pain001 document
 # + return - The ordering customer or an empty record
-isolated function getMT101OrderingCustomerFromPain001Document(SwiftMxRecords:Pain001Document document)
+isolated function getMT101OrderingCustomerFromPain001Document(painIsoRecord:Pain001Document document)
 returns swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? {
-    SwiftMxRecords:CustomerCreditTransferInitiationV12 cstmrDrctDbtInitn = document.CstmrCdtTrfInitn;
-    SwiftMxRecords:PaymentInstruction44[] payments = cstmrDrctDbtInitn.PmtInf;
+    painIsoRecord:CustomerCreditTransferInitiationV12 cstmrDrctDbtInitn = document.CstmrCdtTrfInitn;
+    painIsoRecord:PaymentInstruction44[] payments = cstmrDrctDbtInitn.PmtInf;
 
     if (payments.length() == 0) {
         return ();
     }
 
-    SwiftMxRecords:PaymentInstruction44 firstTransaction = payments[0];
+    painIsoRecord:PaymentInstruction44 firstTransaction = payments[0];
 
     if (firstTransaction.Dbtr.Nm != () && firstTransaction.Dbtr.PstlAdr != ()) {
         return <swiftmt:MT50F>{
@@ -102,7 +102,7 @@ returns swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? {
 #
 # + document - The Pain001 document
 # + return - The account servicing institution or an empty record
-isolated function getMT101AccountServicingInstitutionFromPain001Document(SwiftMxRecords:Pain001Document document)
+isolated function getMT101AccountServicingInstitutionFromPain001Document(painIsoRecord:Pain001Document document)
 returns swiftmt:MT52A?|swiftmt:MT52C? {
     return ();
 }
@@ -111,7 +111,7 @@ returns swiftmt:MT52A?|swiftmt:MT52C? {
 #
 # + mxTransaction - A transaction in the Pain001 document
 # + return - The transaction intermediary or an empty record
-isolated function getMT101TransactionIntermediaryFromPain001Document(SwiftMxRecords:PaymentInstruction44 mxTransaction)
+isolated function getMT101TransactionIntermediaryFromPain001Document(painIsoRecord:PaymentInstruction44 mxTransaction)
 returns swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? {
     return ();
 }
@@ -120,7 +120,7 @@ returns swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? {
 #
 # + mxTransaction - A transaction in the Pain001 document
 # + return - The transaction acount with institution or an empty record
-isolated function getMT101TransactionAcountWithInstitution(SwiftMxRecords:PaymentInstruction44 mxTransaction)
+isolated function getMT101TransactionAcountWithInstitution(painIsoRecord:PaymentInstruction44 mxTransaction)
 returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
     return ();
 }
@@ -129,7 +129,7 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
 #
 # + mxTransaction - A transaction in the Pain001 document
 # + return - The transaction beneficiary or an empty record
-isolated function getMT101TransactionBeneficiary(SwiftMxRecords:PaymentInstruction44 mxTransaction)
+isolated function getMT101TransactionBeneficiary(painIsoRecord:PaymentInstruction44 mxTransaction)
 returns swiftmt:MT59|swiftmt:MT59A?|swiftmt:MT59F? {
     return ();
 }
