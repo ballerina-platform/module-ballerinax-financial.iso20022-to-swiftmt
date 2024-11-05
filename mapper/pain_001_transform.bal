@@ -14,14 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/financial.iso20022.payment_initiation as SwiftMxRecords;
+import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
 # Create the MT101 message from the Pain001 document
 #
 # + document - The Pain001 document
 # + return - The MT101 message or an error if the transformation fails
-function transformPain001DocumentToMT101(SwiftMxRecords:Pain001Document document) returns swiftmt:MT101Message|error => let swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT101InstructingPartyFromPain001Document(document), swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? orderingCustomer = getMT101OrderingCustomerFromPain001Document(document), swiftmt:MT52A?|swiftmt:MT52C? accountServicingInstitution = getMT101AccountServicingInstitutionFromPain001Document(document) in {
+function transformPain001DocumentToMT101(painIsoRecord:Pain001Document document) returns swiftmt:MT101Message|error => let swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT101InstructingPartyFromPain001Document(document), swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? orderingCustomer = getMT101OrderingCustomerFromPain001Document(document), swiftmt:MT52A?|swiftmt:MT52C? accountServicingInstitution = getMT101AccountServicingInstitutionFromPain001Document(document) in {
         block1: check createMtBlock1FromSupplementaryData(document.CstmrCdtTrfInitn.SplmtryData),
         block2: {
             messageType: "101"
@@ -84,15 +84,15 @@ function transformPain001DocumentToMT101(SwiftMxRecords:Pain001Document document
 # + accountServicingInstitution - The account servicing institution
 # + return - The MT101 transactions or an error if the transformation fails
 isolated function createMT101Transactions(
-        SwiftMxRecords:PaymentInstruction44[] mxTransactions,
+        painIsoRecord:PaymentInstruction44[] mxTransactions,
         swiftmt:MT50C?|swiftmt:MT50L? instructingParty,
         swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? orderingCustomer,
         swiftmt:MT52A?|swiftmt:MT52C? accountServicingInstitution
 ) returns swiftmt:MT101Transaction[]|error {
     // Create the Transactions of the MT101 message
     swiftmt:MT101Transaction[] transactions = [];
-    foreach SwiftMxRecords:PaymentInstruction44 item in mxTransactions {
-        SwiftMxRecords:CreditTransferTransaction61 creditTransferTransaction = item.CdtTrfTxInf[0];
+    foreach painIsoRecord:PaymentInstruction44 item in mxTransactions {
+        painIsoRecord:CreditTransferTransaction61 creditTransferTransaction = item.CdtTrfTxInf[0];
 
         swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? intermediary = getMT101TransactionIntermediaryFromPain001Document(item);
         swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? accountWithInstitution = getMT101TransactionAcountWithInstitution(item);
