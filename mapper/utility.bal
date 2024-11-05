@@ -14,10 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// import ballerina/io;
 import ballerina/regex;
 import ballerina/time;
-import ballerinax/financial.iso20022.payment_initiation as SwiftMxRecords;
-import ballerinax/swiftmt as SwiftMtRecords;
+import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
+import ballerinax/financial.swift.mt as swiftmt;
 
 # Create the block 1 of the MT message from the supplementary data of the MX message
 # Currently, this function is empty, but if we decide to add any logic to create the block 1 from the supplementary data,
@@ -25,7 +26,7 @@ import ballerinax/swiftmt as SwiftMtRecords;
 #
 # + supplementaryData - The supplementary data of the MX message
 # + return - The block 1 of the MT message or an error if the block 1 cannot be created
-isolated function createMtBlock1FromSupplementaryData(SwiftMxRecords:SupplementaryData1[]? supplementaryData) returns SwiftMtRecords:Block1?|error {
+isolated function createMtBlock1FromSupplementaryData(painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block1?|error {
     return ();
 }
 
@@ -35,7 +36,7 @@ isolated function createMtBlock1FromSupplementaryData(SwiftMxRecords:Supplementa
 # + mtMessageId - The message type of the MT message
 # + supplementaryData - The supplementary data of the MX message
 # + return - The block 2 of the MT message or an error if the block 2 cannot be created
-isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, SwiftMxRecords:SupplementaryData1[]? supplementaryData) returns SwiftMtRecords:Block2|error {
+isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block2|error {
     // TODO : Implement the function to create Block2 from SupplementaryData1
 
     string messageType = "";
@@ -56,7 +57,7 @@ isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, Swift
         return error("Failed to identify the message type");
     }
 
-    SwiftMtRecords:Block2 result = {
+    swiftmt:Block2 result = {
         messageType: messageType
     };
 
@@ -68,7 +69,7 @@ isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, Swift
 #
 # + supplementaryData - The supplementary data of the MX message
 # + return - The block 3 of the MT message or an error if the block 3 cannot be created
-isolated function createMtBlock3FromSupplementaryData(SwiftMxRecords:SupplementaryData1[]? supplementaryData) returns SwiftMtRecords:Block3?|error {
+isolated function createMtBlock3FromSupplementaryData(painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block3?|error {
     return ();
 }
 
@@ -77,11 +78,11 @@ isolated function createMtBlock3FromSupplementaryData(SwiftMxRecords:Supplementa
 #
 # + supplementaryData - The supplementary data of the MX message
 # + return - The block 5 of the MT message or an error if the block 5 cannot be created
-isolated function createMtBlock5FromSupplementaryData(SwiftMxRecords:SupplementaryData1[]? supplementaryData) returns SwiftMtRecords:Block5?|error {
+isolated function createMtBlock5FromSupplementaryData(painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block5?|error {
     return ();
 }
 
-isolated function getActiveOrHistoricCurrencyAndAmountCcy(SwiftMxRecords:ActiveOrHistoricCurrencyAndAmount? ccyAndAmount) returns string {
+isolated function getActiveOrHistoricCurrencyAndAmountCcy(painIsoRecord:ActiveOrHistoricCurrencyAndAmount? ccyAndAmount) returns string {
     if (ccyAndAmount == ()) {
         return "";
     }
@@ -89,7 +90,7 @@ isolated function getActiveOrHistoricCurrencyAndAmountCcy(SwiftMxRecords:ActiveO
     return ccyAndAmount.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy.toString();
 }
 
-isolated function getActiveOrHistoricCurrencyAndAmountValue(SwiftMxRecords:ActiveOrHistoricCurrencyAndAmount? ccyAndAmount) returns string {
+isolated function getActiveOrHistoricCurrencyAndAmountValue(painIsoRecord:ActiveOrHistoricCurrencyAndAmount? ccyAndAmount) returns string {
     if (ccyAndAmount == ()) {
         return "";
     }
@@ -102,7 +103,7 @@ isolated function getActiveOrHistoricCurrencyAndAmountValue(SwiftMxRecords:Activ
 # + date - The ISO date string
 # + number - The number of the date record
 # + return - The Swift MT date record or an error if the date cannot be converted
-isolated function convertISODateStringToSwiftMtDate(string date, string number = "1") returns SwiftMtRecords:Dt|error {
+isolated function convertISODateStringToSwiftMtDate(string date, string number = "1") returns swiftmt:Dt|error {
 
     string isoDate = date;
     if !isoDate.includes("T") {
@@ -116,8 +117,8 @@ isolated function convertISODateStringToSwiftMtDate(string date, string number =
     string day = civilTime.day < 10 ? "0" + civilTime.day.toString() : civilTime.day.toString();
     string swiftMtDate = year + month + day;
 
-    SwiftMtRecords:Dt result = {
-        \#content: swiftMtDate,
+    swiftmt:Dt result = {
+        content: swiftMtDate,
         number: number
     };
 
@@ -141,27 +142,27 @@ isolated function getEmptyStrIfNull(anydata? value) returns string {
 # + chargeBearer - The charge bearer type
 # + number - The number of the charge record
 # + return - The charge record
-isolated function getDetailsOfChargesFromChargeBearerType1Code(SwiftMxRecords:ChargeBearerType1Code? chargeBearer = (), string number = "1") returns SwiftMtRecords:Cd {
+isolated function getDetailsOfChargesFromChargeBearerType1Code(painIsoRecord:ChargeBearerType1Code? chargeBearer = (), string number = "1") returns swiftmt:Cd {
     string chargeBearerType = "";
 
     if (chargeBearer != ()) {
         match chargeBearer {
-            SwiftMxRecords:CRED => {
+            painIsoRecord:CRED => {
                 chargeBearerType = "BEN";
             }
 
-            SwiftMxRecords:DEBT => {
+            painIsoRecord:DEBT => {
                 chargeBearerType = "OUR";
             }
 
-            SwiftMxRecords:SHAR => {
+            painIsoRecord:SHAR => {
                 chargeBearerType = "SHA";
             }
         }
     }
 
-    SwiftMtRecords:Cd result = {
-        \#content: chargeBearerType,
+    swiftmt:Cd result = {
+        content: chargeBearerType,
         number: number
     };
 
@@ -184,30 +185,30 @@ isolated function convertDecimalNumberToSwiftDecimal(decimal? number) returns st
 #
 # + charges - The charges from the MX message
 # + return - The MT71F or MT71G message or an error if the conversion fails
-isolated function convertCharges16toMT71a(SwiftMxRecords:Charges16[]? charges) returns (SwiftMtRecords:MT71F|SwiftMtRecords:MT71G)[] {
-    (SwiftMtRecords:MT71F|SwiftMtRecords:MT71G)[] result = [];
+isolated function convertCharges16toMT71a(painIsoRecord:Charges16[]? charges) returns (swiftmt:MT71F|swiftmt:MT71G)[] {
+    (swiftmt:MT71F|swiftmt:MT71G)[] result = [];
 
     if (charges == ()) {
         return result;
     }
 
-    foreach SwiftMxRecords:Charges16 charge in charges {
+    foreach painIsoRecord:Charges16 charge in charges {
         match charge.Tp?.Cd {
             "CRED" => {
-                SwiftMtRecords:MT71F mt71f = {
+                swiftmt:MT71F mt71f = {
                     name: "71F",
-                    Ccy: {\#content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: "1"},
-                    Amnt: {\#content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: "1"}
+                    Ccy: {content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: "1"},
+                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: "1"}
                 };
 
                 result.push(mt71f);
             }
 
             "DEBT" => {
-                SwiftMtRecords:MT71G mt71g = {
+                swiftmt:MT71G mt71g = {
                     name: "71G",
-                    Ccy: {\#content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: "1"},
-                    Amnt: {\#content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: "1"}
+                    Ccy: {content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: "1"},
+                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: "1"}
                 };
 
                 result.push(mt71g);
@@ -222,12 +223,12 @@ isolated function convertCharges16toMT71a(SwiftMxRecords:Charges16[]? charges) r
 #
 # + charges - The charges from the MX message
 # + return - The MT71F message or an error if the conversion fails
-isolated function convertCharges16toMT71F(SwiftMxRecords:Charges16[]? charges) returns SwiftMtRecords:MT71F|error {
-    (SwiftMtRecords:MT71F|SwiftMtRecords:MT71G)[] mt71a = convertCharges16toMT71a(charges);
+isolated function convertCharges16toMT71F(painIsoRecord:Charges16[]? charges) returns swiftmt:MT71F|error {
+    (swiftmt:MT71F|swiftmt:MT71G)[] mt71a = convertCharges16toMT71a(charges);
 
-    foreach (SwiftMtRecords:MT71F|SwiftMtRecords:MT71G) e in mt71a {
-        if (e is SwiftMtRecords:MT71F) {
-            return check e.ensureType(SwiftMtRecords:MT71F);
+    foreach (swiftmt:MT71F|swiftmt:MT71G) e in mt71a {
+        if (e is swiftmt:MT71F) {
+            return check e.ensureType(swiftmt:MT71F);
         }
     }
 
@@ -238,32 +239,32 @@ isolated function convertCharges16toMT71F(SwiftMxRecords:Charges16[]? charges) r
 #
 # + charges - The charges from the MX message
 # + return - The MT71G message or an error if the conversion fails
-isolated function convertCharges16toMT71G(SwiftMxRecords:Charges16[]? charges) returns SwiftMtRecords:MT71G|error {
-    (SwiftMtRecords:MT71F|SwiftMtRecords:MT71G)[] mt71a = convertCharges16toMT71a(charges);
+isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges) returns swiftmt:MT71G|error {
+    (swiftmt:MT71F|swiftmt:MT71G)[] mt71a = convertCharges16toMT71a(charges);
 
-    foreach (SwiftMtRecords:MT71F|SwiftMtRecords:MT71G) e in mt71a {
-        if (e is SwiftMtRecords:MT71G) {
-            return check e.ensureType(SwiftMtRecords:MT71G);
+    foreach (swiftmt:MT71F|swiftmt:MT71G) e in mt71a {
+        if (e is swiftmt:MT71G) {
+            return check e.ensureType(swiftmt:MT71G);
         }
     }
 
     return error("Failed to convert Charges16 to MT71G");
 }
 
-# Convert SwiftMx time to MT13C time
+# Convert swiftmx time to MT13C time
 #
 # + SttlmTmIndctn - The settlement date time indication
 # + SttlmTmReq - The settlement time request
 # + return - The MT13C message or an error if the conversion fails
-isolated function convertTimeToMT13C(SwiftMxRecords:SettlementDateTimeIndication1? SttlmTmIndctn, SwiftMxRecords:SettlementTimeRequest2? SttlmTmReq)
-returns SwiftMtRecords:MT13C?|error {
+isolated function convertTimeToMT13C(painIsoRecord:SettlementDateTimeIndication1? SttlmTmIndctn, painIsoRecord:SettlementTimeRequest2? SttlmTmReq)
+returns swiftmt:MT13C?|error {
     string cd = "";
     string tm = "";
     string sgn = "";
     string tmOfst = "";
 
-    isolated function (SwiftMxRecords:ISOTime?|SwiftMxRecords:ISODateTime?) returns (string|error) getTime =
-    isolated function(SwiftMxRecords:ISOTime?|SwiftMxRecords:ISODateTime? time) returns (string|error) {
+    isolated function (painIsoRecord:ISOTime?|painIsoRecord:ISODateTime?) returns (string|error) getTime =
+    isolated function(painIsoRecord:ISOTime?|painIsoRecord:ISODateTime? time) returns (string|error) {
         if (time == ()) {
             return "";
         }
@@ -277,14 +278,14 @@ returns SwiftMtRecords:MT13C?|error {
         return hour + minute;
     };
 
-    if (SttlmTmReq is SwiftMxRecords:SettlementTimeRequest2 && SttlmTmReq.CLSTm is SwiftMxRecords:ISOTime) {
+    if (SttlmTmReq is painIsoRecord:SettlementTimeRequest2 && SttlmTmReq.CLSTm is painIsoRecord:ISOTime) {
         cd = "CLSTIME";
         tm = check getTime(SttlmTmReq.CLSTm);
-    } else if (SttlmTmIndctn is SwiftMxRecords:SettlementDateTimeIndication1) {
-        if (SttlmTmIndctn.CdtDtTm is SwiftMxRecords:ISODateTime) {
+    } else if (SttlmTmIndctn is painIsoRecord:SettlementDateTimeIndication1) {
+        if (SttlmTmIndctn.CdtDtTm is painIsoRecord:ISODateTime) {
             cd = "RNCTIME";
             tm = check getTime(SttlmTmIndctn.CdtDtTm);
-        } else if (SttlmTmIndctn.DbtDtTm is SwiftMxRecords:ISODateTime) {
+        } else if (SttlmTmIndctn.DbtDtTm is painIsoRecord:ISODateTime) {
             cd = "SNDTIME";
             tm = check getTime(SttlmTmIndctn.DbtDtTm);
         }
@@ -292,10 +293,10 @@ returns SwiftMtRecords:MT13C?|error {
 
     return {
         name: "13C",
-        Cd: {\#content: cd, number: "1"},
-        Tm: {\#content: tm, number: "1"},
-        Sgn: {\#content: sgn, number: "1"},
-        TmOfst: {\#content: tmOfst, number: "1"}
+        Cd: {content: cd, number: "1"},
+        Tm: {content: tm, number: "1"},
+        Sgn: {content: sgn, number: "1"},
+        TmOfst: {content: tmOfst, number: "1"}
     };
 }
 
@@ -304,38 +305,38 @@ returns SwiftMtRecords:MT13C?|error {
 # + PmtId - The payment identification
 # + RmtInf - The remittance information
 # + return - The MT70 message
-isolated function getRemitenceInformationFromPmtIdOrRmtInf(SwiftMxRecords:PaymentIdentification13? PmtId, SwiftMxRecords:RemittanceInformation22? RmtInf) returns SwiftMtRecords:MT70 {
+isolated function getRemitenceInformationFromPmtIdOrRmtInf(painIsoRecord:PaymentIdentification13? PmtId, painIsoRecord:RemittanceInformation22? RmtInf) returns swiftmt:MT70 {
 
     string name = "70";
-    string \#content = "";
+    string content = "";
     string number = "1";
 
     if (RmtInf != ()) {
-        \#content = getEmptyStrIfNull(RmtInf.Ustrd);
+        content = getEmptyStrIfNull(RmtInf.Ustrd);
     } else if (PmtId != ()) {
-        \#content = getEmptyStrIfNull(PmtId.InstrId);
+        content = getEmptyStrIfNull(PmtId.InstrId);
     }
 
-    return {name, Nrtv: {\#content, number}};
+    return {name, Nrtv: {content, number}};
 }
 
 # Get the bank operation code from the payment type information
 #
 # + PmtTpInf - The payment type information
 # + return - The bank operation code
-isolated function getBankOperationCodeFromPaymentTypeInformation22(SwiftMxRecords:PaymentTypeInformation28? PmtTpInf) returns string {
+isolated function getBankOperationCodeFromPaymentTypeInformation22(painIsoRecord:PaymentTypeInformation28? PmtTpInf) returns string {
     if (PmtTpInf == ()) {
         return "";
     }
 
-    SwiftMxRecords:ServiceLevel8Choice[]? svcLvl = PmtTpInf.SvcLvl;
+    painIsoRecord:ServiceLevel8Choice[]? svcLvl = PmtTpInf.SvcLvl;
 
     if (svcLvl == ()) {
         return "";
     }
 
     if (svcLvl.length() > 0) {
-        SwiftMxRecords:ServiceLevel8Choice svcLvl0 = svcLvl[0];
+        painIsoRecord:ServiceLevel8Choice svcLvl0 = svcLvl[0];
 
         if (svcLvl0.Cd != ()) {
             return svcLvl0.Cd.toString();
@@ -350,14 +351,14 @@ isolated function getBankOperationCodeFromPaymentTypeInformation22(SwiftMxRecord
 #
 # + nameString - The name string
 # + return - The names array
-isolated function getNamesArrayFromNameString(string nameString) returns SwiftMtRecords:Nm[] {
+isolated function getNamesArrayFromNameString(string nameString) returns swiftmt:Nm[] {
     string[] names = regex:split(nameString, " ");
 
-    SwiftMtRecords:Nm[] result = [];
+    swiftmt:Nm[] result = [];
 
     foreach int i in 0 ... names.length() - 1 {
         result.push({
-            \#content: names[i],
+            content: names[i],
             number: (i + 1).toString()
         });
     }
@@ -369,12 +370,12 @@ isolated function getNamesArrayFromNameString(string nameString) returns SwiftMt
 #
 # + addresses - The addresses
 # + return - The address lines
-isolated function getMtAddressLinesFromMxAddresses(string[] addresses) returns SwiftMtRecords:AdrsLine[] {
-    SwiftMtRecords:AdrsLine[] result = [];
+isolated function getMtAddressLinesFromMxAddresses(string[] addresses) returns swiftmt:AdrsLine[] {
+    swiftmt:AdrsLine[] result = [];
 
     foreach int i in 0 ... addresses.length() - 1 {
         result.push({
-            \#content: addresses[i],
+            content: addresses[i],
             number: (i + 1).toString()
         });
     }
@@ -387,14 +388,14 @@ isolated function getMtAddressLinesFromMxAddresses(string[] addresses) returns S
 # + country - The country
 # + town - The town
 # + return - The country and town
-isolated function getMtCountryAndTownFromMxCountryAndTown(string country, string town) returns SwiftMtRecords:CntyNTw[] {
-    SwiftMtRecords:CntyNTw[] result = [];
+isolated function getMtCountryAndTownFromMxCountryAndTown(string country, string town) returns swiftmt:CntyNTw[] {
+    swiftmt:CntyNTw[] result = [];
 
     string countryAndTown = country + town;
 
     if (countryAndTown != "") {
         result.push({
-            \#content: countryAndTown,
+            content: countryAndTown,
             number: "1"
         });
     }

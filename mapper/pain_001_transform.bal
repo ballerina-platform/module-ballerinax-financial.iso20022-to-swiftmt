@@ -15,13 +15,13 @@
 // under the License.
 
 import ballerinax/financial.iso20022.payment_initiation as SwiftMxRecords;
-import ballerinax/swiftmt as SwiftMtRecords;
+import ballerinax/financial.swift.mt as swiftmt;
 
 # Create the MT101 message from the Pain001 document
 #
 # + document - The Pain001 document
 # + return - The MT101 message or an error if the transformation fails
-function transformPain001DocumentToMT101(SwiftMxRecords:Pain001Document document) returns SwiftMtRecords:MT101Message|error => let SwiftMtRecords:MT50C?|SwiftMtRecords:MT50L? instructingParty = getMT101InstructingPartyFromPain001Document(document), SwiftMtRecords:MT50F?|SwiftMtRecords:MT50G?|SwiftMtRecords:MT50H? orderingCustomer = getMT101OrderingCustomerFromPain001Document(document), SwiftMtRecords:MT52A?|SwiftMtRecords:MT52C? accountServicingInstitution = getMT101AccountServicingInstitutionFromPain001Document(document) in {
+function transformPain001DocumentToMT101(SwiftMxRecords:Pain001Document document) returns swiftmt:MT101Message|error => let swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT101InstructingPartyFromPain001Document(document), swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? orderingCustomer = getMT101OrderingCustomerFromPain001Document(document), swiftmt:MT52A?|swiftmt:MT52C? accountServicingInstitution = getMT101AccountServicingInstitutionFromPain001Document(document) in {
         block1: (),
         block2: {
             messageType: MT101
@@ -31,25 +31,25 @@ function transformPain001DocumentToMT101(SwiftMxRecords:Pain001Document document
             MT20: {
                 name: "20",
                 msgId: {
-                    \#content: ((document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId != ()) ? document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId.toString() : ""),
+                    content: ((document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId != ()) ? document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId.toString() : ""),
                     number: "1"
                 }
             },
             MT21R: {
                 name: "21R",
                 Ref: {
-                    \#content: document.CstmrCdtTrfInitn.GrpHdr.MsgId,
+                    content: document.CstmrCdtTrfInitn.GrpHdr.MsgId,
                     number: "1"
                 }
             },
             MT28D: {
                 name: "28D",
                 MsgIdx: {
-                    \#content: "",
+                    content: "",
                     number: "1"
                 },
                 Ttl: {
-                    \#content: "",
+                    content: "",
                     number: "2"
                 }
             },
@@ -60,17 +60,17 @@ function transformPain001DocumentToMT101(SwiftMxRecords:Pain001Document document
             MT25: {
                 name: "25",
                 Auth: {
-                    \#content: "",
+                    content: "",
                     number: "1"
                 }
             },
-            MT50C: instructingParty is SwiftMtRecords:MT50C ? instructingParty : (),
-            MT50L: instructingParty is SwiftMtRecords:MT50L ? instructingParty : (),
-            MT50F: orderingCustomer is SwiftMtRecords:MT50F ? orderingCustomer : (),
-            MT50G: orderingCustomer is SwiftMtRecords:MT50G ? orderingCustomer : (),
-            MT50H: orderingCustomer is SwiftMtRecords:MT50H ? orderingCustomer : (),
-            MT52A: accountServicingInstitution is SwiftMtRecords:MT52A ? accountServicingInstitution : (),
-            MT52C: accountServicingInstitution is SwiftMtRecords:MT52C ? accountServicingInstitution : (),
+            MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
+            MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
+            MT50F: orderingCustomer is swiftmt:MT50F ? orderingCustomer : (),
+            MT50G: orderingCustomer is swiftmt:MT50G ? orderingCustomer : (),
+            MT50H: orderingCustomer is swiftmt:MT50H ? orderingCustomer : (),
+            MT52A: accountServicingInstitution is swiftmt:MT52A ? accountServicingInstitution : (),
+            MT52C: accountServicingInstitution is swiftmt:MT52C ? accountServicingInstitution : (),
             Transaction: check createMT101Transactions(document.CstmrCdtTrfInitn.PmtInf, getMT101InstructingPartyFromPain001Document(document), getMT101OrderingCustomerFromPain001Document(document), getMT101AccountServicingInstitutionFromPain001Document(document))
         },
         block5: ()
@@ -85,25 +85,25 @@ function transformPain001DocumentToMT101(SwiftMxRecords:Pain001Document document
 # + return - The MT101 transactions or an error if the transformation fails
 isolated function createMT101Transactions(
         SwiftMxRecords:PaymentInstruction44[] mxTransactions,
-        SwiftMtRecords:MT50C?|SwiftMtRecords:MT50L? instructingParty,
-        SwiftMtRecords:MT50F?|SwiftMtRecords:MT50G?|SwiftMtRecords:MT50H? orderingCustomer,
-        SwiftMtRecords:MT52A?|SwiftMtRecords:MT52C? accountServicingInstitution
-) returns SwiftMtRecords:MT101Transaction[]|error {
+        swiftmt:MT50C?|swiftmt:MT50L? instructingParty,
+        swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? orderingCustomer,
+        swiftmt:MT52A?|swiftmt:MT52C? accountServicingInstitution
+) returns swiftmt:MT101Transaction[]|error {
     // Create the Transactions of the MT101 message
-    SwiftMtRecords:MT101Transaction[] transactions = [];
+    swiftmt:MT101Transaction[] transactions = [];
     foreach SwiftMxRecords:PaymentInstruction44 item in mxTransactions {
         SwiftMxRecords:CreditTransferTransaction61 creditTransferTransaction = item.CdtTrfTxInf[0];
 
-        SwiftMtRecords:MT56A?|SwiftMtRecords:MT56C?|SwiftMtRecords:MT56D? intermediary = getMT101TransactionIntermediaryFromPain001Document(item);
-        SwiftMtRecords:MT57A?|SwiftMtRecords:MT57C?|SwiftMtRecords:MT57D? accountWithInstitution = getMT101TransactionAcountWithInstitution(item);
-        SwiftMtRecords:MT59|SwiftMtRecords:MT59A?|SwiftMtRecords:MT59F? beneficiary = getMT101TransactionBeneficiary(item);
+        swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? intermediary = getMT101TransactionIntermediaryFromPain001Document(item);
+        swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? accountWithInstitution = getMT101TransactionAcountWithInstitution(item);
+        swiftmt:MT59|swiftmt:MT59A?|swiftmt:MT59F? beneficiary = getMT101TransactionBeneficiary(item);
 
         transactions.push({
 
             MT21: {
                 name: "21",
                 Ref: {
-                    \#content: getEmptyStrIfNull(creditTransferTransaction.PmtId.InstrId),
+                    content: getEmptyStrIfNull(creditTransferTransaction.PmtId.InstrId),
                     number: "1"
                 }
             },
@@ -112,7 +112,7 @@ isolated function createMT101Transactions(
             MT21F: {
                 name: "21F",
                 Ref: {
-                    \#content: "",
+                    content: "",
                     number: "1"
                 }
             },
@@ -120,45 +120,45 @@ isolated function createMT101Transactions(
             MT32B: {
                 name: "32B",
                 Ccy: {
-                    \#content: getActiveOrHistoricCurrencyAndAmountCcy(creditTransferTransaction.Amt.InstdAmt),
+                    content: getActiveOrHistoricCurrencyAndAmountCcy(creditTransferTransaction.Amt.InstdAmt),
                     number: "1"
                 },
                 Amnt: {
-                    \#content: getActiveOrHistoricCurrencyAndAmountValue(creditTransferTransaction.Amt.InstdAmt),
+                    content: getActiveOrHistoricCurrencyAndAmountValue(creditTransferTransaction.Amt.InstdAmt),
                     number: "2"
                 }
             },
 
-            MT50C: instructingParty is SwiftMtRecords:MT50C ? instructingParty : (),
-            MT50L: instructingParty is SwiftMtRecords:MT50L ? instructingParty : (),
+            MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
+            MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
 
-            MT50F: orderingCustomer is SwiftMtRecords:MT50F ? orderingCustomer : (),
-            MT50G: orderingCustomer is SwiftMtRecords:MT50G ? orderingCustomer : (),
-            MT50H: orderingCustomer is SwiftMtRecords:MT50H ? orderingCustomer : (),
+            MT50F: orderingCustomer is swiftmt:MT50F ? orderingCustomer : (),
+            MT50G: orderingCustomer is swiftmt:MT50G ? orderingCustomer : (),
+            MT50H: orderingCustomer is swiftmt:MT50H ? orderingCustomer : (),
 
-            MT52A: accountServicingInstitution is SwiftMtRecords:MT52A ? accountServicingInstitution : (),
-            MT52C: accountServicingInstitution is SwiftMtRecords:MT52C ? accountServicingInstitution : (),
+            MT52A: accountServicingInstitution is swiftmt:MT52A ? accountServicingInstitution : (),
+            MT52C: accountServicingInstitution is swiftmt:MT52C ? accountServicingInstitution : (),
 
-            MT56A: intermediary is SwiftMtRecords:MT56A ? intermediary : (),
-            MT56C: intermediary is SwiftMtRecords:MT56C ? intermediary : (),
-            MT56D: intermediary is SwiftMtRecords:MT56D ? intermediary : (),
+            MT56A: intermediary is swiftmt:MT56A ? intermediary : (),
+            MT56C: intermediary is swiftmt:MT56C ? intermediary : (),
+            MT56D: intermediary is swiftmt:MT56D ? intermediary : (),
 
-            MT57A: accountWithInstitution is SwiftMtRecords:MT57A ? accountWithInstitution : (),
-            MT57C: accountWithInstitution is SwiftMtRecords:MT57C ? accountWithInstitution : (),
-            MT57D: accountWithInstitution is SwiftMtRecords:MT57D ? accountWithInstitution : (),
+            MT57A: accountWithInstitution is swiftmt:MT57A ? accountWithInstitution : (),
+            MT57C: accountWithInstitution is swiftmt:MT57C ? accountWithInstitution : (),
+            MT57D: accountWithInstitution is swiftmt:MT57D ? accountWithInstitution : (),
 
-            MT59: beneficiary is SwiftMtRecords:MT59 ? beneficiary : (),
-            MT59A: beneficiary is SwiftMtRecords:MT59A ? beneficiary : (),
-            MT59F: beneficiary is SwiftMtRecords:MT59F ? beneficiary : (),
+            MT59: beneficiary is swiftmt:MT59 ? beneficiary : (),
+            MT59A: beneficiary is swiftmt:MT59A ? beneficiary : (),
+            MT59F: beneficiary is swiftmt:MT59F ? beneficiary : (),
 
             MT33B: {
                 name: "33B",
                 Ccy: {
-                    \#content: getActiveOrHistoricCurrencyAndAmountCcy(creditTransferTransaction.Amt.InstdAmt),
+                    content: getActiveOrHistoricCurrencyAndAmountCcy(creditTransferTransaction.Amt.InstdAmt),
                     number: "1"
                 },
                 Amnt: {
-                    \#content: getActiveOrHistoricCurrencyAndAmountValue(creditTransferTransaction.Amt.InstdAmt),
+                    content: getActiveOrHistoricCurrencyAndAmountValue(creditTransferTransaction.Amt.InstdAmt),
                     number: "2"
                 }
             },
@@ -171,7 +171,7 @@ isolated function createMT101Transactions(
             MT25A: {
                 name: "25A",
                 Acc: {
-                    \#content: "",
+                    content: "",
                     number: "1"
                 }
             },
@@ -179,7 +179,7 @@ isolated function createMT101Transactions(
             MT36: {
                 name: "36",
                 Rt: {
-                    \#content: convertDecimalNumberToSwiftDecimal(creditTransferTransaction.XchgRateInf?.XchgRate),
+                    content: convertDecimalNumberToSwiftDecimal(creditTransferTransaction.XchgRateInf?.XchgRate),
                     number: "1"
                 }
             }
