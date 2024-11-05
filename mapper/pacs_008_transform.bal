@@ -15,14 +15,14 @@
 // under the License.
 
 // import ballerina/io;
-import ballerinax/financial.iso20022.payments_clearing_and_settlement as SwiftMxRecords;
+import ballerinax/financial.iso20022.payments_clearing_and_settlement as pacsIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
 # Gets the mt message type the PACS008 document should be transformed to
 #
 # + document - The PACS008 document
 # + return - The mt message type as a string
-isolated function getPac008TransformType(SwiftMxRecords:Pacs008Document document) returns string {
+isolated function getPac008TransformType(pacsIsoRecord:Pacs008Document document) returns string {
     return MT103;
 }
 
@@ -30,53 +30,39 @@ isolated function getPac008TransformType(SwiftMxRecords:Pacs008Document document
 #
 # + document - The PACS008 document
 # + return - The MT102 message or an error if the transformation fails
-function transformPacs008DocumentToMT102(SwiftMxRecords:Pacs008Document document) returns swiftmt:MT102Message|error => {
+function transformPacs008DocumentToMT102(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT102Message|error => {
 
-    block1: (),
-    block2: {
-        messageType: MT102
-    },
-    block3: (),
+    block1: check createMtBlock1FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block2: check createMtBlock2FromSupplementaryData("102", document.FIToFICstmrCdtTrf.SplmtryData),
+    block3: check createMtBlock3FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
     block4: <swiftmt:MT102Block4>check createMT102Block4(document, false),
-    block5: ()
+    block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
 # Transforms a PACS008 document to an MT102STP message
 #
 # + document - The PACS008 document
 # + return - The MT102STP message or an error if the transformation fails
-isolated function transformPacs008DocumentToMT102STP(SwiftMxRecords:Pacs008Document document) returns swiftmt:MT102STPMessage|error {
-    SwiftMxRecords:FIToFICustomerCreditTransferV12 fiToFiCstmrCdtTrf = document.FIToFICstmrCdtTrf;
+function transformPacs008DocumentToMT102STP(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT102STPMessage|error => {
 
-    swiftmt:Block1? block1 = check createMtBlock1FromSupplementaryData(fiToFiCstmrCdtTrf.SplmtryData);
-    swiftmt:Block2 block2 = check createMtBlock2FromSupplementaryData("102STP", fiToFiCstmrCdtTrf.SplmtryData);
-    swiftmt:Block3? block3 = check createMtBlock3FromSupplementaryData(fiToFiCstmrCdtTrf.SplmtryData);
-    swiftmt:Block5? block5 = check createMtBlock5FromSupplementaryData(fiToFiCstmrCdtTrf.SplmtryData);
-
-    swiftmt:MT102STPBlock4 block4 = <swiftmt:MT102STPBlock4>check createMT102Block4(document, true);
-
-    swiftmt:MT102STPMessage mtMessage = {
-        block1: block1,
-        block2: block2,
-        block3: block3,
-        block4: block4,
-        block5: block5
-    };
-
-    return mtMessage;
-}
+    block1: check createMtBlock1FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block2: check createMtBlock2FromSupplementaryData("102STP", document.FIToFICstmrCdtTrf.SplmtryData),
+    block3: check createMtBlock3FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block4: <swiftmt:MT102STPBlock4>check createMT102Block4(document, true),
+    block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
+};
 
 # Creates the block 4 of an MT102 message from a PACS008 document
 #
 # + document - The PACS008 document
 # + isSTP - A boolean indicating whether the message is an STP message
 # + return - The block 4 of the MT102 message or an error if the transformation fails
-isolated function createMT102Block4(SwiftMxRecords:Pacs008Document document, boolean isSTP) returns swiftmt:MT102Block4|swiftmt:MT102STPBlock4|error {
+isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, boolean isSTP) returns swiftmt:MT102Block4|swiftmt:MT102STPBlock4|error {
 
-    SwiftMxRecords:GroupHeader113 grpHdr = document.FIToFICstmrCdtTrf.GrpHdr;
-    SwiftMxRecords:CreditTransferTransaction64[] transactions = document.FIToFICstmrCdtTrf.CdtTrfTxInf;
+    pacsIsoRecord:GroupHeader113 grpHdr = document.FIToFICstmrCdtTrf.GrpHdr;
+    pacsIsoRecord:CreditTransferTransaction64[] transactions = document.FIToFICstmrCdtTrf.CdtTrfTxInf;
 
-    SwiftMxRecords:CreditTransferTransaction64 firstTransaction = transactions[0];
+    pacsIsoRecord:CreditTransferTransaction64 firstTransaction = transactions[0];
 
     swiftmt:MT20 MT20 = {
         name: "20",
@@ -232,7 +218,7 @@ isolated function createMT102Block4(SwiftMxRecords:Pacs008Document document, boo
 # + isSTP - A boolean indicating whether the message is an STP message
 # + return - The transactions of the MT102 message or an error if the transformation fails
 isolated function createMT102Transactions(
-        SwiftMxRecords:CreditTransferTransaction64[] mxTransactions,
+        pacsIsoRecord:CreditTransferTransaction64[] mxTransactions,
         swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? orderingCustomer,
         swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? orderingInstitution,
         boolean isSTP)
@@ -240,7 +226,7 @@ returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
     swiftmt:MT102Transaction[] transactions = [];
     swiftmt:MT102STPTransaction[] transactionsSTP = [];
 
-    foreach SwiftMxRecords:CreditTransferTransaction64 transaxion in mxTransactions {
+    foreach pacsIsoRecord:CreditTransferTransaction64 transaxion in mxTransactions {
 
         swiftmt:MT21 MT21 = {
             name: "21",
@@ -342,91 +328,55 @@ enum MT103Type {
 #
 # + document - The PACS008 document
 # + return - The MT103 message or an error if the transformation fails
-isolated function transformPacs008DocumentToMT103(SwiftMxRecords:Pacs008Document document) returns swiftmt:MT103Message|error {
-    SwiftMxRecords:FIToFICustomerCreditTransferV12 fiToFiCstmrCdtTrf = document.FIToFICstmrCdtTrf;
+function transformPacs008DocumentToMT103(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT103Message|error => {
 
-    swiftmt:Block1? block1 = check createMtBlock1FromSupplementaryData(fiToFiCstmrCdtTrf.SplmtryData);
-    swiftmt:Block2 block2 = check createMtBlock2FromSupplementaryData("103", fiToFiCstmrCdtTrf.SplmtryData);
-    swiftmt:Block3? block3 = check createMtBlock3FromSupplementaryData(fiToFiCstmrCdtTrf.SplmtryData);
-    swiftmt:Block5? block5 = check createMtBlock5FromSupplementaryData(fiToFiCstmrCdtTrf.SplmtryData);
-
-    swiftmt:MT103Block4 block4 = <swiftmt:MT103Block4>check createMT103Block4(document, MT103);
-
-    swiftmt:MT103Message mtMessage = {
-        block1: block1,
-        block2: block2,
-        block3: block3,
-        block4: block4,
-        block5: block5
-    };
-
-    return mtMessage;
-}
+    block1: check createMtBlock1FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block2: check createMtBlock2FromSupplementaryData("103", document.FIToFICstmrCdtTrf.SplmtryData),
+    block3: check createMtBlock3FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block4: <swiftmt:MT103Block4>check createMT103Block4(document, MT103),
+    block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
+};
 
 # Transforms a PACS008 document to an MT103STP message
 #
 # + document - The PACS008 document
 # + return - The MT103STP message or an error if the transformation fails
-isolated function transformPacs008DocumentToMT103STP(SwiftMxRecords:Pacs008Document document) returns swiftmt:MT103STPMessage|error {
-    SwiftMxRecords:FIToFICustomerCreditTransferV12 fiToFiCstmrCdtTrf = document.FIToFICstmrCdtTrf;
+function transformPacs008DocumentToMT103STP(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT103STPMessage|error => {
 
-    swiftmt:Block1? block1 = check createMtBlock1FromSupplementaryData(fiToFiCstmrCdtTrf.SplmtryData);
-    swiftmt:Block2 block2 = check createMtBlock2FromSupplementaryData("103STP", fiToFiCstmrCdtTrf.SplmtryData);
-    swiftmt:Block3? block3 = check createMtBlock3FromSupplementaryData(fiToFiCstmrCdtTrf.SplmtryData);
-    swiftmt:Block5? block5 = check createMtBlock5FromSupplementaryData(fiToFiCstmrCdtTrf.SplmtryData);
-
-    swiftmt:MT103STPBlock4 block4 = <swiftmt:MT103STPBlock4>check createMT103Block4(document, MT103_STP);
-
-    swiftmt:MT103STPMessage mtMessage = {
-        block1: block1,
-        block2: block2,
-        block3: block3,
-        block4: block4,
-        block5: block5
-    };
-
-    return mtMessage;
-}
+    block1: check createMtBlock1FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block2: check createMtBlock2FromSupplementaryData("103STP", document.FIToFICstmrCdtTrf.SplmtryData),
+    block3: check createMtBlock3FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block4: <swiftmt:MT103STPBlock4>check createMT103Block4(document, MT103_STP),
+    block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
+};
 
 # Transforms a PACS008 document to an MT103REMIT message
 #
 # + document - The PACS008 document
 # + return - The MT103REMIT message or an error if the transformation fails
-isolated function transformPacs008DocumentToMT103REMIT(SwiftMxRecords:Pacs008Document document) returns swiftmt:MT103REMITMessage|error {
-    SwiftMxRecords:FIToFICustomerCreditTransferV12 fiToFiCstmrCdtTrf = document.FIToFICstmrCdtTrf;
+function transformPacs008DocumentToMT103REMIT(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT103REMITMessage|error => {
 
-    swiftmt:Block1? block1 = check createMtBlock1FromSupplementaryData(fiToFiCstmrCdtTrf.SplmtryData);
-    swiftmt:Block2 block2 = check createMtBlock2FromSupplementaryData("103REMIT", fiToFiCstmrCdtTrf.SplmtryData);
-    swiftmt:Block3? block3 = check createMtBlock3FromSupplementaryData(fiToFiCstmrCdtTrf.SplmtryData);
-    swiftmt:Block5? block5 = check createMtBlock5FromSupplementaryData(fiToFiCstmrCdtTrf.SplmtryData);
-
-    swiftmt:MT103REMITBlock4 block4 = <swiftmt:MT103REMITBlock4>check createMT103Block4(document, MT103_REMIT);
-
-    swiftmt:MT103REMITMessage mtMessage = {
-        block1: block1,
-        block2: block2,
-        block3: block3,
-        block4: block4,
-        block5: block5
-    };
-
-    return mtMessage;
-}
+    block1: check createMtBlock1FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block2: check createMtBlock2FromSupplementaryData("103REMIT", document.FIToFICstmrCdtTrf.SplmtryData),
+    block3: check createMtBlock3FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block4: <swiftmt:MT103REMITBlock4>check createMT103Block4(document, MT103_REMIT),
+    block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
+};
 
 # Creates the block 4 of an MT103 message from a PACS008 document
 #
 # + document - The PACS008 document
 # + messageType - The type of the MT103 message
 # + return - The block 4 of the MT103 message or an error if the transformation fails
-isolated function createMT103Block4(SwiftMxRecords:Pacs008Document document, MT103Type messageType) returns swiftmt:MT103Block4|swiftmt:MT103STPBlock4|swiftmt:MT103REMITBlock4|error {
-    SwiftMxRecords:FIToFICustomerCreditTransferV12 fiToFiCstmrCdtTrf = document.FIToFICstmrCdtTrf;
-    SwiftMxRecords:CreditTransferTransaction64[] transactions = fiToFiCstmrCdtTrf.CdtTrfTxInf;
+isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT103Type messageType) returns swiftmt:MT103Block4|swiftmt:MT103STPBlock4|swiftmt:MT103REMITBlock4|error {
+    pacsIsoRecord:FIToFICustomerCreditTransferV12 fiToFiCstmrCdtTrf = document.FIToFICstmrCdtTrf;
+    pacsIsoRecord:CreditTransferTransaction64[] transactions = fiToFiCstmrCdtTrf.CdtTrfTxInf;
 
     if (transactions.length() == 0) {
         return error("");
     }
 
-    SwiftMxRecords:CreditTransferTransaction64 firstTransaction = transactions[0];
+    pacsIsoRecord:CreditTransferTransaction64 firstTransaction = transactions[0];
 
     swiftmt:MT20 MT20 = {
         name: "20",

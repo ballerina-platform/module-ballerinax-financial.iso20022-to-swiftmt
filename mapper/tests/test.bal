@@ -144,7 +144,7 @@ function testTransformPain001DocumentToMT101() returns error? {
     test:assertEquals(pain001Message.CstmrCdtTrfInitn.PmtInf[0].PmtInfId, "11FF99RR");
 
     if (mt101Message is swiftmt:MT101Message) {
-        test:assertEquals(mt101Message.block2.messageType, "MT101");
+        test:assertEquals(mt101Message.block2.messageType, "101");
     } else {
         test:assertFail("Error occurred while transforming Pain001 to MT101");
     }
@@ -255,7 +255,7 @@ function testTransformPacs008DocumentToMT102() returns error? {
     swiftmt:MT102Message|error mt102Message = transformPacs008DocumentToMT102(pacs008Message);
 
     if (mt102Message is swiftmt:MT102Message) {
-        test:assertEquals(mt102Message.block2.messageType, "MT102");
+        test:assertEquals(mt102Message.block2.messageType, "102");
     } else {
         test:assertFail("Error occurred while transforming Pacs008 to MT102");
     }

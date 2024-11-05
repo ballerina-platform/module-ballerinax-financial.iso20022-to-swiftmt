@@ -22,11 +22,11 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + document - The Pain001 document
 # + return - The MT101 message or an error if the transformation fails
 function transformPain001DocumentToMT101(SwiftMxRecords:Pain001Document document) returns swiftmt:MT101Message|error => let swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT101InstructingPartyFromPain001Document(document), swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? orderingCustomer = getMT101OrderingCustomerFromPain001Document(document), swiftmt:MT52A?|swiftmt:MT52C? accountServicingInstitution = getMT101AccountServicingInstitutionFromPain001Document(document) in {
-        block1: (),
+        block1: check createMtBlock1FromSupplementaryData(document.CstmrCdtTrfInitn.SplmtryData),
         block2: {
-            messageType: MT101
+            messageType: "101"
         },
-        block3: (),
+        block3: check createMtBlock3FromSupplementaryData(document.CstmrCdtTrfInitn.SplmtryData),
         block4: {
             MT20: {
                 name: "20",
@@ -73,7 +73,7 @@ function transformPain001DocumentToMT101(SwiftMxRecords:Pain001Document document
             MT52C: accountServicingInstitution is swiftmt:MT52C ? accountServicingInstitution : (),
             Transaction: check createMT101Transactions(document.CstmrCdtTrfInitn.PmtInf, getMT101InstructingPartyFromPain001Document(document), getMT101OrderingCustomerFromPain001Document(document), getMT101AccountServicingInstitutionFromPain001Document(document))
         },
-        block5: ()
+        block5: check createMtBlock5FromSupplementaryData(document.CstmrCdtTrfInitn.SplmtryData)
     };
 
 # Create the Transactions of the MT101 message
