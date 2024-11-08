@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// import ballerina/io;
 import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
@@ -33,7 +32,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
     painIsoRecord:OrganisationIdentification39? OrgId = id?.OrgId;
 
     if (OrgId != ()) {
-        return {
+        return <swiftmt:MT50C>{
             name: "50C",
             IdnCd: {
                 content: getEmptyStrIfNull(OrgId?.AnyBIC),
@@ -48,7 +47,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
         painIsoRecord:GenericPersonIdentification2[]? Othr = id?.PrvtId?.Othr;
 
         if (Othr != () && Othr.length() > 0) {
-            return {
+            return <swiftmt:MT50L>{
                 name: "50L",
                 PrtyIdn: {
                     content: getEmptyStrIfNull(Othr[0].Id),
@@ -105,6 +104,34 @@ returns swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? {
 # + return - The account servicing institution or an empty record
 isolated function getMT101AccountServicingInstitutionFromPain001Document(painIsoRecord:Pain001Document document)
 returns swiftmt:MT52A?|swiftmt:MT52C? {
+    painIsoRecord:CustomerCreditTransferInitiationV12 cstmrDrctDbtInitn = document.CstmrCdtTrfInitn;
+    painIsoRecord:PaymentInstruction44[] payments = cstmrDrctDbtInitn.PmtInf;
+
+    if (payments.length() == 0) {
+        return ();
+    }
+
+    // Taking the first payment transaction as the reference.
+    painIsoRecord:PaymentInstruction44 firstTransaction = payments[0];
+    painIsoRecord:BranchAndFinancialInstitutionIdentification8? dbtrAgt = firstTransaction.DbtrAgt;
+
+    if dbtrAgt is () {
+        return ();
+    }
+
+    // Use MT52A if identification code is available, else use MT52C
+    if dbtrAgt.FinInstnId?.BICFI != () {
+        return <swiftmt:MT52A>{
+            name: "52A",
+            IdnCd: {content: getEmptyStrIfNull(dbtrAgt.FinInstnId?.BICFI.toString()), number: "1"}
+        };
+    } else if dbtrAgt.FinInstnId?.ClrSysMmbId?.MmbId != () {
+        return <swiftmt:MT52C>{
+            name: "52C",
+            PrtyIdn: {content: getEmptyStrIfNull(dbtrAgt.FinInstnId.ClrSysMmbId?.MmbId.toString()), number: "1"}
+        };
+    }
+
     return ();
 }
 
@@ -114,6 +141,32 @@ returns swiftmt:MT52A?|swiftmt:MT52C? {
 # + return - The transaction intermediary or an empty record
 isolated function getMT101TransactionIntermediaryFromPain001Document(painIsoRecord:PaymentInstruction44 mxTransaction)
 returns swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? {
+    painIsoRecord:BranchAndFinancialInstitutionIdentification8? intrmyAgt = mxTransaction.CdtTrfTxInf[0]?.IntrmyAgt1;
+
+    if intrmyAgt is () {
+        return ();
+    }
+
+    if intrmyAgt.FinInstnId?.BICFI != () {
+        return <swiftmt:MT56A>{
+            name: "56A",
+            IdnCd: {content: getEmptyStrIfNull(intrmyAgt.FinInstnId.BICFI.toString()), number: "1"},
+            PrtyIdn: {content: getEmptyStrIfNull(intrmyAgt.FinInstnId.ClrSysMmbId?.MmbId.toString()), number: "1"}
+        };
+    } else if intrmyAgt.FinInstnId?.ClrSysMmbId?.MmbId != () {
+        return <swiftmt:MT56C>{
+            name: "56C",
+            PrtyIdn: {content: getEmptyStrIfNull(intrmyAgt.FinInstnId.ClrSysMmbId?.MmbId.toString()), number: "1"}
+        };
+    } else if intrmyAgt.FinInstnId?.Othr?.Id != () {
+        return <swiftmt:MT56D>{
+            name: "56D",
+            PrtyIdn: {content: getEmptyStrIfNull(intrmyAgt.FinInstnId.Othr?.Id.toString()), number: "1"},
+            Nm: getNamesArrayFromNameString(intrmyAgt.FinInstnId.Nm.toString()),
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>intrmyAgt.FinInstnId.PstlAdr?.AdrLine)
+        };
+    }
+
     return ();
 }
 
@@ -123,7 +176,39 @@ returns swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? {
 # + return - The transaction acount with institution or an empty record
 isolated function getMT101TransactionAcountWithInstitution(painIsoRecord:PaymentInstruction44 mxTransaction)
 returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
+    painIsoRecord:BranchAndFinancialInstitutionIdentification8? cdtrAgt = mxTransaction.CdtTrfTxInf[0]?.CdtrAgt;
+
+    if cdtrAgt is () {
+        return ();
+    }
+
+    // MT57A mapping if BICFI is available
+    if cdtrAgt.FinInstnId?.BICFI != () {
+        return <swiftmt:MT57A>{
+            name: "57A",
+            IdnCd: {content: getEmptyStrIfNull(cdtrAgt.FinInstnId.BICFI.toString()), number: "1"}
+        };
+    }
+    // MT57C mapping if ClrSysMmbId is available
+    else if cdtrAgt.FinInstnId?.ClrSysMmbId?.MmbId != () {
+        return <swiftmt:MT57C>{
+            name: "57C",
+            PrtyIdn: {content: cdtrAgt.FinInstnId.ClrSysMmbId?.MmbId.toString(), number: "1"}
+        };
+    }
+    // MT57D mapping if Othr identification is available, with additional name and address details
+    else if cdtrAgt.FinInstnId?.Othr?.Id != () {
+        return <swiftmt:MT57D>{
+            name: "57D",
+            PrtyIdn: {content: cdtrAgt.FinInstnId.Othr?.Id.toString(), number: "1"},
+            Nm: getNamesArrayFromNameString(cdtrAgt.FinInstnId.Nm.toString()),
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>cdtrAgt.FinInstnId.PstlAdr?.AdrLine)
+
+        };
+    }
+
     return ();
+
 }
 
 # Get the transaction beneficiary from a transaction in the Pain001 document.
@@ -132,5 +217,40 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
 # + return - The transaction beneficiary or an empty record
 isolated function getMT101TransactionBeneficiary(painIsoRecord:PaymentInstruction44 mxTransaction)
 returns swiftmt:MT59|swiftmt:MT59A?|swiftmt:MT59F? {
-    return ();
+    painIsoRecord:PartyIdentification272? cdtr = mxTransaction.CdtTrfTxInf[0]?.Cdtr;
+
+    if cdtr is () {
+        return ();
+    }
+
+    // MT59A mapping if BIC code is available in Id
+    if cdtr.Id?.OrgId?.AnyBIC != () {
+        return <swiftmt:MT59A>{
+            name: "59A",
+            IdnCd: {content: getEmptyStrIfNull(cdtr.Id?.OrgId?.AnyBIC), number: "1"}
+        };
+    }
+    // MT59F mapping if structured address (postal address) is available
+    else if cdtr.PstlAdr?.AdrLine != () {
+        return <swiftmt:MT59F>{
+            name: "59F",
+            Nm: [
+                {
+                    content: getEmptyStrIfNull(cdtr.Nm.toString()),
+                    number: "1"
+                }
+            ],
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>cdtr.PstlAdr?.AdrLine),
+            CdTyp: []
+        };
+    }
+    // MT59 mapping for general beneficiary name or account info
+    else {
+        return <swiftmt:MT59>{
+            name: "59",
+            Nm: getNamesArrayFromNameString(cdtr.Nm.toString()),
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>cdtr.PstlAdr?.AdrLine)
+        };
+    }
+
 }

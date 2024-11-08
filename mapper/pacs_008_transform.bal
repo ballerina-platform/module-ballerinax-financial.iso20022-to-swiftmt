@@ -14,17 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// import ballerina/io;
 import ballerinax/financial.iso20022.payments_clearing_and_settlement as pacsIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
-
-# Gets the mt message type the PACS008 document should be transformed to
-#
-# + document - The PACS008 document
-# + return - The mt message type as a string
-isolated function getPac008TransformType(pacsIsoRecord:Pacs008Document document) returns string {
-    return MT103;
-}
 
 # Transforms a PACS008 document to an MT102 message
 #

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerinax/financial.iso20022.payments_clearing_and_settlement as SwiftMxRecords;
 import ballerinax/financial.swift.mt as swiftmt;
 
@@ -24,7 +23,6 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + return - The ordering customer or an empty record
 isolated function getMT102OrderingCustomerFromPacs008Document(SwiftMxRecords:Pacs008Document document)
 returns swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? {
-    io:println(document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].InitgPty);
 
     SwiftMxRecords:PartyIdentification272? initgPty = document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].InitgPty;
 
@@ -33,7 +31,7 @@ returns swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? {
     }
 
     if initgPty.Id != () && initgPty.PstlAdr == () {
-        return {
+        return <swiftmt:MT50F>{
             name: "50F",
             PrtyIdn: {
                 content: getEmptyStrIfNull(initgPty.Id),
@@ -45,17 +43,12 @@ returns swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? {
                     number: "2"
                 }
             ],
-            AdrsLine: [
-                {
-                    content: getEmptyStrIfNull(initgPty.PstlAdr?.AdrLine),
-                    number: "3"
-                }
-            ]
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>initgPty.PstlAdr?.AdrLine)
         };
     }
 
     if initgPty.Id != () {
-        return {
+        return <swiftmt:MT50A>{
             name: "50A",
             Acc: (),
             IdnCd: {
@@ -66,20 +59,10 @@ returns swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? {
     }
 
     if initgPty.Nm == () && initgPty.PstlAdr != () {
-        return {
+        return <swiftmt:MT50K>{
             name: "50K",
-            AdrsLine: [
-                {
-                    content: getEmptyStrIfNull(initgPty.PstlAdr?.AdrLine),
-                    number: "1"
-                }
-            ],
-            Nm: [
-                {
-                    content: getEmptyStrIfNull(initgPty.Nm),
-                    number: "2"
-                }
-            ]
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>initgPty.PstlAdr?.AdrLine),
+            Nm: getNamesArrayFromNameString(getEmptyStrIfNull(initgPty.Nm))
         };
     }
 
@@ -107,7 +90,7 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
 
     // Check if BICFI is present for MT52A (BIC-based identification)
     if FinInstnId.BICFI != () {
-        return {
+        return <swiftmt:MT52A>{
             name: "52A",
             PrtyIdnTyp: (),
             PrtyIdn: (),
@@ -122,7 +105,7 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
     if FinInstnId.Othr?.Id != () {
         if isSTP {
             // Use MT52A format for STP messages
-            return {
+            return <swiftmt:MT52A>{
                 name: "52A",
                 PrtyIdnTyp: {
                     content: getEmptyStrIfNull(FinInstnId.Othr?.SchmeNm?.Cd),
@@ -139,7 +122,7 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
             };
         } else {
             // Use MT52B format for non-STP messages
-            return {
+            return <swiftmt:MT52B>{
                 name: "52B",
                 PrtyIdnTyp: {
                     content: getEmptyStrIfNull(FinInstnId.Othr?.SchmeNm?.Cd),
@@ -159,7 +142,7 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
 
     // Check if Postal Address is available for MT52B (Location-based identification)
     if FinInstnId.PstlAdr != () {
-        return {
+        return <swiftmt:MT52B>{
             name: "52B",
             PrtyIdnTyp: (),
             PrtyIdn: (),
@@ -195,7 +178,7 @@ returns swiftmt:MT57A?|swiftmt:MT57C? {
 
     // Check if BICFI is present in Creditor Agent (Option A)
     if CreditorAgent?.FinInstnId?.BICFI != () {
-        return {
+        return <swiftmt:MT57A>{
             name: "57A",
             PrtyIdnTyp: (),
             PrtyIdn: (),
@@ -208,7 +191,7 @@ returns swiftmt:MT57A?|swiftmt:MT57C? {
 
     // Check if account identification is available in Creditor Agent Account (Option C)
     if CreditorAgentAccount?.Id?.Othr?.Id != () {
-        return {
+        return <swiftmt:MT57C>{
             name: "57C",
             PrtyIdn: {
                 content: getEmptyStrIfNull(CreditorAgentAccount?.Id?.Othr?.Id),
@@ -226,7 +209,42 @@ returns swiftmt:MT57A?|swiftmt:MT57C? {
 # + return - The transaction beneficiary customer or an empty record
 isolated function getMT102TransactionBeneficiaryCustomerFromPacs008Document(SwiftMxRecords:CreditTransferTransaction64 mxTransaction)
 returns swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? {
+
+    SwiftMxRecords:PartyIdentification272? Cdtr = mxTransaction.Cdtr;
+
+    if Cdtr is () {
+        return ();
+    }
+
+    if Cdtr.Id != () && Cdtr.Nm != () && Cdtr.PstlAdr == () {
+        return <swiftmt:MT59A>{
+            name: "59A",
+            IdnCd: {
+                content: getEmptyStrIfNull(Cdtr.Id),
+                number: "1"
+            }
+        };
+    }
+
+    if Cdtr.Nm != () && Cdtr.PstlAdr?.AdrLine != () {
+        return <swiftmt:MT59F>{
+            name: "59F",
+            Nm: getNamesArrayFromNameString(getEmptyStrIfNull(Cdtr.Nm)),
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>Cdtr.PstlAdr?.AdrLine),
+            CdTyp: []
+        };
+    }
+
+    if Cdtr.PstlAdr != () && Cdtr.PstlAdr?.AdrLine != () {
+        return <swiftmt:MT59>{
+            name: "59",
+            Nm: getNamesArrayFromNameString(getEmptyStrIfNull(Cdtr.Nm)),
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>Cdtr.PstlAdr?.AdrLine)
+        };
+    }
+
     return ();
+
 }
 
 # Get the transaction sender correspondent from the Pacs008 document.
@@ -249,7 +267,7 @@ returns swiftmt:MT53A?|swiftmt:MT53C? {
 
     // Check if BICFI (Option A) is available in Previous Instructing Agent 1
     if PrvsInstgAgt1?.FinInstnId?.BICFI != () {
-        return {
+        return <swiftmt:MT53A>{
             name: "53A",
             PrtyIdnTyp: (),
             PrtyIdn: (),
@@ -262,12 +280,10 @@ returns swiftmt:MT53A?|swiftmt:MT53C? {
 
     // Check if account identification (Option C) is available in Previous Instructing Agent 1 Account
     if PrvsInstgAgt1Acct?.Id?.Othr?.Id != () {
-        return {
+        return <swiftmt:MT53C>{
             name: "53C",
-            PrtyIdnTyp: (),
-            PrtyIdn: (),
-            IdnCd: {
-                content: getEmptyStrIfNull(PrvsInstgAgt1Acct?.Id?.Othr?.Id),
+            Acc: {
+                content: getEmptyStrIfNull(PrvsInstgAgt1Acct?.Id?.IBAN),
                 number: "1"
             }
         };
