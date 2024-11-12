@@ -403,51 +403,6 @@ isolated function getMtCountryAndTownFromMxCountryAndTown(string country, string
     return result;
 }
 
-function getRegulatoryReportingContent(painIsoRecord:RegulatoryReporting3[]? rgltryRptg) returns string {
-    if rgltryRptg is () {
-        return "";
-    }
-
-    string regulatoryContent = "";
-    foreach painIsoRecord:RegulatoryReporting3 rptg in rgltryRptg {
-        foreach painIsoRecord:StructuredRegulatoryReporting3 dtl in rptg.Dtls ?: [] {
-            string? 'type = dtl.Tp;
-            string? date = dtl.Dt;
-            string? country = dtl.Ctry;
-            string? code = dtl.Cd;
-            decimal? amount = dtl.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.ActiveOrHistoricCurrencyAndAmount_SimpleType;
-            string additionalInfo = "";
-
-            // Combine additional information fields into a single string
-            foreach string info in dtl.Inf ?: [] {
-                additionalInfo += info + "; ";
-            }
-
-            // Append structured information if it exists
-            if 'type is string {
-                regulatoryContent += "Type: " + 'type + "; ";
-            }
-            if date is string {
-                regulatoryContent += "Date: " + date + "; ";
-            }
-            if country is string {
-                regulatoryContent += "Country: " + country + "; ";
-            }
-            if code is string {
-                regulatoryContent += "Code: " + code + "; ";
-            }
-            if amount is string {
-                regulatoryContent += "Amount: " + amount + "; ";
-            }
-            if additionalInfo != "" {
-                regulatoryContent += "Info: " + additionalInfo.trim() + "; ";
-            }
-        }
-    }
-
-    return regulatoryContent.trim();
-}
-
 function getChargeCode(painIsoRecord:ChargeBearerType1Code? chargeCode) returns string {
     if chargeCode is () {
         return "";

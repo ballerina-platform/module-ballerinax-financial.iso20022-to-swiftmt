@@ -34,99 +34,94 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document)
         },
         block3: check createMtBlock3FromSupplementaryData(document.CstmrDrctDbtInitn.SplmtryData),
         block4: {
-            MT19: {
-                name: "19",
-                Amnt: {
-                    content: document.CstmrDrctDbtInitn.GrpHdr.CtrlSum.toString(),
-                    number: "1"
-                }
-            },
             MT20: {
                 name: "20",
                 msgId: {
-                    content: document.CstmrDrctDbtInitn.GrpHdr.MsgId,
+                    content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId.InstrId),
+                    number: "1"
+                }
+            },
+            MT21R: {
+                name: "21R",
+                Ref: {
+                    content: "",
+                    number: "1"
+                }
+            },
+            MT23E: {
+                name: "23E",
+                InstrnCd: {
+                    content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.PmtInf[0].PmtTpInf?.CtgyPurp?.Cd),
                     number: "1"
                 }
             },
             MT21E: {
                 name: "21E",
                 Ref: {
-                    content: getMT104OrgIdFromPain008Document(document),
+                    content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.GrpHdr.MsgId),
                     number: "1"
                 }
             },
             MT30: {
                 name: "30",
-                Dt: {
-                    content: document.CstmrDrctDbtInitn.GrpHdr.CreDtTm.toString(),
-                    number: "1"
-                }
+                Dt: check convertISODateStringToSwiftMtDate(document.CstmrDrctDbtInitn.PmtInf[0].ReqdColltnDt, "1")
             },
-            MT32B: {
-                name: "32B",
-                Ccy: {
-                    content: getActiveOrHistoricCurrencyAndAmountCcy(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt),
+            MT51A: {
+                name: "51A",
+                IdnCd: {
+                    content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.GrpHdr.FwdgAgt?.FinInstnId?.BICFI),
                     number: "1"
                 },
-                Amnt: {
-                    content: getActiveOrHistoricCurrencyAndAmountValue(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt),
+                PrtyIdn: {
+                    content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.GrpHdr.FwdgAgt?.FinInstnId?.LEI),
                     number: "2"
                 }
             },
-            MT50A: {
-                name: "50A",
-                IdnCd: {
-                    content: document.CstmrDrctDbtInitn.PmtInf[0].CdtrAgt.FinInstnId.BICFI,
-                    number: "1"
-                }
+            MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
+            MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
+            MT50A: creditor is swiftmt:MT50A ? creditor : (),
+            MT50K: creditor is swiftmt:MT50K ? creditor : (),
+            MT52A: creditorsBank is swiftmt:MT52A ? creditorsBank : (),
+            MT52C: creditorsBank is swiftmt:MT52C ? creditorsBank : (),
+            MT52D: creditorsBank is swiftmt:MT52D ? creditorsBank : (),
+            MT26T: {
+                name: "26T",
+                Typ: {content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].Purp?.Cd), number: "1"}
             },
-            MT50K: {
-                name: "50K",
-                Nm: getNamesArrayFromNameString(document.CstmrDrctDbtInitn.PmtInf[0].Cdtr.Nm.toString()),
-                AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>document.CstmrDrctDbtInitn.PmtInf[0].Cdtr.PstlAdr?.AdrLine)
-            },
-            MT52A: {
-                name: "52A",
-                IdnCd: {
-                    content: document.CstmrDrctDbtInitn.PmtInf[0].CdtrAgt.FinInstnId.BICFI,
-                    number: "1"
-                }
-            },
-            MT52D: {
-                name: "52D",
-                Nm: getNamesArrayFromNameString(document.CstmrDrctDbtInitn.PmtInf[0].CdtrAgt.FinInstnId.Nm.toString()),
-                AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>document.CstmrDrctDbtInitn.PmtInf[0].CdtrAgt.FinInstnId.PstlAdr?.AdrLine)
-            },
-            MT57A: {
-                name: "57A",
-                IdnCd: {
-                    content: document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].DbtrAgt.FinInstnId.BICFI,
-                    number: "1"
-                }
-            },
-            MT57D: {
-                name: "57D",
-                Nm: getNamesArrayFromNameString(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].DbtrAgt.FinInstnId.Nm.toString()),
-                AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].DbtrAgt.FinInstnId.PstlAdr?.AdrLine)
-            },
-            MT59: {
-                name: "59",
-                Nm: getNamesArrayFromNameString(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].Dbtr.Nm.toString()),
-                AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].Dbtr.PstlAdr?.AdrLine)
+            MT77B: {
+                name: "77B",
+                Nrtv: {content: "", number: ""}
             },
             MT71A: {
                 name: "71A",
                 Cd: getDetailsOfChargesFromChargeBearerType1Code(document.CstmrDrctDbtInitn.PmtInf[0].ChrgBr)
             },
-            MT77B: {
-                name: "77B",
-                Nrtv: {
-                    content: getRegulatoryReportingContent(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].RgltryRptg),
-                    number: "1"
-                }
+            MT72: {
+                name: "72",
+                Cd: {content: "", number: "1"}
             },
-            Transaction: transactions,
-            MT51A: document.CstmrDrctDbtInitn.GrpHdr.CreDtTm
+            MT32B: {
+                name: "32B",
+                Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: "1"},
+                Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: "2"}
+            },
+            MT19: {
+                name: "19",
+                Amnt: {content: "", number: "1"}
+            },
+            MT71F: {
+                name: "71F",
+                Ccy: {content: "", number: "1"},
+                Amnt: {content: "", number: "2"}
+            },
+            MT71G: {
+                name: "71G",
+                Ccy: {content: "", number: "1"},
+                Amnt: {content: "", number: "2"}
+            },
+            MT53A: sendersCorrespondent is swiftmt:MT53A ? sendersCorrespondent : (),
+            MT53B: sendersCorrespondent is swiftmt:MT53B ? sendersCorrespondent : (),
+            Transaction: transactions
         },
         block5: check createMtBlock5FromSupplementaryData(document.CstmrDrctDbtInitn.SplmtryData)
     };
