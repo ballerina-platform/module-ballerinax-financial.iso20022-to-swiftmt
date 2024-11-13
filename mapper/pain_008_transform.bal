@@ -34,6 +34,13 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document)
         },
         block3: check createMtBlock3FromSupplementaryData(document.CstmrDrctDbtInitn.SplmtryData),
         block4: {
+            MT19: {
+                name: "19",
+                Amnt: {
+                    content: document.CstmrDrctDbtInitn.GrpHdr.CtrlSum.toString(),
+                    number: "1"
+                }
+            },
             MT20: {
                 name: "20",
                 msgId: {
@@ -104,10 +111,6 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document)
                 name: "32B",
                 Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: "1"},
                 Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: "2"}
-            },
-            MT19: {
-                name: "19",
-                Amnt: {content: "", number: "1"}
             },
             MT71F: {
                 name: "71F",

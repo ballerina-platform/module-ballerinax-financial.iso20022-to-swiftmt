@@ -704,3 +704,134 @@ function testTransformPacs008DocumentToMT103REMIT() returns error? {
         test:assertFail("Error occurred while transforming Pacs008 to MT103REMIT");
     }
 }
+
+// @test:Config {}
+// function testTransformPain008DocumentToMT104() returns error? {
+//     xml documentXML = xml `
+//         <Pain008Document>
+//             <CstmrDrctDbtInitn>
+//                 <GrpHdr>
+//                     <MsgId>EXAMPLE123456</MsgId>
+//                     <CreDtTm>2024-11-06T09:30:00Z</CreDtTm>
+//                     <NbOfTxs>2</NbOfTxs>
+//                     <CtrlSum>1500.00</CtrlSum>
+//                     <InitgPty>
+//                         <Nm>ABC Corporation</Nm>
+//                         <Id>
+//                             <OrgId>
+//                                 <AnyBIC>ABCDEF12</AnyBIC>
+//                             </OrgId>
+//                         </Id>
+//                     </InitgPty>
+//                 </GrpHdr>
+//                 <PmtInf>
+//                     <PmtInfId>PMT20241106</PmtInfId>
+//                     <PmtMtd></PmtMtd>
+//                     <BtchBookg>true</BtchBookg>
+//                     <NbOfTxs>2</NbOfTxs>
+//                     <CtrlSum>1500.00</CtrlSum>
+//                     <PmtTpInf>
+//                         <InstrPrty></InstrPrty>
+//                         <SvcLvl>
+//                             <Cd>SEPA</Cd>
+//                         </SvcLvl>
+//                     </PmtTpInf>
+//                     <ReqdColltnDt>2024-11-07</ReqdColltnDt>
+//                     <Cdtr>
+//                         <Nm>XYZ Ltd</Nm>
+//                         <PstlAdr>
+//                             <Ctry>DE</Ctry>
+//                             <AdrLine>123 Main Street</AdrLine>
+//                         </PstlAdr>
+//                     </Cdtr>
+//                     <CdtrAcct>
+//                         <Id>
+//                             <IBAN>DE89370400440532013000</IBAN>
+//                         </Id>
+//                     </CdtrAcct>
+//                     <CdtrAgt>
+//                         <FinInstnId>
+//                             <BICFI>DEUTDEFF</BICFI>
+//                         </FinInstnId>
+//                     </CdtrAgt>
+//                     <ChrgBr></ChrgBr>
+//                     <DrctDbtTxInf>
+//                         <PmtId>
+//                             <InstrId>INSTR12345</InstrId>
+//                             <EndToEndId>ETOE12345</EndToEndId>
+//                         </PmtId>
+//                         <InstdAmt Ccy="USD">100.00</InstdAmt>
+//                         <DrctDbtTx>
+//                             <MndtRltdInf>
+//                                 <MndtId>MANDATE123</MndtId>
+//                                 <DtOfSgntr>2024-01-01</DtOfSgntr>
+//                             </MndtRltdInf>
+//                         </DrctDbtTx>
+//                         <DbtrAgt>
+//                             <FinInstnId>
+//                                 <BICFI>DEUTDEBB</BICFI>
+//                             </FinInstnId>
+//                         </DbtrAgt>
+//                         <Dbtr>
+//                             <Nm>John Doe</Nm>
+//                             <PstlAdr>
+//                                 <Ctry>DE</Ctry>
+//                                 <AdrLine>456 Sample Avenue</AdrLine>
+//                             </PstlAdr>
+//                         </Dbtr>
+//                         <DbtrAcct>
+//                             <Id>
+//                                 <IBAN>DE62370400440532013001</IBAN>
+//                             </Id>
+//                         </DbtrAcct>
+//                         <RmtInf>
+//                             <Ustrd>Invoice 12345</Ustrd>
+//                         </RmtInf>
+//                     </DrctDbtTxInf>
+//                     <DrctDbtTxInf>
+//                         <PmtId>
+//                             <InstrId>INSTR67890</InstrId>
+//                             <EndToEndId>ETOE67890</EndToEndId>
+//                         </PmtId>
+//                         <InstdAmt Ccy="USD">500.00</InstdAmt>
+//                         <DrctDbtTx>
+//                             <MndtRltdInf>
+//                                 <MndtId>MANDATE678</MndtId>
+//                                 <DtOfSgntr>2024-05-15</DtOfSgntr>
+//                             </MndtRltdInf>
+//                         </DrctDbtTx>
+//                         <DbtrAgt>
+//                             <FinInstnId>
+//                                 <BICFI>DEUTDEBB</BICFI>
+//                             </FinInstnId>
+//                         </DbtrAgt>
+//                         <Dbtr>
+//                             <Nm>Jane Smith</Nm>
+//                             <PstlAdr>
+//                                 <Ctry>DE</Ctry>
+//                                 <AdrLine>789 Test Blvd</AdrLine>
+//                             </PstlAdr>
+//                         </Dbtr>
+//                         <DbtrAcct>
+//                             <Id>
+//                                 <IBAN>DE89370400440532013002</IBAN>
+//                             </Id>
+//                         </DbtrAcct>
+//                         <RmtInf>
+//                             <Ustrd>Invoice 67890</Ustrd>
+//                         </RmtInf>
+//                     </DrctDbtTxInf>
+//                 </PmtInf>
+//             </CstmrDrctDbtInitn>
+//         </Pain008Document>
+//         `;
+//     painIsoRecord:Pain008Document pain008Message = <painIsoRecord:Pain008Document>(check swiftmx:fromIso20022(documentXML, painIsoRecord:Pain008Document));
+
+//     swiftmt:MT104Message|error mt104Message = transformPain008DocumentToMT104(pain008Message);
+
+//     if (mt104Message is swiftmt:MT104Message) {
+//         test:assertEquals(mt104Message.block2.messageType, "104");
+//     } else {
+//         test:assertFail("Error occurred while transforming Pain008 to MT104");
+//     }
+// }

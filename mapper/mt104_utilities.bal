@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
+import ballerinax/financial.iso20022.payments_clearing_and_settlement as pacsIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
 # Get the instructing party from the Pain008 document.
@@ -279,6 +280,66 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
     }
 
     // Return empty if neither MT53A nor MT53B mapping is possible.
+    return ();
+}
+
+# Get the instructing party from the Pacs003 document.
+#
+# + document - The Pacs003 document
+# + return - The instructing party or an empty record
+isolated function getMT104InstructionPartyFromPacs003Document(pacsIsoRecord:Pacs003Document document)
+returns swiftmt:MT50C?|swiftmt:MT50L? {
+
+    return ();
+}
+
+# Get the ordering customer from the Pacs003 document.
+#
+# + document - The Pacs003 document
+# + return - The ordering customer or an empty record
+isolated function getMT104CreditorFromPacs003Document(pacsIsoRecord:Pacs003Document document)
+returns swiftmt:MT50A?|swiftmt:MT50K? {
+
+    return ();
+}
+
+# Get the account servicing institution from the Pacs003 document.
+#
+# + document - The Pacs003 document
+# + return - The account servicing institution or an empty record
+isolated function getMT104CreditorsBankFromPacs003Document(pacsIsoRecord:Pacs003Document document)
+returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
+
+    return ();
+}
+
+# Get the transaction debtor's bank from the Pacs003 document.
+#
+# + transaction - The Pacs003 transaction
+# + return - The transaction debtor's bank or an empty record
+isolated function getMT104TransactionDebtorsBankFromPacs003Document(pacsIsoRecord:DirectDebitTransactionInformation31 transaction)
+returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
+
+    return ();
+}
+
+# Get the transaction debtor from the Pacs003 document.
+#
+# + transaction - The Pacs003 transaction
+# + return - The transaction debtor or an empty record
+isolated function getMT104TransactionDebtorFromPacs003Document(pacsIsoRecord:DirectDebitTransactionInformation31 transaction)
+returns swiftmt:MT59?|swiftmt:MT59A? {
+
+    return ();
+}
+
+# Get the sender's correspondent from the Pacs003 document.
+#
+# + document - The Pacs003 document
+# + return - The sender's correspondent or an empty record
+isolated function getMT104SendersCorrespondentFromPacs003Document(pacsIsoRecord:Pacs003Document document)
+returns swiftmt:MT53A?|swiftmt:MT53B? {
+
     return ();
 }
 
