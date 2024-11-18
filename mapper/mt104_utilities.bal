@@ -283,6 +283,25 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
     return ();
 }
 
+# Maps the ISO 20022 charge bearer type to the equivalent SWIFT MT104 code for field MT71A.
+#
+# + chargeBearer - The charge bearer type from ISO 20022.
+# + return - Returns the mapped SWIFT MT104 charge code (BEN, OUR, SHA) or an empty string for unmapped values.
+function getMT71AChargesCode(string chargeBearer) returns string {
+
+    string mappedCode = "";
+
+    if chargeBearer == "CRED" {
+        mappedCode = "BEN";
+    } else if chargeBearer == "DEBT" {
+        mappedCode = "OUR";
+    } else if chargeBearer == "SHAR" {
+        mappedCode = "SHA";
+    }
+
+    return mappedCode;
+}
+
 # Get the instructing party from the Pacs003 document.
 #
 # + document - The Pacs003 document

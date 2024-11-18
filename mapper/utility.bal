@@ -432,3 +432,19 @@ function getChargeCode(painIsoRecord:ChargeBearerType1Code? chargeCode) returns 
 
 }
 
+# Get the first element of a Array or return an null
+# + array - The array
+# + return - The first element of the array or null
+function getFirstElementFromArray(any[]? array) returns any? {
+
+    if (array == ()) {
+        return ();
+    }
+
+    if (array.length() > 0) {
+        return array[0];
+    }
+
+    return ();
+}
+
