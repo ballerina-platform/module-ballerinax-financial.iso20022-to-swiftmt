@@ -74,11 +74,6 @@ returns swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? {
 # + document - The Pacs008 document
 # + isSTP - A flag to indicate if the message is STP
 # + return - The ordering institution or an empty record
-# Get the ordering institution from the Pacs008 document.
-#
-# + document - The Pacs008 document
-# + isSTP - A flag to indicate if the message is STP
-# + return - The ordering institution or an empty record
 isolated function getMT102OrderingInstitutionFromPacs008Document(SwiftMxRecords:Pacs008Document document, boolean isSTP)
 returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
 
@@ -156,11 +151,6 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
     return ();
 }
 
-# Get the transaction account with institution from the Pacs008 document.
-#
-# + mxTransaction - The MX transaction
-# + isSTP - A flag to indicate if the message is STP
-# + return - The transaction account with institution or an empty record
 # Get the account with institution from the pacs.008 transaction.
 #
 # + mxTransaction - The CreditTransferTransaction64 transaction from pacs.008
@@ -247,10 +237,6 @@ returns swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? {
 
 }
 
-# Get the transaction sender correspondent from the Pacs008 document.
-#
-# + document - The Pacs008 document
-# + return - The transaction sender correspondent or an empty record
 # Get the sender's correspondent from the Pacs008 document.
 #
 # + document - The Pacs008 document

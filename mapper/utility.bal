@@ -17,6 +17,7 @@
 // import ballerina/io;
 import ballerina/regex;
 import ballerina/time;
+import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
 import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
@@ -432,10 +433,24 @@ function getChargeCode(painIsoRecord:ChargeBearerType1Code? chargeCode) returns 
 
 }
 
+# Join an array of strings with a separator
+# + strings - The array of strings
+# + separator - The separator
+# + return - The joined string
+function joinStringArray(string[] strings, string separator) returns string {
+    string result = "";
+
+    foreach string s in strings {
+        result = result + s + separator;
+    }
+
+    return result;
+}
+
 # Get the first element of a Array or return an null
 # + array - The array
 # + return - The first element of the array or null
-function getFirstElementFromArray(any[]? array) returns any? {
+isolated function getFirstElementFromArray(any[]? array) returns any? {
 
     if (array == ()) {
         return ();
@@ -446,5 +461,59 @@ function getFirstElementFromArray(any[]? array) returns any? {
     }
 
     return ();
+}
+
+# Get the last element of an array or return null
+# + array - The array
+# + return - The last element of the array or null
+function getLastElementFromArray(any[]? array) returns any? {
+
+    if (array == ()) {
+        return ();
+    }
+
+    if (array.length() > 0) {
+        return array[array.length() - 1];
+    }
+
+    return ();
+}
+
+# Extracts the narrative (Nrtv) information from the Pacs.003 document's payment cancellation data.
+#
+# + document - The ISO 20022 Pacs.003 document
+# + return - Array of `Nrtv` records or an empty array if no information is found
+isolated function extractNarrativeFromCancellationReason(camtIsoRecord:CustomerPaymentCancellationRequestV12 document) returns swiftmt:Nrtv[] {
+    swiftmt:Nrtv[] narratives = [];
+
+    // Retrieve the first OriginalPaymentInstruction49 element.
+    camtIsoRecord:OriginalPaymentInstruction49? originalPaymentInstruction = <camtIsoRecord:OriginalPaymentInstruction49>getFirstElementFromArray(document.Undrlyg[0].OrgnlPmtInfAndCxl);
+
+    if originalPaymentInstruction is () {
+        // Return an empty array if no payment instruction is found.
+        return narratives;
+    }
+
+    // Retrieve the first PaymentCancellationReason6 element.
+    camtIsoRecord:PaymentCancellationReason6? cancellationReason = <camtIsoRecord:PaymentCancellationReason6>getFirstElementFromArray(originalPaymentInstruction.CxlRsnInf);
+
+    if cancellationReason is () {
+        // Return an empty array if no cancellation reason is found.
+        return narratives;
+    }
+
+    // Extract narrative details if available.
+    if !(cancellationReason.AddtlInf is ()) {
+        int number = 1; // Initialize the number attribute
+        foreach string narrative in <string[]>cancellationReason.AddtlInf {
+            narratives.push({
+                content: narrative,
+                number: number.toString()
+            });
+            number += 1;
+        }
+    }
+
+    return narratives;
 }
 
