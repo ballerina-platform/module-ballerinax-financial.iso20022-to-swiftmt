@@ -10,7 +10,7 @@ isolated function transformCamt026ToMT195(camtIsoRecord:Camt026Document document
     in {
 
         // Construct Block 1: Basic Header Block
-        block1: check createMtBlock1FromSupplementaryData(document.UblToApply.SplmtryData),
+        block1: check createBlock1FromAssgnmt(document.UblToApply.Assgnmt),
 
         // Construct Block 2: Application Header Block
         block2: check createMtBlock2FromSupplementaryData("195", document.UblToApply.SplmtryData),

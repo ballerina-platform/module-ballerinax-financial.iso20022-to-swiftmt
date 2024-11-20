@@ -8,7 +8,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 isolated function transformCamt028ToMT196(camtIsoRecord:Camt028Document document) returns swiftmt:MTn96Message|error => {
 
     // Step 1: Extract and build the MT196 Block 1
-    block1: check createMtBlock1FromSupplementaryData(document.AddtlPmtInf.SplmtryData),
+    block1: check createBlock1FromAssgnmt(document.AddtlPmtInf.Assgnmt),
 
     // Step 2: Create Block 2 with mandatory fields
     block2: check createMtBlock2FromSupplementaryData("196", document.AddtlPmtInf.SplmtryData),

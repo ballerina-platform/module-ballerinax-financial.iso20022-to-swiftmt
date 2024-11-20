@@ -21,13 +21,44 @@ import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
 import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
-# Create the block 1 of the MT message from the supplementary data of the MX message
-# Currently, this function is empty, but if we decide to add any logic to create the block 1 from the supplementary data,
-# we can add it here.
+# Create the block 1 of the MT message from the supplementary data of the MX message.
+# Currently, this function extracts logical terminal and sequence information from supplementary data.
 #
 # + supplementaryData - The supplementary data of the MX message
 # + return - The block 1 of the MT message or an error if the block 1 cannot be created
 isolated function createMtBlock1FromSupplementaryData(painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block1?|error {
+    if supplementaryData is painIsoRecord:SupplementaryData1[] {
+        string? logicalTerminal;
+        string? sessionNumber;
+        string? sequenceNumber;
+
+        foreach painIsoRecord:SupplementaryData1 data in supplementaryData {
+            if data.Envlp.Nrtv is string {
+                // Extract logical terminal from narrative content if present
+                if data.Envlp.Nrtv.toString().startsWith("LT:") {
+                    logicalTerminal = data.Envlp.Nrtv.toString().split(":")[1]?.trim ();
+                }
+                // Extract session number from narrative content if present
+                if data.Envlp.Nrtv.toString().startsWith("SN:") {
+                    sessionNumber = data.Envlp.Nrtv.split(":")[1]?.trim ();
+                }
+                // Extract sequence number from narrative content if present
+                if data.Envlp.Nrtv.toString().startsWith("SEQ:") {
+                    sequenceNumber = data.Envlp.Nrtv.split(":")[1]?.trim ();
+                }
+            }
+        }
+
+        // Return Block1 if any of the fields were extracted
+        if logicalTerminal is string || sessionNumber is string || sequenceNumber is string {
+            return {
+                logicalTerminal: logicalTerminal,
+                sessionNumber: sessionNumber,
+                sequenceNumber: sequenceNumber
+            };
+        }
+    }
+    // Return () if no relevant data was found
     return ();
 }
 
@@ -515,5 +546,65 @@ isolated function extractNarrativeFromCancellationReason(camtIsoRecord:CustomerP
     }
 
     return narratives;
+}
+
+# Create the block 1 of the MT message from the instructing agent and instructed agent fields.
+#
+# + groupHeader - The `GroupHeader113` structure containing InstgAgt and InstdAgt details.
+# + return - Returns the block 1 of the MT message or an error if the block 1 cannot be created.
+isolated function createBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstgAgt, camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstdAgt) returns swiftmt:Block1?|error {
+
+    if (InstgAgt == () && InstdAgt == ()) {
+        return ();
+    }
+
+    // Extract logical terminals from instructing and instructed agents
+    string? instgAgtLogicalTerminal = InstgAgt?.FinInstnId?.BICFI.toString().substring(0, 8);
+    string? instdAgtLogicalTerminal = InstdAgt?.FinInstnId?.BICFI.toString().substring(0, 8);
+
+    // Default logical terminal (fallback if none are found)
+    string logicalTerminal = instgAgtLogicalTerminal ?: instdAgtLogicalTerminal ?: "DEFAULTLT";
+
+    // Assign default values for other Block1 fields
+    string applicationId = "F"; // Default for application ID
+    string serviceId = "01"; // Default for service ID
+    string sessionNumber = "0000"; // Default session number
+    string sequenceNumber = "000000"; // Default sequence number
+
+    return {
+        applicationId: applicationId,
+        serviceId: serviceId,
+        logicalTerminal: logicalTerminal,
+        sessionNumber: sessionNumber,
+        sequenceNumber: sequenceNumber
+    };
+}
+
+# Create the block 1 of the MT message from the Assgne and Assgnr fields in the Camt055Document.
+#
+# + document - The `Camt055Document` containing the Assgne and Assgnr fields.
+# + return - Returns the block 1 of the MT message or an error if the block 1 cannot be created.
+isolated function createBlock1FromAssgnmt(camtIsoRecord:CaseAssignment6? Assgnmt) returns swiftmt:Block1|error {
+    // Extract logical terminal IDs from Assgne and Assgnr fields
+    string? assgneBIC = Assgnmt?.Assgne?.Agt?.FinInstnId?.BICFI;
+    string? assgnrBIC = Assgnmt?.Assgnr?.Agt?.FinInstnId?.BICFI;
+
+    // Default logical terminal (fallback if none are found)
+    string logicalTerminal = assgnrBIC ?: assgneBIC ?: "DEFAULTLT";
+
+    // Assign default values for other Block1 fields
+    string applicationId = "F"; // Default for application ID
+    string serviceId = "01"; // Default for service ID
+    string sessionNumber = "0000"; // Default session number
+    string sequenceNumber = "000000"; // Default sequence number
+
+    // Construct Block1 with extracted or default values
+    return {
+        applicationId: applicationId,
+        serviceId: serviceId,
+        logicalTerminal: logicalTerminal.substring(0, 8), // Use only the first 8 characters
+        sessionNumber: sessionNumber,
+        sequenceNumber: sequenceNumber
+    };
 }
 
