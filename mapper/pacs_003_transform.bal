@@ -13,7 +13,7 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
     swiftmt:MT104Transaction[] transactions = check createMT104TransactionsFromPacs003(document.FIToFICstmrDrctDbt.DrctDbtTxInf, instructingParty, creditor, creditorsBank)
     in {
         block1: check createBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt),
-        block2: check createMtBlock2FromSupplementaryData("104", document.FIToFICstmrDrctDbt.SplmtryData),
+        block2: check createMtBlock2("104", document.FIToFICstmrDrctDbt.SplmtryData, document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
         block3: check createMtBlock3FromSupplementaryData(document.FIToFICstmrDrctDbt.SplmtryData),
         block4: {
             MT19: {
@@ -182,7 +182,7 @@ function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document)
     )
     in {
         block1: check createBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt),
-        block2: check createMtBlock2FromSupplementaryData("107", document.FIToFICstmrDrctDbt.SplmtryData),
+        block2: check createMtBlock2("107", document.FIToFICstmrDrctDbt.SplmtryData, document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
         block3: check createMtBlock3FromSupplementaryData(document.FIToFICstmrDrctDbt.SplmtryData),
         block4: {
             MT19: !(document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum is ()) ? {

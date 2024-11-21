@@ -11,7 +11,7 @@ isolated function transformCamt028ToMT196(camtIsoRecord:Camt028Document document
     block1: check createBlock1FromAssgnmt(document.AddtlPmtInf.Assgnmt),
 
     // Step 2: Create Block 2 with mandatory fields
-    block2: check createMtBlock2FromSupplementaryData("196", document.AddtlPmtInf.SplmtryData),
+    block2: check createMtBlock2("196", document.AddtlPmtInf.SplmtryData, document.AddtlPmtInf.Assgnmt.CreDtTm),
 
     // Step 3: Create Block 3 (if supplementary data exists)
     block3: check createMtBlock3FromSupplementaryData(document.AddtlPmtInf.SplmtryData),

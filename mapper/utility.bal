@@ -15,6 +15,7 @@
 // under the License.
 
 // import ballerina/io;
+
 import ballerina/regex;
 import ballerina/time;
 import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
@@ -28,23 +29,23 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + return - The block 1 of the MT message or an error if the block 1 cannot be created
 isolated function createMtBlock1FromSupplementaryData(painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block1?|error {
     if supplementaryData is painIsoRecord:SupplementaryData1[] {
-        string? logicalTerminal;
-        string? sessionNumber;
-        string? sequenceNumber;
+        string? logicalTerminal = ();
+        string? sessionNumber = ();
+        string? sequenceNumber = ();
 
         foreach painIsoRecord:SupplementaryData1 data in supplementaryData {
             if data.Envlp.Nrtv is string {
                 // Extract logical terminal from narrative content if present
                 if data.Envlp.Nrtv.toString().startsWith("LT:") {
-                    logicalTerminal = data.Envlp.Nrtv.toString().split(":")[1]?.trim ();
+                    logicalTerminal = regex:split(data.Envlp.Nrtv.toString(), ":")[1].trim();
                 }
                 // Extract session number from narrative content if present
                 if data.Envlp.Nrtv.toString().startsWith("SN:") {
-                    sessionNumber = data.Envlp.Nrtv.split(":")[1]?.trim ();
+                    sessionNumber = regex:split(data.Envlp.Nrtv.toString(), ":")[1].trim();
                 }
                 // Extract sequence number from narrative content if present
                 if data.Envlp.Nrtv.toString().startsWith("SEQ:") {
-                    sequenceNumber = data.Envlp.Nrtv.split(":")[1]?.trim ();
+                    sequenceNumber = regex:split(data.Envlp.Nrtv.toString(), ":")[1].trim();
                 }
             }
         }
@@ -91,6 +92,44 @@ isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, painI
 
     swiftmt:Block2 result = {
         messageType: messageType
+    };
+
+    return result;
+}
+
+# Create the block 2 of the MT message from the supplementary data of the MX message
+# Currently, this function extracts the message type from the supplementary data if it is not provided directly.
+#
+# + mtMessageId - The message type of the MT message
+# + supplementaryData - The supplementary data of the MX message
+# + return - The block 2 of the MT message or an error if the block 2 cannot be created
+isolated function createMtBlock2(string? mtMessageId, painIsoRecord:SupplementaryData1[]? supplementaryData, painIsoRecord:ISODateTime? isoDateTime) returns swiftmt:Block2|error {
+    // TODO : Implement the function to create Block2 from SupplementaryData1
+
+    string messageType = "";
+
+    if (mtMessageId != ()) {
+        messageType = mtMessageId.toString();
+    } else if (supplementaryData != ()) {
+        // If the message type isn't provided directly through mtMessageId, try to find it in the supplementary data
+        foreach var data in supplementaryData {
+            if (data.Envlp.hasKey("MessageType")) {
+                messageType = data.Envlp["MessageType"].toString();
+                break;
+            }
+        }
+    }
+
+    if (messageType == "") {
+        return error("Failed to identify the message type");
+    }
+
+    string?[] swiftMtDateTime = convertToSwiftMTDateTime(isoDateTime.toString());
+
+    swiftmt:Block2 result = {
+        messageType: messageType,
+        MIRDate: {content: swiftMtDateTime[0] ?: "", number: "1"},
+        senderInputTime: {content: swiftMtDateTime[1] ?: "", number: "1"}
     };
 
     return result;
@@ -584,7 +623,12 @@ isolated function createBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAndFin
 #
 # + document - The `Camt055Document` containing the Assgne and Assgnr fields.
 # + return - Returns the block 1 of the MT message or an error if the block 1 cannot be created.
-isolated function createBlock1FromAssgnmt(camtIsoRecord:CaseAssignment6? Assgnmt) returns swiftmt:Block1|error {
+isolated function createBlock1FromAssgnmt(camtIsoRecord:CaseAssignment6? Assgnmt) returns swiftmt:Block1?|error {
+
+    if (Assgnmt == ()) {
+        return ();
+    }
+
     // Extract logical terminal IDs from Assgne and Assgnr fields
     string? assgneBIC = Assgnmt?.Assgne?.Agt?.FinInstnId?.BICFI;
     string? assgnrBIC = Assgnmt?.Assgnr?.Agt?.FinInstnId?.BICFI;
@@ -606,5 +650,32 @@ isolated function createBlock1FromAssgnmt(camtIsoRecord:CaseAssignment6? Assgnmt
         sessionNumber: sessionNumber,
         sequenceNumber: sequenceNumber
     };
+}
+
+# Converts an ISO 20022 standard date-time format to SWIFT MT date and time.
+#
+# + isoDateTime - The ISO 20022 date-time string in the format YYYY-MM-DDTHH:MM:SS.
+# + return - A tuple containing the SWIFT MT date in the format YYMMDD and time in the format HHMM, or null if the input is not valid.
+isolated function convertToSwiftMTDateTime(string? isoDateTime) returns [string?, string?] {
+    if isoDateTime is string {
+        // Validate the format of the ISO 20022 date-time string
+        if isoDateTime.length() >= 16 && isoDateTime.includes("T") {
+            // Split the ISO 20022 string into date and time parts
+            // string[] dateTimeParts = isoDateTime.split("T");
+            string[] dateTimeParts = regex:split(isoDateTime, "T");
+
+            string datePart = dateTimeParts[0]; // YYYY-MM-DD
+            string timePart = dateTimeParts[1]; // HH:MM:SS
+
+            // Convert date to SWIFT MT format (YYMMDD)
+            string swiftDate = datePart.substring(2, 4) + datePart.substring(5, 7) + datePart.substring(8, 10);
+
+            // Convert time to SWIFT MT format (HHMM)
+            string swiftTime = timePart.substring(0, 2) + timePart.substring(3, 5);
+
+            return [swiftDate, swiftTime];
+        }
+    }
+    return [(), ()];
 }
 

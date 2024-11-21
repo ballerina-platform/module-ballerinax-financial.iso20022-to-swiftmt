@@ -9,7 +9,7 @@ isolated function transformCamt055ToMT192(camtIsoRecord:Camt055Document document
     // Step 1: Extract and build the MT192 Block 1
     block1: check createBlock1FromAssgnmt(document.CstmrPmtCxlReq.Assgnmt),
     // Step 2: Create Block 2 with mandatory fields
-    block2: check createMtBlock2FromSupplementaryData("192", document.CstmrPmtCxlReq.SplmtryData),
+    block2: check createMtBlock2("192", document.CstmrPmtCxlReq.SplmtryData, document.CstmrPmtCxlReq.Assgnmt.CreDtTm),
     // Step 3: Create Block 3 (if supplementary data exists)
     block3: check createMtBlock3FromSupplementaryData(document.CstmrPmtCxlReq.SplmtryData),
     // Step 4: Build Block 4
