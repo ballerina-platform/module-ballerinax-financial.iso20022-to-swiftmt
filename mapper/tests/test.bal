@@ -835,3 +835,112 @@ function testTransformPacs008DocumentToMT103REMIT() returns error? {
 //         test:assertFail("Error occurred while transforming Pain008 to MT104");
 //     }
 // }
+
+@test:Config {}
+function testTransformPacs003DocumenttoMT104() returns error? {
+    // Define the test Pacs003Document XML
+    xml documentXML = xml `
+        <Pacs003Document>
+            <FIToFICstmrDrctDbt>
+                <GrpHdr></GrpHdr>
+                <DrctDbtTxInf>
+                    <PmtId>
+                        <InstrId>ABC/123</InstrId>
+                        <EndToEndId>REF100</EndToEndId>
+                        <TxId>REF100</TxId>
+                    </PmtId>
+                    <PmtTpInf>
+                        <CtgyPurp>
+                            <Cd>AUTH</Cd>
+                        </CtgyPurp>
+                    </PmtTpInf>
+                    <IntrBkSttlmAmt>
+                        <ActiveCurrencyAndAmount_SimpleType Ccy="USD">
+                            <ActiveCurrencyAndAmount_SimpleType>1000.00</ActiveCurrencyAndAmount_SimpleType>
+                        </ActiveCurrencyAndAmount_SimpleType>
+                    </IntrBkSttlmAmt>
+                    <IntrBkSttlmDt>2022-10-24</IntrBkSttlmDt>
+                    <InstdAmt>
+                        <ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="USD">
+                            <ActiveOrHistoricCurrencyAndAmount_SimpleType>1000.00</ActiveOrHistoricCurrencyAndAmount_SimpleType>
+                        </ActiveOrHistoricCurrencyAndAmount_SimpleType>
+                    </InstdAmt>
+                    <ChrgBr>CRED</ChrgBr>
+                    <DrctDbtTx>
+                        <MndtRltdInf/>
+                    </DrctDbtTx>
+                    <Cdtr>
+                        <PstlAdr/>
+                        <Id>
+                            <OrgId/>
+                        </Id>
+                    </Cdtr>
+                    <CdtrAcct>
+                        <Id>
+                            <Othr>
+                                <SchmeNm/>
+                            </Othr>
+                        </Id>
+                    </CdtrAcct>
+                    <CdtrAgt>
+                        <FinInstnId>
+                            <PstlAdr/>
+                        </FinInstnId>
+                    </CdtrAgt>
+                    <InitgPty>
+                        <Id>
+                            <OrgId/>
+                            <PrvtId>
+                                <Othr/>
+                            </PrvtId>
+                        </Id>
+                    </InitgPty>
+                    <IntrmyAgt1>
+                        <FinInstnId/>
+                    </IntrmyAgt1>
+                    <Dbtr>
+                        <Nm>JOHANN WILLEMS</Nm>
+                        <PstlAdr>
+                            <AdrLine>RUE JOSEPH II, 19</AdrLine>
+                            <AdrLine>1040 BRUSSELS</AdrLine>
+                        </PstlAdr>
+                        <Id>
+                            <OrgId/>
+                        </Id>
+                    </Dbtr>
+                    <DbtrAcct>
+                        <Id>
+                            <IBAN>BE62510007547061</IBAN>
+                            <Othr>
+                                <SchmeNm/>
+                            </Othr>
+                        </Id>
+                    </DbtrAcct>
+                    <DbtrAgt>
+                        <FinInstnId>
+                            <PstlAdr/>
+                        </FinInstnId>
+                    </DbtrAgt>
+                    <RmtInf>
+                        <Ustrd/>
+                    </RmtInf>
+                </DrctDbtTxInf>
+            </FIToFICstmrDrctDbt>
+        </Pacs003Document>
+    `;
+
+    // Parse the Pacs003Document XML
+    pacsIsoRecord:Pacs003Document pacs003Message =
+        <pacsIsoRecord:Pacs003Document>(check swiftmx:fromIso20022(documentXML, pacsIsoRecord:Pacs003Document));
+
+    // Transform the Pacs003Document to MT104
+    swiftmt:MT104Message|error mt104Message = transformPacs003DocumentToMT104(pacs003Message);
+
+    // Validate the transformation
+    if (mt104Message is swiftmt:MT104Message) {
+        test:assertEquals(mt104Message.block2.messageType, "104");
+    } else {
+        test:assertFail("Error occurred while transforming Pacs003 to MT104");
+    }
+}
+
