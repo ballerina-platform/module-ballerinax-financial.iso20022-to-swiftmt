@@ -33,22 +33,17 @@ isolated function createMtBlock1FromSupplementaryData(painIsoRecord:Supplementar
 
         foreach painIsoRecord:SupplementaryData1 data in supplementaryData {
             if data.Envlp.Nrtv is string {
-                // Extract logical terminal from narrative content if present
                 if data.Envlp.Nrtv.toString().startsWith("LT:") {
                     logicalTerminal = regex:split(data.Envlp.Nrtv.toString(), ":")[1].trim();
                 }
-                // Extract session number from narrative content if present
                 if data.Envlp.Nrtv.toString().startsWith("SN:") {
                     sessionNumber = regex:split(data.Envlp.Nrtv.toString(), ":")[1].trim();
                 }
-                // Extract sequence number from narrative content if present
                 if data.Envlp.Nrtv.toString().startsWith("SEQ:") {
                     sequenceNumber = regex:split(data.Envlp.Nrtv.toString(), ":")[1].trim();
                 }
             }
         }
-
-        // Return Block1 if any of the fields were extracted
         if logicalTerminal is string || sessionNumber is string || sequenceNumber is string {
             return {
                 logicalTerminal: logicalTerminal,
@@ -57,7 +52,6 @@ isolated function createMtBlock1FromSupplementaryData(painIsoRecord:Supplementar
             };
         }
     }
-    // Return () if no relevant data was found
     return ();
 }
 
@@ -68,8 +62,6 @@ isolated function createMtBlock1FromSupplementaryData(painIsoRecord:Supplementar
 # + supplementaryData - The supplementary data of the MX message
 # + return - The block 2 of the MT message or an error if the block 2 cannot be created
 isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block2|error {
-    // TODO : Implement the function to create Block2 from SupplementaryData1
-
     string messageType = "";
 
     if (mtMessageId != ()) {
@@ -102,8 +94,6 @@ isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, painI
 # + supplementaryData - The supplementary data of the MX message
 # + return - The block 2 of the MT message or an error if the block 2 cannot be created
 isolated function createMtBlock2(string? mtMessageId, painIsoRecord:SupplementaryData1[]? supplementaryData, painIsoRecord:ISODateTime? isoDateTime) returns swiftmt:Block2|error {
-    // TODO : Implement the function to create Block2 from SupplementaryData1
-
     string messageType = "";
 
     if (mtMessageId != ()) {
@@ -481,13 +471,16 @@ isolated function getMtCountryAndTownFromMxCountryAndTown(string country, string
     return result;
 }
 
+# Retrieves the charge code from the given `ChargeBearerType1Code`.
+#
+# + chargeCode - The charge code in ISO 20022 format.
+# + return - Returns the corresponding charge code as a string or an empty string if not valid.
 function getChargeCode(painIsoRecord:ChargeBearerType1Code? chargeCode) returns string {
     if chargeCode is () {
         return "";
     }
 
     string code = "";
-
     match chargeCode {
         painIsoRecord:CRED => {
             code = "CRED";
@@ -507,81 +500,65 @@ function getChargeCode(painIsoRecord:ChargeBearerType1Code? chargeCode) returns 
     }
 
     return code;
-
 }
 
-# Join an array of strings with a separator
-# + strings - The array of strings
-# + separator - The separator
-# + return - The joined string
+# Joins an array of strings with a specified separator.
+#
+# + strings - The array of strings to join.
+# + separator - The separator to use between strings.
+# + return - The joined string.
 function joinStringArray(string[] strings, string separator) returns string {
     string result = "";
-
     foreach string s in strings {
         result = result + s + separator;
     }
-
     return result;
 }
 
-# Get the first element of a Array or return an null
-# + array - The array
-# + return - The first element of the array or null
+# Retrieves the first element of an array or returns null if the array is empty.
+#
+# + array - The array to process.
+# + return - The first element of the array or null if the array is empty.
 isolated function getFirstElementFromArray(any[]? array) returns any? {
-
     if (array == ()) {
         return ();
     }
-
     if (array.length() > 0) {
         return array[0];
     }
-
     return ();
 }
 
-# Get the last element of an array or return null
-# + array - The array
-# + return - The last element of the array or null
+# Retrieves the last element of an array or returns null if the array is empty.
+#
+# + array - The array to process.
+# + return - The last element of the array or null if the array is empty.
 function getLastElementFromArray(any[]? array) returns any? {
-
     if (array == ()) {
         return ();
     }
-
     if (array.length() > 0) {
         return array[array.length() - 1];
     }
-
     return ();
 }
 
-# Extracts the narrative (Nrtv) information from the Pacs.003 document's payment cancellation data.
+# Extracts narrative (Nrtv) information from a Pacs.003 document's payment cancellation data.
 #
-# + document - The ISO 20022 Pacs.003 document
-# + return - Array of `Nrtv` records or an empty array if no information is found
+# + document - The ISO 20022 `CustomerPaymentCancellationRequestV12` document.
+# + return - Array of `Nrtv` records or an empty array if no narrative is found.
 isolated function extractNarrativeFromCancellationReason(camtIsoRecord:CustomerPaymentCancellationRequestV12 document) returns swiftmt:Nrtv[] {
     swiftmt:Nrtv[] narratives = [];
-
-    // Retrieve the first OriginalPaymentInstruction49 element.
     camtIsoRecord:OriginalPaymentInstruction49? originalPaymentInstruction = <camtIsoRecord:OriginalPaymentInstruction49>getFirstElementFromArray(document.Undrlyg[0].OrgnlPmtInfAndCxl);
-
     if originalPaymentInstruction is () {
-        // Return an empty array if no payment instruction is found.
         return narratives;
     }
-
-    // Retrieve the first PaymentCancellationReason6 element.
     camtIsoRecord:PaymentCancellationReason6? cancellationReason = <camtIsoRecord:PaymentCancellationReason6>getFirstElementFromArray(originalPaymentInstruction.CxlRsnInf);
-
     if cancellationReason is () {
-        // Return an empty array if no cancellation reason is found.
         return narratives;
     }
-
-    // Extract narrative details if available.
     if !(cancellationReason.AddtlInf is ()) {
-        int number = 1; // Initialize the number attribute
+        int number = 1;
         foreach string narrative in <string[]>cancellationReason.AddtlInf {
             narratives.push({
                 content: narrative,
@@ -590,33 +567,25 @@ isolated function extractNarrativeFromCancellationReason(camtIsoRecord:CustomerP
             number += 1;
         }
     }
-
     return narratives;
 }
 
-# Create the block 1 of the MT message from the instructing agent and instructed agent fields.
+# Creates Block 1 of an MT message using the instructing agent and instructed agent fields.
 #
-# + groupHeader - The `GroupHeader113` structure containing InstgAgt and InstdAgt details.
-# + return - Returns the block 1 of the MT message or an error if the block 1 cannot be created.
+# + InstgAgt - The instructing agent details.
+# + InstdAgt - The instructed agent details.
+# + return - Returns the constructed Block 1 of the MT message or null if it cannot be created.
 isolated function createBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstgAgt, camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstdAgt) returns swiftmt:Block1?|error {
-
     if (InstgAgt == () && InstdAgt == ()) || InstgAgt?.FinInstnId?.BICFI.toString().length() < 8 || InstdAgt?.FinInstnId?.BICFI.toString().length() < 8 {
         return ();
     }
-
-    // Extract logical terminals from instructing and instructed agents
     string? instgAgtLogicalTerminal = InstgAgt?.FinInstnId?.BICFI.toString().substring(0, 8);
     string? instdAgtLogicalTerminal = InstdAgt?.FinInstnId?.BICFI.toString().substring(0, 8);
-
-    // Default logical terminal (fallback if none are found)
     string logicalTerminal = instgAgtLogicalTerminal ?: instdAgtLogicalTerminal ?: "DEFAULTLT";
-
-    // Assign default values for other Block1 fields
-    string applicationId = "F"; // Default for application ID
-    string serviceId = "01"; // Default for service ID
-    string sessionNumber = "0000"; // Default session number
-    string sequenceNumber = "000000"; // Default sequence number
-
+    string applicationId = "F";
+    string serviceId = "01";
+    string sessionNumber = "0000";
+    string sequenceNumber = "000000";
     return {
         applicationId: applicationId,
         serviceId: serviceId,
@@ -626,63 +595,44 @@ isolated function createBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAndFin
     };
 }
 
-# Create the block 1 of the MT message from the Assgne and Assgnr fields in the Camt055Document.
+# Creates Block 1 of an MT message using the Assgne and Assgnr fields in a Camt055Document.
 #
-# + document - The `Camt055Document` containing the Assgne and Assgnr fields.
-# + return - Returns the block 1 of the MT message or an error if the block 1 cannot be created.
+# + Assgnmt - The assignment details containing Assgne and Assgnr fields.
+# + return - Returns the constructed Block 1 of the MT message or null if it cannot be created.
 isolated function createBlock1FromAssgnmt(camtIsoRecord:CaseAssignment6? Assgnmt) returns swiftmt:Block1?|error {
-
     if (Assgnmt == ()) {
         return ();
     }
-
-    // Extract logical terminal IDs from Assgne and Assgnr fields
     string? assgneBIC = Assgnmt?.Assgne?.Agt?.FinInstnId?.BICFI;
     string? assgnrBIC = Assgnmt?.Assgnr?.Agt?.FinInstnId?.BICFI;
-
-    // Default logical terminal (fallback if none are found)
     string logicalTerminal = assgnrBIC ?: assgneBIC ?: "DEFAULTLT";
-
-    // Assign default values for other Block1 fields
-    string applicationId = "F"; // Default for application ID
-    string serviceId = "01"; // Default for service ID
-    string sessionNumber = "0000"; // Default session number
-    string sequenceNumber = "000000"; // Default sequence number
-
-    // Construct Block1 with extracted or default values
+    string applicationId = "F";
+    string serviceId = "01";
+    string sessionNumber = "0000";
+    string sequenceNumber = "000000";
     return {
         applicationId: applicationId,
         serviceId: serviceId,
-        logicalTerminal: logicalTerminal.substring(0, 8), // Use only the first 8 characters
+        logicalTerminal: logicalTerminal.substring(0, 8),
         sessionNumber: sessionNumber,
         sequenceNumber: sequenceNumber
     };
 }
 
-# Converts an ISO 20022 standard date-time format to SWIFT MT date and time.
+# Converts an ISO 20022 date-time format to SWIFT MT date and time.
 #
 # + isoDateTime - The ISO 20022 date-time string in the format YYYY-MM-DDTHH:MM:SS.
-# + return - A tuple containing the SWIFT MT date in the format YYMMDD and time in the format HHMM, or null if the input is not valid.
+# + return - A tuple containing the SWIFT MT date in YYMMDD format and time in HHMM format.
 isolated function convertToSwiftMTDateTime(string? isoDateTime) returns [string?, string?] {
     if isoDateTime is string {
-        // Validate the format of the ISO 20022 date-time string
         if isoDateTime.length() >= 16 && isoDateTime.includes("T") {
-            // Split the ISO 20022 string into date and time parts
-            // string[] dateTimeParts = isoDateTime.split("T");
             string[] dateTimeParts = regex:split(isoDateTime, "T");
-
-            string datePart = dateTimeParts[0]; // YYYY-MM-DD
-            string timePart = dateTimeParts[1]; // HH:MM:SS
-
-            // Convert date to SWIFT MT format (YYMMDD)
+            string datePart = dateTimeParts[0];
+            string timePart = dateTimeParts[1];
             string swiftDate = datePart.substring(2, 4) + datePart.substring(5, 7) + datePart.substring(8, 10);
-
-            // Convert time to SWIFT MT format (HHMM)
             string swiftTime = timePart.substring(0, 2) + timePart.substring(3, 5);
-
             return [swiftDate, swiftTime];
         }
     }
     return [(), ()];
 }
-
