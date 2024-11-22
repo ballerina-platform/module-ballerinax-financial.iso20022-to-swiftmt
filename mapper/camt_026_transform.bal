@@ -8,17 +8,9 @@ import ballerinax/financial.swift.mt as swiftmt;
 isolated function transformCamt026ToMT195(camtIsoRecord:Camt026Document document) returns swiftmt:MTn95Message|error => let
     camtIsoRecord:SupplementaryData1[]? splmtryData = document.UblToApply.SplmtryData
     in {
-
-        // Construct Block 1: Basic Header Block
         block1: check createBlock1FromAssgnmt(document.UblToApply.Assgnmt),
-
-        // Construct Block 2: Application Header Block
         block2: check createMtBlock2("195", document.UblToApply.SplmtryData, document.UblToApply.Assgnmt.CreDtTm),
-
-        // Construct Block 3: User Header Block
         block3: check createMtBlock3(document.UblToApply.SplmtryData, ()),
-
-        // Construct Block 4: Text Block
         block4: {
             MT20: {
                 name: "20",
@@ -60,10 +52,7 @@ isolated function transformCamt026ToMT195(camtIsoRecord:Camt026Document document
             MessageCopy: ()
 
         },
-
-        // Construct Block 5: Trailer Block
         block5: check createMtBlock5FromSupplementaryData(document.UblToApply.SplmtryData)
-
     };
 
 # Formats the narrative for Field 77A to comply with the 20*35x format.
@@ -123,21 +112,17 @@ isolated function getConcatenatedQueries(camtIsoRecord:MissingOrIncorrectData1? 
     int queryNumber = 1;
     camtIsoRecord:UnableToApplyMissing2[]? missingInfo = missingOrIncorrectInfo.MssngInf;
 
-    // Handle missing information
     if !(missingInfo is ()) && missingInfo.length() > 0 {
         foreach camtIsoRecord:UnableToApplyMissing2 missing in missingInfo {
             string queryContent = "/" + queryNumber.toString() + "/";
-
-            // Handle MissingData1Choice (Tp) field
             if missing.Tp.Cd is string {
-                queryContent += missing.Tp.Cd.toString(); // Add the code if present
+                queryContent += missing.Tp.Cd.toString();
             } else if missing.Tp.Prtry is string {
-                queryContent += missing.Tp.Prtry.toString(); // Add proprietary information if present
+                queryContent += missing.Tp.Prtry.toString();
             } else {
-                queryContent += "Unknown Type"; // Fallback for missing type
+                queryContent += "Unknown Type";
             }
 
-            // Handle Additional Missing Information
             if missing.AddtlMssngInf is string {
                 queryContent += " " + missing.AddtlMssngInf.toString();
             }
@@ -149,21 +134,18 @@ isolated function getConcatenatedQueries(camtIsoRecord:MissingOrIncorrectData1? 
 
     camtIsoRecord:UnableToApplyIncorrect2[]? incorrectInfo = missingOrIncorrectInfo.IncrrctInf;
 
-    // Handle incorrect information
     if incorrectInfo is camtIsoRecord:UnableToApplyIncorrect2[] && incorrectInfo.length() > 0 {
         foreach camtIsoRecord:UnableToApplyIncorrect2 incorrect in incorrectInfo {
             string queryContent = "/" + queryNumber.toString() + "/";
 
-            // Handle IncorrectData1Choice (Tp) field
             if incorrect.Tp.Cd is string {
-                queryContent += incorrect.Tp.Cd.toString(); // Add the code if present
+                queryContent += incorrect.Tp.Cd.toString();
             } else if incorrect.Tp.Prtry is string {
-                queryContent += incorrect.Tp.Prtry.toString(); // Add proprietary information if present
+                queryContent += incorrect.Tp.Prtry.toString();
             } else {
-                queryContent += "Unknown Type"; // Fallback for missing type
+                queryContent += "Unknown Type";
             }
 
-            // Handle Additional Incorrect Information
             if incorrect.AddtlIncrrctInf is string {
                 queryContent += " " + incorrect.AddtlIncrrctInf.toString();
             }
@@ -173,7 +155,6 @@ isolated function getConcatenatedQueries(camtIsoRecord:MissingOrIncorrectData1? 
         }
     }
 
-    // Remove the trailing newline and return the result
     return queriesContent.substring(0, queriesContent.length() - 1);
 }
 

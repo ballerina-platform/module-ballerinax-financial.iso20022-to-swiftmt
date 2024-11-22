@@ -6,17 +6,9 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + document - The camt.056 message to be transformed, in `camtIsoRecord:Camt056Document` format.
 # + return - Returns an MT192 message in the `swiftmt:MTn92Message` format if successful, otherwise returns an error.
 isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document) returns swiftmt:MTn92Message|error => {
-
-    // Step 1: Extract and build Block 1
     block1: check createBlock1FromAssgnmt(document.FIToFIPmtCxlReq.Assgnmt),
-
-    // Step 2: Create Block 2 with mandatory fields
     block2: check createMtBlock2("192", document.FIToFIPmtCxlReq.SplmtryData, document.FIToFIPmtCxlReq.Assgnmt.CreDtTm),
-
-    // Step 3: Create Block 3 (if supplementary data exists)
     block3: check createMtBlock3(document.FIToFIPmtCxlReq.SplmtryData, ()),
-
-    // Step 4: Build Block 4
     block4: {
         MT20: {
             name: "20",
@@ -48,8 +40,6 @@ isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document
         MessageCopy: ()
 
     },
-
-    // Step 5: Optional Block 5 (if supplementary data exists)
     block5: check createMtBlock5FromSupplementaryData(document.FIToFIPmtCxlReq.SplmtryData)
 };
 

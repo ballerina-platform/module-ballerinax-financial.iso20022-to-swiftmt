@@ -6,16 +6,9 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + document - The camt.028 message to be transformed, in `camtIsoRecord:Camt028Document` format.
 # + return - Returns an MT196 message in the `swiftmt:MTn96Message` format if successful, otherwise returns an error.
 isolated function transformCamt028ToMT196(camtIsoRecord:Camt028Document document) returns swiftmt:MTn96Message|error => {
-
-    // Step 1: Extract and build the MT196 Block 1
     block1: check createBlock1FromAssgnmt(document.AddtlPmtInf.Assgnmt),
-
-    // Step 2: Create Block 2 with mandatory fields
     block2: check createMtBlock2("196", document.AddtlPmtInf.SplmtryData, document.AddtlPmtInf.Assgnmt.CreDtTm),
-
-    // Step 3: Create Block 3 (if supplementary data exists)
     block3: check createMtBlock3(document.AddtlPmtInf.SplmtryData, ()),
-    // Step 4: Build Block 4
     block4: {
         MT20: {
             name: "20",
@@ -34,7 +27,7 @@ isolated function transformCamt028ToMT196(camtIsoRecord:Camt028Document document
         MT11S: {
             name: "11S",
             MtNum: {
-                content: "028", // Origin message type number
+                content: "028",
                 number: "1"
             },
             Dt: check convertISODateStringToSwiftMtDate(document.AddtlPmtInf.Assgnmt.CreDtTm.toString())
@@ -53,8 +46,6 @@ isolated function transformCamt028ToMT196(camtIsoRecord:Camt028Document document
             } : (),
         MessageCopy: ()
     },
-
-    // Step 5: Optional Block 5 (if supplementary data exists)
     block5: check createMtBlock5FromSupplementaryData(document.AddtlPmtInf.SplmtryData)
 
 };

@@ -22,7 +22,6 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + document - The PACS008 document
 # + return - The MT102 message or an error if the transformation fails
 function transformPacs008DocumentToMT102(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT102Message|error => {
-
     block1: check createBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check createMtBlock2("102", document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR),
@@ -35,7 +34,6 @@ function transformPacs008DocumentToMT102(pacsIsoRecord:Pacs008Document document)
 # + document - The PACS008 document
 # + return - The MT102STP message or an error if the transformation fails
 function transformPacs008DocumentToMT102STP(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT102STPMessage|error => {
-
     block1: check createBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check createMtBlock2("102STP", document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR),
@@ -320,7 +318,6 @@ enum MT103Type {
 # + document - The PACS008 document
 # + return - The MT103 message or an error if the transformation fails
 function transformPacs008DocumentToMT103(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT103Message|error => {
-
     block1: check createBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check createMtBlock2("103", document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR),
@@ -333,7 +330,6 @@ function transformPacs008DocumentToMT103(pacsIsoRecord:Pacs008Document document)
 # + document - The PACS008 document
 # + return - The MT103STP message or an error if the transformation fails
 function transformPacs008DocumentToMT103STP(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT103STPMessage|error => {
-
     block1: check createBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check createMtBlock2("103STP", document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR),
@@ -346,7 +342,6 @@ function transformPacs008DocumentToMT103STP(pacsIsoRecord:Pacs008Document docume
 # + document - The PACS008 document
 # + return - The MT103REMIT message or an error if the transformation fails
 function transformPacs008DocumentToMT103REMIT(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT103REMITMessage|error => {
-
     block1: check createBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check createMtBlock2FromSupplementaryData("103REMIT", document.FIToFICstmrCdtTrf.SplmtryData),
     block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR),

@@ -106,7 +106,6 @@ isolated function createMT101Transactions(
                 }
             },
 
-            // Setting this to empty string as the value is not available in the input
             MT21F: {
                 name: "21F",
                 Ref: {
