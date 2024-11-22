@@ -14,7 +14,7 @@ isolated function transformCamt031ToMT196(camtIsoRecord:Camt031Document document
     block2: check createMtBlock2("196", document.RjctInvstgtn.SplmtryData, document.RjctInvstgtn.Assgnmt.CreDtTm),
 
     // Step 3: Create Block 3 (if supplementary data exists)
-    block3: check createMtBlock3FromSupplementaryData(document.RjctInvstgtn.SplmtryData),
+    block3: check createMtBlock3(document.RjctInvstgtn.SplmtryData, ()),
 
     // Step 4: Build Block 4
     block4:

@@ -25,7 +25,7 @@ function transformPacs008DocumentToMT102(pacsIsoRecord:Pacs008Document document)
 
     block1: check createBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check createMtBlock2("102", document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
-    block3: check createMtBlock3FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR),
     block4: <swiftmt:MT102Block4>check createMT102Block4(document, false),
     block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
@@ -38,7 +38,7 @@ function transformPacs008DocumentToMT102STP(pacsIsoRecord:Pacs008Document docume
 
     block1: check createBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check createMtBlock2("102STP", document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
-    block3: check createMtBlock3FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR),
     block4: <swiftmt:MT102STPBlock4>check createMT102Block4(document, true),
     block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
@@ -323,7 +323,7 @@ function transformPacs008DocumentToMT103(pacsIsoRecord:Pacs008Document document)
 
     block1: check createBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check createMtBlock2("103", document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
-    block3: check createMtBlock3FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR),
     block4: <swiftmt:MT103Block4>check createMT103Block4(document, MT103),
     block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
@@ -336,7 +336,7 @@ function transformPacs008DocumentToMT103STP(pacsIsoRecord:Pacs008Document docume
 
     block1: check createBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check createMtBlock2("103STP", document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
-    block3: check createMtBlock3FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR),
     block4: <swiftmt:MT103STPBlock4>check createMT103Block4(document, MT103_STP),
     block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
@@ -349,7 +349,7 @@ function transformPacs008DocumentToMT103REMIT(pacsIsoRecord:Pacs008Document docu
 
     block1: check createBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check createMtBlock2FromSupplementaryData("103REMIT", document.FIToFICstmrCdtTrf.SplmtryData),
-    block3: check createMtBlock3FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData),
+    block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR),
     block4: <swiftmt:MT103REMITBlock4>check createMT103Block4(document, MT103_REMIT),
     block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };

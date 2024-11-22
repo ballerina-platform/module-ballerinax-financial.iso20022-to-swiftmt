@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// import ballerina/io;
-
 import ballerina/regex;
 import ballerina/time;
 import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
@@ -140,8 +138,17 @@ isolated function createMtBlock2(string? mtMessageId, painIsoRecord:Supplementar
 #
 # + supplementaryData - The supplementary data of the MX message
 # + return - The block 3 of the MT message or an error if the block 3 cannot be created
-isolated function createMtBlock3FromSupplementaryData(painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block3?|error {
-    return ();
+isolated function createMtBlock3(painIsoRecord:SupplementaryData1[]? supplementaryData, painIsoRecord:UUIDv4Identifier? uetr) returns swiftmt:Block3?|error {
+
+    if uetr == () {
+        return ();
+    }
+
+    swiftmt:Block3 result = {
+        NdToNdTxRef: {value: uetr.toString()}
+    };
+
+    return result;
 }
 
 # Create the block 5 of the MT message from the supplementary data of the MX message
@@ -593,7 +600,7 @@ isolated function extractNarrativeFromCancellationReason(camtIsoRecord:CustomerP
 # + return - Returns the block 1 of the MT message or an error if the block 1 cannot be created.
 isolated function createBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstgAgt, camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstdAgt) returns swiftmt:Block1?|error {
 
-    if (InstgAgt == () && InstdAgt == ()) {
+    if (InstgAgt == () && InstdAgt == ()) || InstgAgt?.FinInstnId?.BICFI.toString().length() < 8 || InstdAgt?.FinInstnId?.BICFI.toString().length() < 8 {
         return ();
     }
 

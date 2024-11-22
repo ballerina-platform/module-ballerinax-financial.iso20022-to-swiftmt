@@ -14,7 +14,7 @@ isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document
     block2: check createMtBlock2("192", document.FIToFIPmtCxlReq.SplmtryData, document.FIToFIPmtCxlReq.Assgnmt.CreDtTm),
 
     // Step 3: Create Block 3 (if supplementary data exists)
-    block3: check createMtBlock3FromSupplementaryData(document.FIToFIPmtCxlReq.SplmtryData),
+    block3: check createMtBlock3(document.FIToFIPmtCxlReq.SplmtryData, ()),
 
     // Step 4: Build Block 4
     block4: {
@@ -51,7 +51,6 @@ isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document
 
     // Step 5: Optional Block 5 (if supplementary data exists)
     block5: check createMtBlock5FromSupplementaryData(document.FIToFIPmtCxlReq.SplmtryData)
-
 };
 
 # Extracts narrative information from cancellation reasons in the camt.056 message.
