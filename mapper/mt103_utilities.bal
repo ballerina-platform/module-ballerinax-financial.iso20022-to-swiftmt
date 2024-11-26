@@ -403,7 +403,16 @@ returns swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? {
     else if cdtr.PstlAdr?.AdrLine == () {
         return <swiftmt:MT59F>{
             name: "59F",
-            CdTyp: []
+            CdTyp: [],
+            Nm: [
+                {
+                    content: getEmptyStrIfNull(cdtr.Nm.toString()),
+                    number: "1"
+                }
+            ],
+            CntyNTw: getMtCountryAndTownFromMxCountryAndTown(getEmptyStrIfNull(cdtr.PstlAdr?.Ctry),
+                    getEmptyStrIfNull(cdtr.PstlAdr?.TwnNm)
+            )
         };
     }
     // MT59: Use this if only the basic beneficiary information (name or account) is available.

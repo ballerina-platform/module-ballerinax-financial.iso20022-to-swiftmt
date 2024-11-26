@@ -201,6 +201,7 @@ isolated function getMT102TransactionBeneficiaryCustomerFromPacs008Document(Swif
 returns swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? {
 
     SwiftMxRecords:PartyIdentification272? Cdtr = mxTransaction.Cdtr;
+    SwiftMxRecords:CashAccount40? CdtrAcct = mxTransaction.CdtrAcct;
 
     if Cdtr is () {
         return ();
@@ -221,7 +222,11 @@ returns swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? {
             name: "59F",
             Nm: getNamesArrayFromNameString(getEmptyStrIfNull(Cdtr.Nm)),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>Cdtr.PstlAdr?.AdrLine),
-            CdTyp: []
+            CdTyp: [],
+            Acc: {content: CdtrAcct?.Id?.Othr?.Id.toString(), number: "1"},
+            CntyNTw: getMtCountryAndTownFromMxCountryAndTown(getEmptyStrIfNull(Cdtr.PstlAdr?.Ctry),
+                    getEmptyStrIfNull(Cdtr.PstlAdr?.TwnNm)
+            )
         };
     }
 

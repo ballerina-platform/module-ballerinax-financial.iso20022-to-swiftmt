@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
 import ballerina/regex;
 import ballerina/time;
 import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
@@ -92,6 +93,7 @@ isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, painI
 #
 # + mtMessageId - The message type of the MT message
 # + supplementaryData - The supplementary data of the MX message
+# + isoDateTime - The ISO date time of the MT message
 # + return - The block 2 of the MT message or an error if the block 2 cannot be created
 isolated function createMtBlock2(string? mtMessageId, painIsoRecord:SupplementaryData1[]? supplementaryData, painIsoRecord:ISODateTime? isoDateTime) returns swiftmt:Block2|error {
     string messageType = "";
@@ -112,6 +114,8 @@ isolated function createMtBlock2(string? mtMessageId, painIsoRecord:Supplementar
         return error("Failed to identify the message type");
     }
 
+    io:println(isoDateTime);
+
     string?[] swiftMtDateTime = convertToSwiftMTDateTime(isoDateTime.toString());
 
     swiftmt:Block2 result = {
@@ -127,6 +131,7 @@ isolated function createMtBlock2(string? mtMessageId, painIsoRecord:Supplementar
 # Currently, this function is empty, but if we decide to add any logic to create the block 3 from the supplementary data,
 #
 # + supplementaryData - The supplementary data of the MX message
+# + uetr - The unique end-to-end transaction reference
 # + return - The block 3 of the MT message or an error if the block 3 cannot be created
 isolated function createMtBlock3(painIsoRecord:SupplementaryData1[]? supplementaryData, painIsoRecord:UUIDv4Identifier? uetr) returns swiftmt:Block3?|error {
 
@@ -293,13 +298,11 @@ isolated function convertCharges16toMT71a(painIsoRecord:Charges16[]? charges) re
 # + return - The MT71F message or an error if the conversion fails
 isolated function convertCharges16toMT71F(painIsoRecord:Charges16[]? charges) returns swiftmt:MT71F|error {
     (swiftmt:MT71F|swiftmt:MT71G)[] mt71a = convertCharges16toMT71a(charges);
-
     foreach (swiftmt:MT71F|swiftmt:MT71G) e in mt71a {
         if (e is swiftmt:MT71F) {
             return check e.ensureType(swiftmt:MT71F);
         }
     }
-
     return error("Failed to convert Charges16 to MT71F");
 }
 
@@ -431,6 +434,8 @@ isolated function getNamesArrayFromNameString(string nameString) returns swiftmt
         });
     }
 
+    io:println(result);
+
     return result;
 }
 
@@ -459,7 +464,7 @@ isolated function getMtAddressLinesFromMxAddresses(string[] addresses) returns s
 isolated function getMtCountryAndTownFromMxCountryAndTown(string country, string town) returns swiftmt:CntyNTw[] {
     swiftmt:CntyNTw[] result = [];
 
-    string countryAndTown = country + town;
+    string countryAndTown = country + "/" + town;
 
     if (countryAndTown != "") {
         result.push({
@@ -507,7 +512,7 @@ function getChargeCode(painIsoRecord:ChargeBearerType1Code? chargeCode) returns 
 # + strings - The array of strings to join.
 # + separator - The separator to use between strings.
 # + return - The joined string.
-function joinStringArray(string[] strings, string separator) returns string {
+isolated function joinStringArray(string[] strings, string separator) returns string {
     string result = "";
     foreach string s in strings {
         result = result + s + separator;
@@ -636,3 +641,44 @@ isolated function convertToSwiftMTDateTime(string? isoDateTime) returns [string?
     }
     return [(), ()];
 }
+
+# Get narrative information from the RegulatoryReporting3
+#
+# + rgltryRptg - The credit transfer transaction information
+# + return - The narrative information
+isolated function getNarrativeFromRegulatoryCreditTransferTransaction61(painIsoRecord:RegulatoryReporting3[]? rgltryRptg) returns swiftmt:Nrtv {
+    string narratives = "";
+
+    if rgltryRptg == () {
+        return {
+            content: getEmptyStrIfNull(narratives),
+            number: "1"
+        };
+    }
+
+    painIsoRecord:StructuredRegulatoryReporting3[]? Dtls = rgltryRptg[0].Dtls;
+
+    if Dtls == () {
+        return {
+            content: getEmptyStrIfNull(narratives),
+            number: "1"
+        };
+    }
+
+    painIsoRecord:StructuredRegulatoryReporting3? r = Dtls[0];
+
+    if r is () {
+        return {
+            content: getEmptyStrIfNull(narratives),
+            number: "1"
+        };
+    }
+
+    narratives = "/" + r.Cd.toString() + "/" + r.Ctry.toString() + "//" + joinStringArray(<string[]>(r.Inf), " ");
+
+    return {
+        content: getEmptyStrIfNull(narratives),
+        number: "1"
+    };
+}
+

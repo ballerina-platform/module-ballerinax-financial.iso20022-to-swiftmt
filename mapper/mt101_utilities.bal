@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
 import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
@@ -75,12 +76,14 @@ returns swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? {
 
     painIsoRecord:PaymentInstruction44 firstTransaction = payments[0];
 
+    io:println(firstTransaction.Dbtr?.Nm);
+
     if (firstTransaction.Dbtr.Nm != () && firstTransaction.Dbtr.PstlAdr != ()) {
         return <swiftmt:MT50F>{
             name: "50F",
             Nm: getNamesArrayFromNameString(firstTransaction.Dbtr?.Nm.toString()),
             CdTyp: [],
-            PrtyIdn: {content: "", number: "1"},
+            PrtyIdn: {content: "/" + firstTransaction.DbtrAcct?.Id?.Othr?.Id.toString(), number: "1"},
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>firstTransaction.Dbtr?.PstlAdr?.AdrLine),
             CntyNTw: getMtCountryAndTownFromMxCountryAndTown(getEmptyStrIfNull(firstTransaction.Dbtr?.PstlAdr?.Ctry), getEmptyStrIfNull(firstTransaction.Dbtr?.PstlAdr?.TwnNm))
         };
@@ -218,6 +221,7 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
 isolated function getMT101TransactionBeneficiary(painIsoRecord:PaymentInstruction44 mxTransaction)
 returns swiftmt:MT59|swiftmt:MT59A?|swiftmt:MT59F? {
     painIsoRecord:PartyIdentification272? cdtr = mxTransaction.CdtTrfTxInf[0]?.Cdtr;
+    painIsoRecord:CashAccount40? cdtrAcct = mxTransaction.CdtTrfTxInf[0]?.CdtrAcct;
 
     if cdtr is () {
         return ();
@@ -234,6 +238,7 @@ returns swiftmt:MT59|swiftmt:MT59A?|swiftmt:MT59F? {
     else if cdtr.PstlAdr?.AdrLine != () {
         return <swiftmt:MT59F>{
             name: "59F",
+            Acc: {content: cdtrAcct?.Id?.Othr?.Id.toString(), number: "1"},
             Nm: [
                 {
                     content: getEmptyStrIfNull(cdtr.Nm.toString()),
@@ -241,7 +246,10 @@ returns swiftmt:MT59|swiftmt:MT59A?|swiftmt:MT59F? {
                 }
             ],
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>cdtr.PstlAdr?.AdrLine),
-            CdTyp: []
+            CdTyp: [],
+            CntyNTw: getMtCountryAndTownFromMxCountryAndTown(getEmptyStrIfNull(cdtr.PstlAdr?.Ctry),
+                    getEmptyStrIfNull(cdtr.PstlAdr?.TwnNm)
+            )
         };
     }
     // MT59 mapping for general beneficiary name or account info

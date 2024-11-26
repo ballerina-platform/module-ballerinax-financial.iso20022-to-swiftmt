@@ -43,11 +43,11 @@ function transformPain001DocumentToMT101(painIsoRecord:Pain001Document document)
             MT28D: {
                 name: "28D",
                 MsgIdx: {
-                    content: "",
+                    content: "1",
                     number: "1"
                 },
                 Ttl: {
-                    content: "",
+                    content: "1",
                     number: "2"
                 }
             },
@@ -101,7 +101,7 @@ isolated function createMT101Transactions(
             MT21: {
                 name: "21",
                 Ref: {
-                    content: getEmptyStrIfNull(creditTransferTransaction.PmtId.InstrId),
+                    content: getEmptyStrIfNull(creditTransferTransaction.PmtId.EndToEndId),
                     number: "1"
                 }
             },
@@ -111,6 +111,14 @@ isolated function createMT101Transactions(
                 Ref: {
                     content: "",
                     number: "1"
+                }
+            },
+
+            MT70: {
+                name: "70",
+                Nrtv: {
+                    "content": getEmptyStrIfNull(creditTransferTransaction.RmtInf?.Ustrd),
+                    "number": "1"
                 }
             },
 
@@ -147,6 +155,11 @@ isolated function createMT101Transactions(
             MT59: beneficiary is swiftmt:MT59 ? beneficiary : (),
             MT59A: beneficiary is swiftmt:MT59A ? beneficiary : (),
             MT59F: beneficiary is swiftmt:MT59F ? beneficiary : (),
+
+            MT77B: {
+                name: "77B",
+                Nrtv: getNarrativeFromRegulatoryCreditTransferTransaction61(creditTransferTransaction.RgltryRptg)
+            },
 
             MT33B: {
                 name: "33B",

@@ -1,3 +1,4 @@
+import ballerina/io;
 import ballerina/test;
 import ballerinax/financial.iso20022 as swiftmx;
 import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
@@ -6,142 +7,46 @@ import ballerinax/financial.swift.mt as swiftmt;
 
 @test:Config {}
 function testTransformPain001DocumentToMT101() returns error? {
-    xml documentXML = xml `
-        <Pain001Document>
-            <CstmrCdtTrfInitn>
-                <GrpHdr>
-                    <MsgId>83f55e7c-a2c6-44e1-a495-31231a36ac1</MsgId>
-                    <CreDtTm>2024-11-01T06:14:29.252329200Z</CreDtTm>
-                    <NbOfTxs>3</NbOfTxs>
-                    <InitgPty>
-                        <Id>
-                            <OrgId/>
-                            <PrvtId>
-                                <Othr/>
-                            </PrvtId>
-                        </Id>
-                    </InitgPty>
-                </GrpHdr>
-                <PmtInf>
-                    <PmtInfId>11FF99RR</PmtInfId>
-                    <PmtMtd>TRF</PmtMtd>
-                    <PmtTpInf>
-                        <SvcLvl>
-                            <Cd/>
-                        </SvcLvl>
-                        <CtgyPurp>
-                            <Cd/>
-                        </CtgyPurp>
-                    </PmtTpInf>
-                    <ReqdExctnDt>
-                        <Dt>2009-03-27</Dt>
-                    </ReqdExctnDt>
-                    <Dbtr>
-                        <Nm>FINPETROL INC.</Nm>
-                        <PstlAdr>
-                            <AdrLine>ANDRELAE SPINKATU 7</AdrLine>
-                        </PstlAdr>
-                        <Id>
-                            <OrgId/>
-                            <PrvtId>
-                                <Othr>
-                                    <SchmeNm/>
-                                </Othr>
-                            </PrvtId>
-                        </Id>
-                    </Dbtr>
-                    <DbtrAcct>
-                        <Id>
-                            <Othr>
-                                <Id>9020123100</Id>
-                                <SchmeNm>
-                                    <Cd>BBAN</Cd>
-                                </SchmeNm>
-                            </Othr>
-                        </Id>
-                    </DbtrAcct>
-                    <DbtrAgt>
-                        <FinInstnId/>
-                    </DbtrAgt>
-                    <ChrgsAcct>
-                        <Id>
-                            <Othr>
-                                <Id>9101000123</Id>
-                                <SchmeNm>
-                                    <Cd>BBAN</Cd>
-                                </SchmeNm>
-                            </Othr>
-                        </Id>
-                    </ChrgsAcct>
-                    <CdtTrfTxInf>
-                        <PmtId>
-                            <InstrId>11FF99RR</InstrId>
-                            <EndToEndId>REF501</EndToEndId>
-                        </PmtId>
-                        <Amt>
-                            <InstdAmt>
-                                <ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="USD">
-                                    <ActiveOrHistoricCurrencyAndAmount_SimpleType>100000.00</ActiveOrHistoricCurrencyAndAmount_SimpleType>
-                                </ActiveOrHistoricCurrencyAndAmount_SimpleType>
-                            </InstdAmt>
-                        </Amt>
-                        <XchgRateInf>
-                            <XchgRate>0.90</XchgRate>
-                        </XchgRateInf>
-                        <IntrmyAgt1>
-                            <FinInstnId>
-                                <PstlAdr/>
-                            </FinInstnId>
-                        </IntrmyAgt1>
-                        <CdtrAgt>
-                            <FinInstnId>
-                                <LEI>/CP9999</LEI>
-                                <PstlAdr/>
-                            </FinInstnId>
-                        </CdtrAgt>
-                        <Cdtr>
-                            <Nm>SOFTEASE PC GRAPHICS</Nm>
-                            <PstlAdr>
-                                <TwnNm>SEAFORD, NEW YORK, 11246</TwnNm>
-                                <Ctry>US</Ctry>
-                                <AdrLine>34 BRENTWOOD ROAD</AdrLine>
-                            </PstlAdr>
-                            <Id>
-                                <OrgId/>
-                            </Id>
-                        </Cdtr>
-                        <CdtrAcct>
-                            <Id>
-                                <Othr>
-                                    <Id>756-857489-21</Id>
-                                    <SchmeNm>
-                                        <Cd>BBAN</Cd>
-                                    </SchmeNm>
-                                </Othr>
-                            </Id>
-                        </CdtrAcct>
-                        <InstrForCdtrAgt/>
-                        <InstrForDbtrAgt/>
-                        <RgltryRptg>
-                            <Dtls>
-                                <Ctry>US</Ctry>
-                                <Cd>BENEFRES</Cd>
-                                <Inf>/34 BRENTWOOD ROAD SEAFORD, NEW YORK 11246</Inf>
-                            </Dtls>
-                        </RgltryRptg>
-                        <RmtInf>
-                            <Ustrd>/INV/19S95</Ustrd>
-                        </RmtInf>
-                    </CdtTrfTxInf>
-                </PmtInf>
-            </CstmrCdtTrfInitn>
-        </Pain001Document>
-    `;
+    xml documentXML = xml `<Pain001Document><CstmrCdtTrfInitn><GrpHdr><MsgId>EXAMPLE123456</MsgId><CreDtTm>2024-11-06T09:30:00Z</CreDtTm><NbOfTxs>2</NbOfTxs><CtrlSum>1500.00</CtrlSum><InitgPty><Nm>ABC Corporation</Nm><Id><OrgId><AnyBIC>ABCDEF12</AnyBIC></OrgId></Id></InitgPty></GrpHdr><PmtInf><PmtInfId>11FF99RR</PmtInfId><PmtMtd>${
+""}TRF</PmtMtd><PmtTpInf><SvcLvl/><CtgyPurp/></PmtTpInf><ReqdExctnDt><Dt>2009-03-27</Dt><DtTm/></ReqdExctnDt><Dbtr><Nm>${
+""}FINPETROL INC.</Nm><PstlAdr><AdrLine>ANDRELAE SPINKATU 7</AdrLine></PstlAdr><Id><OrgId/><PrvtId><Othr><SchmeNm/></Othr></PrvtId></Id></Dbtr><DbtrAcct><Id><Othr><Id>${
+""}9020123100</Id><SchmeNm><Cd>BBAN</Cd></SchmeNm></Othr></Id></DbtrAcct><DbtrAgt><FinInstnId/></DbtrAgt>${
+""}<ChrgsAcct><Id><Othr><Id>9101000123</Id><SchmeNm><Cd>BBAN</Cd></SchmeNm></Othr></Id></ChrgsAcct><CdtTrfTxInf><PmtId><InstrId>${
+""}11FF99RR</InstrId><EndToEndId>REF501</EndToEndId></PmtId><Amt><InstdAmt><ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="USD"><ActiveOrHistoricCurrencyAndAmount_SimpleType>${
+""}100000.00</ActiveOrHistoricCurrencyAndAmount_SimpleType></ActiveOrHistoricCurrencyAndAmount_SimpleType></InstdAmt></Amt><XchgRateInf><XchgRate>${
+""}0.90</XchgRate></XchgRateInf><IntrmyAgt1><FinInstnId><PstlAdr/></FinInstnId></IntrmyAgt1><CdtrAgt><FinInstnId><LEI>${
+""}/CP9999</LEI><PstlAdr/></FinInstnId></CdtrAgt><Cdtr><Nm>SOFTEASE PC GRAPHICS</Nm><PstlAdr><TwnNm>SEAFORD, NEW YORK, ${
+""}11246</TwnNm><Ctry>US</Ctry><AdrLine>34 BRENTWOOD ROAD</AdrLine></PstlAdr><Id><OrgId/></Id></Cdtr><CdtrAcct><Id><Othr><Id>${
+""}756-857489-21</Id><SchmeNm><Cd>BBAN</Cd></SchmeNm></Othr></Id></CdtrAcct><InstrForCdtrAgt/><InstrForDbtrAgt/><RgltryRptg><Dtls><Ctry>${
+""}US</Ctry><Cd>BENEFRES</Cd><Inf>34 BRENTWOOD ROAD SEAFORD, NEW YORK 11246</Inf></Dtls></RgltryRptg><RmtInf><Ustrd>${
+""}/INV/19S95</Ustrd></RmtInf></CdtTrfTxInf></PmtInf><PmtInf><PmtInfId>11FF99RR</PmtInfId><PmtMtd>TRF</PmtMtd><PmtTpInf><SvcLvl/><CtgyPurp/></PmtTpInf><ReqdExctnDt><Dt>${
+""}2009-03-27</Dt><DtTm/></ReqdExctnDt><Dbtr><Nm>FINPETROL INC.</Nm><PstlAdr><TwnNm>HELSINKI</TwnNm><Ctry>FI</Ctry><AdrLine>${
+""}ANDRELAE SPINKATU 7</AdrLine></PstlAdr><Id><OrgId/><PrvtId><Othr><SchmeNm/></Othr></PrvtId></Id></Dbtr><DbtrAcct><Id><Othr><Id>${
+""}9020123100</Id><SchmeNm><Cd>BBAN</Cd></SchmeNm></Othr></Id></DbtrAcct><DbtrAgt><FinInstnId/></DbtrAgt>${
+""}<ChrgsAcct><Id><Othr><Id>9101000123</Id><SchmeNm><Cd>BBAN</Cd></SchmeNm></Othr></Id></ChrgsAcct><CdtTrfTxInf><PmtId><InstrId>${
+""}11FF99RR</InstrId><EndToEndId>REF502</EndToEndId></PmtId><Amt><InstdAmt><ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="USD"><ActiveOrHistoricCurrencyAndAmount_SimpleType>${
+""}2000.00</ActiveOrHistoricCurrencyAndAmount_SimpleType></ActiveOrHistoricCurrencyAndAmount_SimpleType></InstdAmt></Amt><XchgRateInf><XchgRate>${
+""}0.9</XchgRate></XchgRateInf><IntrmyAgt1><FinInstnId><PstlAdr/></FinInstnId></IntrmyAgt1><CdtrAgt><FinInstnId><PstlAdr/></FinInstnId></CdtrAgt><Cdtr><Nm>${
+""}MYRTLE AVENUE 3159</Nm><PstlAdr><AdrLine>US/BROOKLYN, NEW YORK 11245</AdrLine></PstlAdr><Id><OrgId/></Id></Cdtr><CdtrAcct><Id><Othr><Id>${
+""}TONY BALONEY</Id><SchmeNm><Cd>BBAN</Cd></SchmeNm></Othr></Id></CdtrAcct><InstrForCdtrAgt><Cd>${
+""}CHQB</Cd></InstrForCdtrAgt><InstrForDbtrAgt/><RmtInf><Ustrd>09-02 PENSION PAYMENT</Ustrd></RmtInf></CdtTrfTxInf></PmtInf><PmtInf><PmtInfId>${
+""}11FF99RR</PmtInfId><PmtMtd>TRF</PmtMtd><PmtTpInf><SvcLvl/><CtgyPurp><Cd>INTC</Cd></CtgyPurp></PmtTpInf><ReqdExctnDt><Dt>2009-03-27</Dt><DtTm/></ReqdExctnDt><Dbtr><Nm>${
+""}FINPETROL INC.</Nm><PstlAdr><TwnNm>HELSINKI</TwnNm><Ctry>FI</Ctry><AdrLine>ANDRELAE SPINKATU ${
+""}7</AdrLine></PstlAdr><Id><OrgId/><PrvtId><Othr><SchmeNm/></Othr></PrvtId></Id></Dbtr><DbtrAcct><Id><Othr><Id>${
+""}9102099999</Id><SchmeNm><Cd>BBAN</Cd></SchmeNm></Othr></Id></DbtrAcct><DbtrAgt><FinInstnId><BICFI>CHXXUS33BBB</BICFI></FinInstnId></DbtrAgt>${
+""}<ChrgsAcct><Id><Othr><SchmeNm/></Othr></Id></ChrgsAcct><CdtTrfTxInf><PmtId><InstrId>11FF99RR</InstrId><EndToEndId>${
+""}REF503</EndToEndId></PmtId><Amt><InstdAmt><ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="USD"><ActiveOrHistoricCurrencyAndAmount_SimpleType>${
+""}0</ActiveOrHistoricCurrencyAndAmount_SimpleType></ActiveOrHistoricCurrencyAndAmount_SimpleType></InstdAmt></Amt><XchgRateInf/><IntrmyAgt1><FinInstnId><PstlAdr/></FinInstnId></IntrmyAgt1><CdtrAgt><FinInstnId><PstlAdr/></FinInstnId></CdtrAgt><Cdtr><Nm>${
+""}FINPETROL INC.</Nm><PstlAdr><TwnNm>HELSINKI</TwnNm><Ctry>FI</Ctry><AdrLine>ANDRELAE SPINKATU 7</AdrLine></PstlAdr><Id><OrgId/></Id></Cdtr><CdtrAcct><Id><Othr><Id>${
+""}9020123100</Id><SchmeNm><Cd>BBAN</Cd></SchmeNm></Othr></Id></CdtrAcct><InstrForCdtrAgt/><InstrForDbtrAgt><Cd>${
+""}CMZB</Cd></InstrForDbtrAgt><RmtInf><Ustrd/></RmtInf></CdtTrfTxInf></PmtInf></CstmrCdtTrfInitn></Pain001Document>`;
 
     painIsoRecord:Pain001Document pain001Message =
         <painIsoRecord:Pain001Document>(check swiftmx:fromIso20022(documentXML, painIsoRecord:Pain001Document));
     swiftmt:MT101Message|error mt101Message = transformPain001DocumentToMT101(pain001Message);
     test:assertEquals(pain001Message.CstmrCdtTrfInitn.PmtInf[0].PmtInfId, "11FF99RR");
+
+    io:println(mt101Message);
 
     if (mt101Message is swiftmt:MT101Message) {
         test:assertEquals(mt101Message.block2.messageType, "101");
@@ -705,167 +610,198 @@ function testTransformPacs008DocumentToMT103REMIT() returns error? {
     }
 }
 
-// @test:Config {}
-// function testTransformPain008DocumentToMT104() returns error? {
-//     xml documentXML = xml `
-//         <Pain008Document>
-//             <CstmrDrctDbtInitn>
-//                 <GrpHdr>
-//                     <MsgId>EXAMPLE123456</MsgId>
-//                     <CreDtTm>2024-11-06T09:30:00Z</CreDtTm>
-//                     <NbOfTxs>2</NbOfTxs>
-//                     <CtrlSum>1500.00</CtrlSum>
-//                     <InitgPty>
-//                         <Nm>ABC Corporation</Nm>
-//                         <Id>
-//                             <OrgId>
-//                                 <AnyBIC>ABCDEF12</AnyBIC>
-//                             </OrgId>
-//                         </Id>
-//                     </InitgPty>
-//                 </GrpHdr>
-//                 <PmtInf>
-//                     <PmtInfId>PMT20241106</PmtInfId>
-//                     <PmtMtd></PmtMtd>
-//                     <BtchBookg>true</BtchBookg>
-//                     <NbOfTxs>2</NbOfTxs>
-//                     <CtrlSum>1500.00</CtrlSum>
-//                     <PmtTpInf>
-//                         <InstrPrty></InstrPrty>
-//                         <SvcLvl>
-//                             <Cd>SEPA</Cd>
-//                         </SvcLvl>
-//                     </PmtTpInf>
-//                     <ReqdColltnDt>2024-11-07</ReqdColltnDt>
-//                     <Cdtr>
-//                         <Nm>XYZ Ltd</Nm>
-//                         <PstlAdr>
-//                             <Ctry>DE</Ctry>
-//                             <AdrLine>123 Main Street</AdrLine>
-//                         </PstlAdr>
-//                     </Cdtr>
-//                     <CdtrAcct>
-//                         <Id>
-//                             <IBAN>DE89370400440532013000</IBAN>
-//                         </Id>
-//                     </CdtrAcct>
-//                     <CdtrAgt>
-//                         <FinInstnId>
-//                             <BICFI>DEUTDEFF</BICFI>
-//                         </FinInstnId>
-//                     </CdtrAgt>
-//                     <ChrgBr></ChrgBr>
-//                     <DrctDbtTxInf>
-//                         <PmtId>
-//                             <InstrId>INSTR12345</InstrId>
-//                             <EndToEndId>ETOE12345</EndToEndId>
-//                         </PmtId>
-//                         <InstdAmt Ccy="USD">100.00</InstdAmt>
-//                         <DrctDbtTx>
-//                             <MndtRltdInf>
-//                                 <MndtId>MANDATE123</MndtId>
-//                                 <DtOfSgntr>2024-01-01</DtOfSgntr>
-//                             </MndtRltdInf>
-//                         </DrctDbtTx>
-//                         <DbtrAgt>
-//                             <FinInstnId>
-//                                 <BICFI>DEUTDEBB</BICFI>
-//                             </FinInstnId>
-//                         </DbtrAgt>
-//                         <Dbtr>
-//                             <Nm>John Doe</Nm>
-//                             <PstlAdr>
-//                                 <Ctry>DE</Ctry>
-//                                 <AdrLine>456 Sample Avenue</AdrLine>
-//                             </PstlAdr>
-//                         </Dbtr>
-//                         <DbtrAcct>
-//                             <Id>
-//                                 <IBAN>DE62370400440532013001</IBAN>
-//                             </Id>
-//                         </DbtrAcct>
-//                         <RmtInf>
-//                             <Ustrd>Invoice 12345</Ustrd>
-//                         </RmtInf>
-//                     </DrctDbtTxInf>
-//                     <DrctDbtTxInf>
-//                         <PmtId>
-//                             <InstrId>INSTR67890</InstrId>
-//                             <EndToEndId>ETOE67890</EndToEndId>
-//                         </PmtId>
-//                         <InstdAmt Ccy="USD">500.00</InstdAmt>
-//                         <DrctDbtTx>
-//                             <MndtRltdInf>
-//                                 <MndtId>MANDATE678</MndtId>
-//                                 <DtOfSgntr>2024-05-15</DtOfSgntr>
-//                             </MndtRltdInf>
-//                         </DrctDbtTx>
-//                         <DbtrAgt>
-//                             <FinInstnId>
-//                                 <BICFI>DEUTDEBB</BICFI>
-//                             </FinInstnId>
-//                         </DbtrAgt>
-//                         <Dbtr>
-//                             <Nm>Jane Smith</Nm>
-//                             <PstlAdr>
-//                                 <Ctry>DE</Ctry>
-//                                 <AdrLine>789 Test Blvd</AdrLine>
-//                             </PstlAdr>
-//                         </Dbtr>
-//                         <DbtrAcct>
-//                             <Id>
-//                                 <IBAN>DE89370400440532013002</IBAN>
-//                             </Id>
-//                         </DbtrAcct>
-//                         <RmtInf>
-//                             <Ustrd>Invoice 67890</Ustrd>
-//                         </RmtInf>
-//                     </DrctDbtTxInf>
-//                 </PmtInf>
-//             </CstmrDrctDbtInitn>
-//         </Pain008Document>
-//         `;
-//     painIsoRecord:Pain008Document pain008Message = <painIsoRecord:Pain008Document>(check swiftmx:fromIso20022(documentXML, painIsoRecord:Pain008Document));
+@test:Config {}
+function testTransformPain008DocumentToMT104() returns error? {
+    xml documentXML = xml `
+        <Pain008Document>
+            <CstmrDrctDbtInitn>
+                <GrpHdr>
+                    <MsgId>EXAMPLE123456</MsgId>
+                    <CreDtTm>2024-11-06T09:30:00Z</CreDtTm>
+                    <NbOfTxs>2</NbOfTxs>
+                    <CtrlSum>1500.00</CtrlSum>
+                    <InitgPty>
+                        <Nm>ABC Corporation</Nm>
+                        <Id>
+                            <OrgId>
+                                <AnyBIC>ABCDEF12</AnyBIC>
+                            </OrgId>
+                        </Id>
+                    </InitgPty>
+                </GrpHdr>
+                <PmtInf>
+                    <PmtInfId>PMT20241106</PmtInfId>
+                    <PmtMtd></PmtMtd>
+                    <BtchBookg>true</BtchBookg>
+                    <NbOfTxs>2</NbOfTxs>
+                    <CtrlSum>1500.00</CtrlSum>
+                    <PmtTpInf>
+                        <InstrPrty></InstrPrty>
+                        <SvcLvl>
+                            <Cd>SEPA</Cd>
+                        </SvcLvl>
+                    </PmtTpInf>
+                    <ReqdColltnDt>2024-11-07</ReqdColltnDt>
+                    <Cdtr>
+                        <Nm>XYZ Ltd</Nm>
+                        <PstlAdr>
+                            <Ctry>DE</Ctry>
+                            <AdrLine>123 Main Street</AdrLine>
+                        </PstlAdr>
+                    </Cdtr>
+                    <CdtrAcct>
+                        <Id>
+                            <IBAN>DE89370400440532013000</IBAN>
+                        </Id>
+                    </CdtrAcct>
+                    <CdtrAgt>
+                        <FinInstnId>
+                            <BICFI>DEUTDEFF</BICFI>
+                        </FinInstnId>
+                    </CdtrAgt>
+                    <ChrgBr></ChrgBr>
+                    <DrctDbtTxInf>
+                        <PmtId>
+                            <InstrId>INSTR12345</InstrId>
+                            <EndToEndId>ETOE12345</EndToEndId>
+                        </PmtId>
+                        <InstdAmt Ccy="USD">
+                            <ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="EUR">
+                                <ActiveOrHistoricCurrencyAndAmount_SimpleType>1875.00</ActiveOrHistoricCurrencyAndAmount_SimpleType>
+                            </ActiveOrHistoricCurrencyAndAmount_SimpleType>
+                        </InstdAmt>
+                        <DrctDbtTx>
+                            <MndtRltdInf>
+                                <MndtId>MANDATE123</MndtId>
+                                <DtOfSgntr>2024-01-01</DtOfSgntr>
+                            </MndtRltdInf>
+                        </DrctDbtTx>
+                        <DbtrAgt>
+                            <FinInstnId>
+                                <BICFI>DEUTDEBB</BICFI>
+                            </FinInstnId>
+                        </DbtrAgt>
+                        <Dbtr>
+                            <Nm>John Doe</Nm>
+                            <PstlAdr>
+                                <Ctry>DE</Ctry>
+                                <AdrLine>456 Sample Avenue</AdrLine>
+                            </PstlAdr>
+                        </Dbtr>
+                        <DbtrAcct>
+                            <Id>
+                                <IBAN>DE62370400440532013001</IBAN>
+                            </Id>
+                        </DbtrAcct>
+                        <RmtInf>
+                            <Ustrd>Invoice 12345</Ustrd>
+                        </RmtInf>
+                    </DrctDbtTxInf>
+                    <DrctDbtTxInf>
+                        <PmtId>
+                            <InstrId>INSTR67890</InstrId>
+                            <EndToEndId>ETOE67890</EndToEndId>
+                        </PmtId>
+                        <InstdAmt Ccy="USD">
+                            <ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="EUR">
+                                <ActiveOrHistoricCurrencyAndAmount_SimpleType>1875.00</ActiveOrHistoricCurrencyAndAmount_SimpleType>
+                            </ActiveOrHistoricCurrencyAndAmount_SimpleType>
+                        </InstdAmt>
+                        <DrctDbtTx>
+                            <MndtRltdInf>
+                                <MndtId>MANDATE678</MndtId>
+                                <DtOfSgntr>2024-05-15</DtOfSgntr>
+                            </MndtRltdInf>
+                        </DrctDbtTx>
+                        <DbtrAgt>
+                            <FinInstnId>
+                                <BICFI>DEUTDEBB</BICFI>
+                            </FinInstnId>
+                        </DbtrAgt>
+                        <Dbtr>
+                            <Nm>Jane Smith</Nm>
+                            <PstlAdr>
+                                <Ctry>DE</Ctry>
+                                <AdrLine>789 Test Blvd</AdrLine>
+                            </PstlAdr>
+                        </Dbtr>
+                        <DbtrAcct>
+                            <Id>
+                                <IBAN>DE89370400440532013002</IBAN>
+                            </Id>
+                        </DbtrAcct>
+                        <RmtInf>
+                            <Ustrd>Invoice 67890</Ustrd>
+                        </RmtInf>
+                    </DrctDbtTxInf>
+                </PmtInf>
+            </CstmrDrctDbtInitn>
+        </Pain008Document>
+        `;
+    painIsoRecord:Pain008Document pain008Message = <painIsoRecord:Pain008Document>(check swiftmx:fromIso20022(documentXML, painIsoRecord:Pain008Document));
 
-//     swiftmt:MT104Message|error mt104Message = transformPain008DocumentToMT104(pain008Message);
+    swiftmt:MT104Message|error mt104Message = transformPain008DocumentToMT104(pain008Message);
 
-//     if (mt104Message is swiftmt:MT104Message) {
-//         test:assertEquals(mt104Message.block2.messageType, "104");
-//     } else {
-//         test:assertFail("Error occurred while transforming Pain008 to MT104");
-//     }
-// }
+    if (mt104Message is swiftmt:MT104Message) {
+        test:assertEquals(mt104Message.block2.messageType, "104");
+    } else {
+        test:assertFail("Error occurred while transforming Pain008 to MT104");
+    }
+}
 
 @test:Config {}
 function testTransformPacs003DocumenttoMT104() returns error? {
-    // Define the test Pacs003Document XML
     xml documentXML = xml `
         <Pacs003Document>
             <FIToFICstmrDrctDbt>
-                <GrpHdr></GrpHdr>
+                <GrpHdr>
+                    <MsgId>MSG12345</MsgId>
+                    <CreDtTm>2024-11-19T09:00:00Z</CreDtTm>
+                    <NbOfTxs>2</NbOfTxs>
+                    <CtrlSum>3750.00</CtrlSum>
+                    <TtlIntrBkSttlmAmt>
+                        <ActiveCurrencyAndAmount_SimpleType Ccy="EUR">
+                            <ActiveCurrencyAndAmount_SimpleType>1875.00</ActiveCurrencyAndAmount_SimpleType>
+                        </ActiveCurrencyAndAmount_SimpleType>
+                    </TtlIntrBkSttlmAmt>
+                    <IntrBkSttlmDt>2024-11-19</IntrBkSttlmDt>
+                    <InstgAgt>
+                        <FinInstnId>
+                            <BIC>INSTG123</BIC>
+                        </FinInstnId>
+                    </InstgAgt>
+                    <InstdAgt>
+                        <FinInstnId>
+                            <BIC>INSTD456</BIC>
+                        </FinInstnId>
+                    </InstdAgt>
+                    <SttlmInf>
+                        <SttlmMtd>INDA</SttlmMtd>
+                    </SttlmInf>
+                </GrpHdr>
                 <DrctDbtTxInf>
                     <PmtId>
-                        <InstrId>ABC/123</InstrId>
-                        <EndToEndId>REF100</EndToEndId>
-                        <TxId>REF100</TxId>
+                        <InstrId>REFERENCE12345</InstrId>
+                        <EndToEndId>REF12444</EndToEndId>
+                        <TxId>REF12444</TxId>
                     </PmtId>
                     <PmtTpInf>
                         <CtgyPurp>
-                            <Cd>AUTH</Cd>
+                            <Cd>OTHR</Cd>
                         </CtgyPurp>
                     </PmtTpInf>
                     <IntrBkSttlmAmt>
-                        <ActiveCurrencyAndAmount_SimpleType Ccy="USD">
-                            <ActiveCurrencyAndAmount_SimpleType>1000.00</ActiveCurrencyAndAmount_SimpleType>
+                        <ActiveCurrencyAndAmount_SimpleType Ccy="EUR">
+                            <ActiveCurrencyAndAmount_SimpleType>1875.00</ActiveCurrencyAndAmount_SimpleType>
                         </ActiveCurrencyAndAmount_SimpleType>
                     </IntrBkSttlmAmt>
-                    <IntrBkSttlmDt>2022-10-24</IntrBkSttlmDt>
+                    <IntrBkSttlmDt>2009-09-21</IntrBkSttlmDt>
                     <InstdAmt>
-                        <ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="USD">
-                            <ActiveOrHistoricCurrencyAndAmount_SimpleType>1000.00</ActiveOrHistoricCurrencyAndAmount_SimpleType>
+                        <ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="EUR">
+                            <ActiveOrHistoricCurrencyAndAmount_SimpleType>1875.00</ActiveOrHistoricCurrencyAndAmount_SimpleType>
                         </ActiveOrHistoricCurrencyAndAmount_SimpleType>
                     </InstdAmt>
-                    <ChrgBr>CRED</ChrgBr>
+                    <ChrgBr></ChrgBr>
                     <DrctDbtTx>
                         <MndtRltdInf/>
                     </DrctDbtTx>
@@ -899,18 +835,13 @@ function testTransformPacs003DocumenttoMT104() returns error? {
                         <FinInstnId/>
                     </IntrmyAgt1>
                     <Dbtr>
-                        <Nm>JOHANN WILLEMS</Nm>
-                        <PstlAdr>
-                            <AdrLine>RUE JOSEPH II, 19</AdrLine>
-                            <AdrLine>1040 BRUSSELS</AdrLine>
-                        </PstlAdr>
+                        <PstlAdr/>
                         <Id>
                             <OrgId/>
                         </Id>
                     </Dbtr>
                     <DbtrAcct>
                         <Id>
-                            <IBAN>BE62510007547061</IBAN>
                             <Othr>
                                 <SchmeNm/>
                             </Othr>
@@ -921,13 +852,20 @@ function testTransformPacs003DocumenttoMT104() returns error? {
                             <PstlAdr/>
                         </FinInstnId>
                     </DbtrAgt>
+                    <RgltryRptg>
+                        <Dtls>
+                            <Ctry>BE</Ctry>
+                            <Cd>ORDERRES</Cd>
+                            <Inf>MEILAAN 1, 9000 GENT</Inf>
+                        </Dtls>
+                    </RgltryRptg>
                     <RmtInf>
                         <Ustrd/>
                     </RmtInf>
                 </DrctDbtTxInf>
             </FIToFICstmrDrctDbt>
         </Pacs003Document>
-    `;
+        `;
 
     // Parse the Pacs003Document XML
     pacsIsoRecord:Pacs003Document pacs003Message =
