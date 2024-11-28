@@ -333,7 +333,7 @@ function getMT72Narrative(pacsIsoRecord:DirectDebitTransactionInformation31 docu
 #
 # + regulatoryReports - The array of regulatory reporting details.
 # + return - The concatenated string with newline-separated reporting details.
-function processRegulatoryReportsInLoop(pacsIsoRecord:RegulatoryReporting3[] regulatoryReports) returns string {
+isolated function processRegulatoryReportsInLoop(pacsIsoRecord:RegulatoryReporting3[] regulatoryReports) returns string {
     string[] narrativeParts = [];
     foreach pacsIsoRecord:RegulatoryReporting3 report in regulatoryReports {
 
@@ -357,8 +357,7 @@ function processRegulatoryReportsInLoop(pacsIsoRecord:RegulatoryReporting3[] reg
     return joinStringArray(narrativeParts, "\n");
 }
 
-function getMT77BRegulatoryReporting(pacsIsoRecord:DirectDebitTransactionInformation31 document) returns swiftmt:MT77B? {
-    pacsIsoRecord:RegulatoryReporting3[]? regulatoryReports = document.RgltryRptg;
+isolated function getMT77BRegulatoryReporting(pacsIsoRecord:RegulatoryReporting3[]? regulatoryReports) returns swiftmt:MT77B? {
 
     if regulatoryReports is () || regulatoryReports.length() == 0 {
         return ();

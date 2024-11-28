@@ -14,7 +14,7 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
     in {
         block1: check createBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt),
         block2: check createMtBlock2("104", document.FIToFICstmrDrctDbt.SplmtryData, document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
-        block3: check createMtBlock3(document.FIToFICstmrDrctDbt.SplmtryData, document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId.UETR),
+        block3: check createMtBlock3(document.FIToFICstmrDrctDbt.SplmtryData, document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId.UETR, ""),
         block4: {
             MT19: {
                 name: "19",
@@ -92,7 +92,7 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
                 getMT72Narrative(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0])
                 : (),
             MT77B: !(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RgltryRptg is ()) ?
-                getMT77BRegulatoryReporting(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0])
+                getMT77BRegulatoryReporting(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RgltryRptg)
                 : (),
             Transaction: transactions
         },
@@ -183,7 +183,7 @@ function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document)
     in {
         block1: check createBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt),
         block2: check createMtBlock2("107", document.FIToFICstmrDrctDbt.SplmtryData, document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
-        block3: check createMtBlock3(document.FIToFICstmrDrctDbt.SplmtryData, document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId.UETR),
+        block3: check createMtBlock3(document.FIToFICstmrDrctDbt.SplmtryData, document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId.UETR, ""),
         block4: {
             MT19: !(document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum is ()) ? {
                     name: "19",
@@ -270,7 +270,7 @@ function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document)
                 getMT72Narrative(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0])
                 : (),
             MT77B: !(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RgltryRptg is ()) ?
-                getMT77BRegulatoryReporting(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0])
+                getMT77BRegulatoryReporting(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RgltryRptg)
                 : (),
             Transaction: transactions
         },

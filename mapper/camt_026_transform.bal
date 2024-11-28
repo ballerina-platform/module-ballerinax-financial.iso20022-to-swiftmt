@@ -10,7 +10,7 @@ isolated function transformCamt026ToMT195(camtIsoRecord:Camt026Document document
     in {
         block1: check createBlock1FromAssgnmt(document.UblToApply.Assgnmt),
         block2: check createMtBlock2("195", document.UblToApply.SplmtryData, document.UblToApply.Assgnmt.CreDtTm),
-        block3: check createMtBlock3(document.UblToApply.SplmtryData, ()),
+        block3: check createMtBlock3(document.UblToApply.SplmtryData, (), ""),
         block4: {
             MT20: {
                 name: "20",

@@ -8,7 +8,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 isolated function transformCamt055ToMT192(camtIsoRecord:Camt055Document document) returns swiftmt:MTn92Message|error => {
     block1: check createBlock1FromAssgnmt(document.CstmrPmtCxlReq.Assgnmt),
     block2: check createMtBlock2("192", document.CstmrPmtCxlReq.SplmtryData, document.CstmrPmtCxlReq.Assgnmt.CreDtTm),
-    block3: check createMtBlock3(document.CstmrPmtCxlReq.SplmtryData, ()),
+    block3: check createMtBlock3(document.CstmrPmtCxlReq.SplmtryData, (), ""),
     block4: {
         MT20: {
             name: "20",

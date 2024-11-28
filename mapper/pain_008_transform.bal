@@ -30,7 +30,7 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document)
     in {
         block1: check createMtBlock1FromSupplementaryData(document.CstmrDrctDbtInitn.SplmtryData),
         block2: check createMtBlock2("104", document.CstmrDrctDbtInitn.SplmtryData, document.CstmrDrctDbtInitn.GrpHdr.CreDtTm),
-        block3: check createMtBlock3(document.CstmrDrctDbtInitn.SplmtryData, document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId.UETR),
+        block3: check createMtBlock3(document.CstmrDrctDbtInitn.SplmtryData, document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId.UETR, ""),
         block4: {
             MT19: {
                 name: "19",

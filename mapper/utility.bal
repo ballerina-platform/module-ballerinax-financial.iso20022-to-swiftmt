@@ -19,6 +19,7 @@ import ballerina/regex;
 import ballerina/time;
 import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
 import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
+import ballerinax/financial.iso20022.payments_clearing_and_settlement as pacsIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
 # Create the block 1 of the MT message from the supplementary data of the MX message.
@@ -133,14 +134,18 @@ isolated function createMtBlock2(string? mtMessageId, painIsoRecord:Supplementar
 # + supplementaryData - The supplementary data of the MX message
 # + uetr - The unique end-to-end transaction reference
 # + return - The block 3 of the MT message or an error if the block 3 cannot be created
-isolated function createMtBlock3(painIsoRecord:SupplementaryData1[]? supplementaryData, painIsoRecord:UUIDv4Identifier? uetr) returns swiftmt:Block3?|error {
+isolated function createMtBlock3(painIsoRecord:SupplementaryData1[]? supplementaryData, painIsoRecord:UUIDv4Identifier? uetr, string validationFlag) returns swiftmt:Block3?|error {
 
     if uetr == () {
         return ();
     }
 
     swiftmt:Block3 result = {
-        NdToNdTxRef: {value: uetr.toString()}
+        NdToNdTxRef: {value: uetr.toString()},
+        ValidationFlag: {
+            name: "ValidationFlag",
+            value: validationFlag
+        }
     };
 
     return result;
@@ -322,72 +327,119 @@ isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges) re
     return error("Failed to convert Charges16 to MT71G");
 }
 
+isolated function getTime(painIsoRecord:ISOTime?|painIsoRecord:ISODateTime? time) returns string|error {
+    if time is () {
+        return "";
+    }
+    time:Utc isoTime = check time:utcFromString(time.toString());
+    time:Civil civilTime = time:utcToCivil(isoTime);
+
+    string hour = civilTime.hour < 10 ? "0" + civilTime.hour.toString() : civilTime.hour.toString();
+    string minute = civilTime.minute < 10 ? "0" + civilTime.minute.toString() : civilTime.minute.toString();
+    return hour + minute;
+}
+
+// Helper function to create MT13C for a given code and time
+isolated function createMT13C(string code, painIsoRecord:ISOTime?|painIsoRecord:ISODateTime? time)
+    returns swiftmt:MT13C|error {
+
+    if time is () {
+        return error("No valid time provided to map MT13C.");
+    }
+
+    // Convert the time to HHMM format
+    time:Utc isoTime = check time:utcFromString(time.toString());
+    time:Civil civilTime = time:utcToCivil(isoTime);
+    string hour = civilTime.hour < 10 ? "0" + civilTime.hour.toString() : civilTime.hour.toString();
+    string minute = civilTime.minute < 10 ? "0" + civilTime.minute.toString() : civilTime.minute.toString();
+    string convertedTime = hour + minute;
+
+    return {
+        name: "13C",
+        Cd: {content: code, number: "1"},
+        Tm: {content: convertedTime, number: "2"},
+        Sgn: {content: "+", number: "3"}, // Default to '+' as per mapping
+        TmOfst: {content: "0000", number: "4"} // Default offset, can be updated if required
+    };
+}
+
 # Convert swiftmx time to MT13C time
 #
 # + SttlmTmIndctn - The settlement date time indication
 # + SttlmTmReq - The settlement time request
 # + return - The MT13C message or an error if the conversion fails
-isolated function convertTimeToMT13C(painIsoRecord:SettlementDateTimeIndication1? SttlmTmIndctn, painIsoRecord:SettlementTimeRequest2? SttlmTmReq)
-returns swiftmt:MT13C?|error {
-    string cd = "";
-    string tm = "";
-    string sgn = "";
-    string tmOfst = "";
+# Convert settlement time information to a single MT13C field.
+#
+# + SttlmTmIndctn - The settlement date-time indication  
+# + SttlmTmReq - The settlement time request  
+# + return - The MT13C message or an error if the conversion fails
+isolated function convertTimeToMT13C(
+        painIsoRecord:SettlementDateTimeIndication1? SttlmTmIndctn,
+        painIsoRecord:SettlementTimeRequest2? SttlmTmReq
+) returns swiftmt:MT13C|error {
 
-    isolated function (painIsoRecord:ISOTime?|painIsoRecord:ISODateTime?) returns (string|error) getTime =
-    isolated function(painIsoRecord:ISOTime?|painIsoRecord:ISODateTime? time) returns (string|error) {
-        if (time == ()) {
-            return "";
-        }
-
-        time:Utc isoTime = check time:utcFromString(time.toString());
-        time:Civil civilTime = time:utcToCivil(isoTime);
-
-        string hour = civilTime.hour < 10 ? "0" + civilTime.hour.toString() : civilTime.hour.toString();
-        string minute = civilTime.minute < 10 ? "0" + civilTime.minute.toString() : civilTime.minute.toString();
-
-        return hour + minute;
-    };
-
-    if (SttlmTmReq is painIsoRecord:SettlementTimeRequest2 && SttlmTmReq.CLSTm is painIsoRecord:ISOTime) {
-        cd = "CLSTIME";
-        tm = check getTime(SttlmTmReq.CLSTm);
-    } else if (SttlmTmIndctn is painIsoRecord:SettlementDateTimeIndication1) {
-        if (SttlmTmIndctn.CdtDtTm is painIsoRecord:ISODateTime) {
-            cd = "RNCTIME";
-            tm = check getTime(SttlmTmIndctn.CdtDtTm);
-        } else if (SttlmTmIndctn.DbtDtTm is painIsoRecord:ISODateTime) {
-            cd = "SNDTIME";
-            tm = check getTime(SttlmTmIndctn.DbtDtTm);
-        }
+    // Check and create MT13C based on available data
+    if SttlmTmIndctn?.DbtDtTm is painIsoRecord:ISODateTime {
+        return check createMT13C("/SNDTIME/", SttlmTmIndctn?.DbtDtTm);
+    } else if SttlmTmIndctn?.CdtDtTm is painIsoRecord:ISODateTime {
+        return check createMT13C("/RNCTIME/", SttlmTmIndctn?.CdtDtTm);
+    } else if SttlmTmReq?.CLSTm is painIsoRecord:ISOTime {
+        return check createMT13C("/CLSTIME/", SttlmTmReq?.CLSTm);
+    } else if SttlmTmReq?.TillTm is painIsoRecord:ISOTime {
+        return check createMT13C("/TILTIME/", SttlmTmReq?.TillTm);
+    } else if SttlmTmReq?.FrTm is painIsoRecord:ISOTime {
+        return check createMT13C("/FROTIME/", SttlmTmReq?.FrTm);
+    } else if SttlmTmReq?.RjctTm is painIsoRecord:ISOTime {
+        return check createMT13C("/REJTIME/", SttlmTmReq?.RjctTm);
     }
 
-    return {
-        name: "13C",
-        Cd: {content: cd, number: "1"},
-        Tm: {content: tm, number: "1"},
-        Sgn: {content: sgn, number: "1"},
-        TmOfst: {content: tmOfst, number: "1"}
-    };
+    // If no valid data is found, return an error
+    return error("No valid settlement time information provided to map MT13C.");
 }
 
-# Get the remittance information from the payment identification or remittance information
+# Get the remittance information from the payment identification or remittance information.
+#
+# If the Proprietary field in Purpose contains the pattern ":26T:[A-Z0-9]{3}", 
+# it will be mapped to field 26T. Otherwise, the remaining cases are handled 
+# as remittance information (field 70).
 #
 # + PmtId - The payment identification
 # + RmtInf - The remittance information
+# + Prps - The purpose of the payment
 # + return - The MT70 message
-isolated function getRemitenceInformationFromPmtIdOrRmtInf(painIsoRecord:PaymentIdentification13? PmtId, painIsoRecord:RemittanceInformation22? RmtInf) returns swiftmt:MT70 {
+isolated function getRemittanceInformation(painIsoRecord:PaymentIdentification13? PmtId,
+        painIsoRecord:RemittanceInformation22? RmtInf,
+        painIsoRecord:Purpose2Choice? Prps)
+                                            returns swiftmt:MT70 {
 
     string name = "70";
     string content = "";
     string number = "1";
 
-    if (RmtInf != ()) {
-        content = getEmptyStrIfNull(RmtInf.Ustrd);
-    } else if (PmtId != ()) {
-        content = getEmptyStrIfNull(PmtId.InstrId);
+    string:RegExp regExp = re `:26T:[A-Z0-9]{3}`;
+
+    // Check for Purpose with Proprietary containing the pattern ":26T:[A-Z0-9]{3}"
+    if (Prps?.Prtry != ()) {
+        string? proprietary = Prps?.Prtry;
+        if proprietary is string && proprietary.matches(regExp) {
+            // Map to field 26T
+            name = "26T";
+            content = proprietary.substring(5, 8);
+            return {name, Nrtv: {content, number}};
+        }
     }
 
+    // Handle cases for PmtId
+    if (PmtId?.EndToEndId != ()) {
+        content = getEmptyStrIfNull(PmtId?.EndToEndId);
+    }
+    // Handle cases for Remittance Information
+    else if (RmtInf?.Ustrd != ()) {
+        string[] unstructured = RmtInf?.Ustrd ?: [];
+        content = joinStringArray(unstructured, "\n");
+    }
+
+    // Default to Field 70 with the extracted content
     return {name, Nrtv: {content, number}};
 }
 
@@ -680,5 +732,166 @@ isolated function getNarrativeFromRegulatoryCreditTransferTransaction61(painIsoR
         content: getEmptyStrIfNull(narratives),
         number: "1"
     };
+}
+
+# Determines the currency code from instructed or interbank settlement amount.
+#
+# + instructedAmount - The instructed amount (InstdAmt) from the transaction.
+# + interbankAmount - The interbank settlement amount (IntrBkSttlmAmt) from the transaction.
+# + return - Returns the currency code or an error if unavailable.
+isolated function getCurrencyCodeFromInterbankOrInstructedAmount(
+        painIsoRecord:ActiveOrHistoricCurrencyAndAmount? instructedAmount,
+        painIsoRecord:ActiveCurrencyAndAmount interbankAmount
+) returns string|error {
+    if instructedAmount?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy is string {
+        return instructedAmount?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString();
+    } else if interbankAmount.ActiveCurrencyAndAmount_SimpleType?.Ccy is string {
+        return interbankAmount.ActiveCurrencyAndAmount_SimpleType.Ccy;
+    }
+
+}
+
+# Extracts the amount value from instructed or interbank settlement amount.
+#
+# + instructedAmount - The instructed amount (InstdAmt) from the transaction.
+# + interbankAmount - The interbank settlement amount (IntrBkSttlmAmt) from the transaction.
+# + return - Returns the amount value or an error if unavailable.
+isolated function getAmountValueFromInterbankOrInstructedAmount(
+        painIsoRecord:ActiveOrHistoricCurrencyAndAmount? instructedAmount,
+        painIsoRecord:ActiveCurrencyAndAmount interbankAmount
+) returns string|error {
+    if instructedAmount?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.ActiveOrHistoricCurrencyAndAmount_SimpleType is decimal {
+        return instructedAmount?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString();
+    } else if interbankAmount.ActiveCurrencyAndAmount_SimpleType?.ActiveCurrencyAndAmount_SimpleType is decimal {
+        return interbankAmount.ActiveCurrencyAndAmount_SimpleType.ActiveCurrencyAndAmount_SimpleType.toString();
+    }
+}
+
+# Converts an ISO date to Swift MT YYMMDD format and returns the substring (3rd to 6th characters).
+#
+# + mxDate - The MX ISO date string to be converted.
+# + return - The converted YYMMDD format string.
+isolated function extractSwiftMtDateFromMXDate(string mxDate) returns string|error {
+    swiftmt:Dt|error convertedDate = check convertISODateStringToSwiftMtDate(mxDate, "2");
+
+    if (convertedDate is error) {
+        return "";
+    }
+    return convertedDate.content.substring(2, 6); // Extract YYMMDD starting from the third character.
+}
+
+isolated function isStructuredAddress(painIsoRecord:PartyIdentification272 creditor) returns boolean {
+    if creditor.PstlAdr?.Ctry != () && creditor.PstlAdr?.AdrLine != () {
+        return true;
+    }
+    return false;
+}
+
+# Maps ServiceLevel, CategoryPurpose, and LocalInstrument fields to MT72.
+#
+# + serviceLevel - The service level from the ISO message
+# + categoryPurpose - The category purpose from the ISO message
+# + localInstrument - The local instrument from the ISO message
+# + return - Returns a swiftmt:MT72 structure containing mapped Sender to Receiver Information
+isolated function mapToMT72(pacsIsoRecord:ServiceLevel8Choice[]? serviceLevels,
+        pacsIsoRecord:CategoryPurpose1Choice? categoryPurpose,
+        pacsIsoRecord:LocalInstrument2Choice? localInstrument) returns swiftmt:MT72 {
+
+    string name = "72";
+    string content = "";
+    string number = "1";
+
+    if serviceLevels == () {
+        return {
+            name: name,
+            Cd: {
+                content: content,
+                number: number
+            }
+        };
+    }
+
+    pacsIsoRecord:ServiceLevel8Choice? serviceLevel = serviceLevels[0];
+
+    // Handle ServiceLevel Code
+    if serviceLevel?.Cd is string {
+        string code = serviceLevel?.Cd.toString();
+        string:RegExp regex = re `^G00[1-9]$`;
+
+        if code != "SDVA" && !code.matches(regex) {
+            content += "/SVCLVL/" + code + " ";
+        }
+    }
+
+    // Handle ServiceLevel Proprietary
+    if serviceLevel?.Prtry is string {
+        string proprietary = serviceLevel?.Prtry.toString();
+        content += "/SVCLVL/" + proprietary + " ";
+    }
+
+    // Handle CategoryPurpose Code
+    if categoryPurpose?.Cd is string {
+        string code = categoryPurpose?.Cd.toString();
+
+        if code != "INTC" && code != "CORT" {
+            content += "/CATPURP/" + code + " ";
+        }
+    }
+
+    // Handle CategoryPurpose Proprietary
+    if categoryPurpose?.Prtry is string {
+        string proprietary = categoryPurpose?.Prtry.toString();
+
+        if proprietary != "INTC CORT" {
+            content += "/CATPURP/" + proprietary + " ";
+        }
+    }
+
+    // Handle LocalInstrument Code
+    if localInstrument?.Cd is string {
+        string code = localInstrument?.Cd.toString();
+        content += "/LOCINS/" + code + " ";
+    }
+
+    // Handle LocalInstrument Proprietary
+    if localInstrument?.Prtry is string {
+        string proprietary = localInstrument?.Prtry.toString();
+
+        if proprietary != "CRED" && proprietary != "CRTS" && proprietary != "SPAY" &&
+            proprietary != "SPRI" && proprietary != "SSTD" {
+            content += "/LOCINS/" + proprietary + " ";
+        }
+    }
+
+    // Trim extra spaces and check if content is not empty
+    content = content.trim();
+    if content == "" {
+        return {
+            name: name,
+            Cd: {
+                content: content,
+                number: number
+            }
+        };
+    }
+
+    return {
+        name: name,
+        Cd: {
+            content: content,
+            number: number
+        }
+    };
+}
+
+# Converts ISO date format (YYYY-MM-DD) to SWIFT date format (YYMMDD).
+#
+# + isoDate - The ISO date string
+# + return - The SWIFT date string in YYMMDD format
+isolated function convertISODateToYYMMDD(string isoDate, string Default = "") returns string {
+    if isoDate.length() == 10 {
+        return isoDate.substring(2, 4) + isoDate.substring(5, 7) + isoDate.substring(8, 10);
+    }
+    return Default;
 }
 
