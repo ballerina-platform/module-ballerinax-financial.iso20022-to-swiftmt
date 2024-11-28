@@ -79,7 +79,7 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
         }
     };
 
-    swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? orderingCustomer = getMT102OrderingCustomerFromPacs008Document(document);
+    swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? orderingCustomer = getOrderingCustomerFromPacs008Document(document);
     swiftmt:MT50A? MT50A = orderingCustomer is swiftmt:MT50A ? check orderingCustomer.ensureType(swiftmt:MT50A) : ();
     swiftmt:MT50F? MT50F = orderingCustomer is swiftmt:MT50F ? check orderingCustomer.ensureType(swiftmt:MT50F) : ();
     swiftmt:MT50K? MT50K = orderingCustomer is swiftmt:MT50K ? check orderingCustomer.ensureType(swiftmt:MT50K) : ();
@@ -120,9 +120,18 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
 
     swiftmt:MT32A MT32A = {
         name: "32A",
-        Ccy: {content: firstTransaction.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType?.Ccy, number: "1"},
-        Dt: check convertISODateStringToSwiftMtDate(firstTransaction.IntrBkSttlmDt.toString(), "2"),
-        Amnt: {content: convertDecimalNumberToSwiftDecimal(firstTransaction.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType?.ActiveCurrencyAndAmount_SimpleType), number: "3"}
+        Dt: {
+            content: check extractSwiftMtDateFromMXDate(firstTransaction.IntrBkSttlmDt.toString()),
+            number: "2"
+        },
+        Ccy: {
+            content: getActiveOrHistoricCurrencyAndAmountCcy(firstTransaction.InstdAmt),
+            number: "1"
+        },
+        Amnt: {
+            content: getActiveOrHistoricCurrencyAndAmountValue(firstTransaction.InstdAmt),
+            number: "3"
+        }
     };
 
     swiftmt:MT19 MT19 = {
@@ -130,7 +139,7 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
         Amnt: {content: convertDecimalNumberToSwiftDecimal(grpHdr.CtrlSum), number: "1"}
     };
 
-    swiftmt:MT71G MT71G = check convertCharges16toMT71G(firstTransaction.ChrgsInf);
+    swiftmt:MT71G MT71G = check convertCharges16toMT71G(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
 
     swiftmt:MT13C? MT13C = check convertTimeToMT13C(firstTransaction.SttlmTmIndctn, firstTransaction.SttlmTmReq);
 
@@ -141,13 +150,14 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
     swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? receiversCorrespondent = getMT103ReceiversCorrespondentFromPacs008Document(document, isSTP);
     swiftmt:MT54A? MT54A = receiversCorrespondent is swiftmt:MT54A ? check receiversCorrespondent.ensureType(swiftmt:MT54A) : ();
 
-    swiftmt:MT72 MT72 = {name: "72", Cd: {content: "", number: "1"}};
+    swiftmt:MT72 MT72 = mapToMT72(firstTransaction.PmtTpInf?.SvcLvl, firstTransaction.PmtTpInf?.CtgyPurp, firstTransaction.PmtTpInf?.LclInstrm);
 
     swiftmt:MT102STPTransaction[]|swiftmt:MT102Transaction[] Transactions = check createMT102Transactions(
             document.FIToFICstmrCdtTrf.CdtTrfTxInf,
             orderingCustomer,
             orderingInstitution,
-            isSTP
+            isSTP,
+            document
     );
 
     if (isSTP) {
@@ -206,12 +216,14 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
 # + orderingCustomer - The ordering customer
 # + orderingInstitution - The ordering institution
 # + isSTP - A boolean indicating whether the message is an STP message
+# + document - The PACS008 document
 # + return - The transactions of the MT102 message or an error if the transformation fails
 isolated function createMT102Transactions(
         pacsIsoRecord:CreditTransferTransaction64[] mxTransactions,
         swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? orderingCustomer,
         swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? orderingInstitution,
-        boolean isSTP)
+        boolean isSTP,
+        pacsIsoRecord:Pacs008Document document)
 returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
     swiftmt:MT102Transaction[] transactions = [];
     swiftmt:MT102STPTransaction[] transactionsSTP = [];
@@ -250,7 +262,7 @@ returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
         swiftmt:MT57A? MT57A = accountWithInstitution is swiftmt:MT57A ? check accountWithInstitution.ensureType(swiftmt:MT57A) : ();
         swiftmt:MT57C? MT57C = accountWithInstitution is swiftmt:MT57C ? check accountWithInstitution.ensureType(swiftmt:MT57C) : ();
 
-        swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? beneficiaryCustomer = getMT102TransactionBeneficiaryCustomerFromPacs008Document(transaxion);
+        swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? beneficiaryCustomer = getBeneficiaryCustomerFromPacs008Document(document);
         swiftmt:MT59? MT59 = beneficiaryCustomer is swiftmt:MT59 ? check beneficiaryCustomer.ensureType(swiftmt:MT59) : ();
         swiftmt:MT59A? MT59A = beneficiaryCustomer is swiftmt:MT59A ? check beneficiaryCustomer.ensureType(swiftmt:MT59A) : ();
         swiftmt:MT59F? MT59F = beneficiaryCustomer is swiftmt:MT59F ? check beneficiaryCustomer.ensureType(swiftmt:MT59F) : ();
@@ -270,11 +282,16 @@ returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
         swiftmt:MT33B MT33B = {
             name: "33B",
             Ccy: {
-                content: getActiveOrHistoricCurrencyAndAmountCcy(transaxion.InstdAmt),
+                content: check getCurrencyCodeFromInterbankOrInstructedAmount(
+                        transaxion.InstdAmt, transaxion.IntrBkSttlmAmt
+                ),
                 number: "1"
+
             },
             Amnt: {
-                content: getActiveOrHistoricCurrencyAndAmountValue(transaxion.InstdAmt),
+                content: check getAmountValueFromInterbankOrInstructedAmount(
+                        transaxion.InstdAmt, transaxion.IntrBkSttlmAmt
+                ),
                 number: "2"
             }
         };
@@ -284,9 +301,8 @@ returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
             Cd: getDetailsOfChargesFromChargeBearerType1Code(transaxion.ChrgBr, "1")
         };
 
-        swiftmt:MT71F MT71F = check convertCharges16toMT71F(transaxion.ChrgsInf);
-
-        swiftmt:MT71G MT71G = check convertCharges16toMT71G(transaxion.ChrgsInf);
+        swiftmt:MT71F MT71F = check convertCharges16toMT71F(transaxion.ChrgsInf, transaxion.ChrgBr);
+        swiftmt:MT71G MT71G = check convertCharges16toMT71G(transaxion.ChrgsInf, transaxion.ChrgBr);
 
         swiftmt:MT36 MT36 = {
             name: "36",
@@ -365,6 +381,8 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
 
     pacsIsoRecord:CreditTransferTransaction64 firstTransaction = transactions[0];
 
+    swiftmt:MT13C? MT13C = check convertTimeToMT13C(firstTransaction.SttlmTmIndctn, firstTransaction.SttlmTmReq);
+
     swiftmt:MT20 MT20 = {
         name: "20",
         msgId: {
@@ -372,8 +390,6 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
             number: "1"
         }
     };
-
-    swiftmt:MT13C? MT13C = check convertTimeToMT13C(firstTransaction.SttlmTmIndctn, firstTransaction.SttlmTmReq);
 
     swiftmt:MT23B MT23B = {
         name: "23B",
@@ -435,7 +451,7 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
         }
     };
 
-    swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? orderingCustomer = getMT103OrderingCustomerFromPacs008Document(document);
+    swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? orderingCustomer = getOrderingCustomerFromPacs008Document(document);
     swiftmt:MT50A? MT50A = orderingCustomer is swiftmt:MT50A ? check orderingCustomer.ensureType(swiftmt:MT50A) : ();
     swiftmt:MT50F? MT50F = orderingCustomer is swiftmt:MT50F ? check orderingCustomer.ensureType(swiftmt:MT50F) : ();
     swiftmt:MT50K? MT50K = orderingCustomer is swiftmt:MT50K ? check orderingCustomer.ensureType(swiftmt:MT50K) : ();
@@ -480,7 +496,7 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
     swiftmt:MT57B? MT57B = accountWithInstitution is swiftmt:MT57B ? check accountWithInstitution.ensureType(swiftmt:MT57B) : ();
     swiftmt:MT57C? MT57C = accountWithInstitution is swiftmt:MT57C ? check accountWithInstitution.ensureType(swiftmt:MT57C) : ();
 
-    swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? beneficiaryCustomer = getMT103BeneficiaryCustomerFromPacs008Document(document);
+    swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? beneficiaryCustomer = getBeneficiaryCustomerFromPacs008Document(document);
     swiftmt:MT59? MT59 = beneficiaryCustomer is swiftmt:MT59 ? check beneficiaryCustomer.ensureType(swiftmt:MT59) : ();
     swiftmt:MT59A? MT59A = beneficiaryCustomer is swiftmt:MT59A ? check beneficiaryCustomer.ensureType(swiftmt:MT59A) : ();
     swiftmt:MT59F? MT59F = beneficiaryCustomer is swiftmt:MT59F ? check beneficiaryCustomer.ensureType(swiftmt:MT59F) : ();
@@ -491,10 +507,8 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
         name: "71A",
         Cd: getDetailsOfChargesFromChargeBearerType1Code(firstTransaction.ChrgBr)
     };
-
-    swiftmt:MT71F MT71F = check convertCharges16toMT71F(firstTransaction.ChrgsInf);
-
-    swiftmt:MT71G MT71G = check convertCharges16toMT71G(firstTransaction.ChrgsInf);
+    swiftmt:MT71F MT71F = check convertCharges16toMT71F(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
+    swiftmt:MT71G MT71G = check convertCharges16toMT71G(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
 
     swiftmt:MT72 MT72 = mapToMT72(firstTransaction.PmtTpInf?.SvcLvl, firstTransaction.PmtTpInf?.CtgyPurp, firstTransaction.PmtTpInf?.LclInstrm);
 

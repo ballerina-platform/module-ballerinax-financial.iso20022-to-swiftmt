@@ -21,7 +21,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 #
 # + document - The Pacs008 document
 # + return - The ordering customer or null record
-isolated function getMT103OrderingCustomerFromPacs008Document(
+isolated function getOrderingCustomerFromPacs008Document(
         SwiftMxRecords:Pacs008Document document
 ) returns swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? {
 
@@ -562,7 +562,7 @@ isolated function getMT103IntermediaryInstitutionFromPacs008Document(
 #
 # + document - The Pacs008 document
 # + return - The beneficiary customer or null record
-isolated function getMT103BeneficiaryCustomerFromPacs008Document(
+isolated function getBeneficiaryCustomerFromPacs008Document(
         SwiftMxRecords:Pacs008Document document
 ) returns swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? {
     SwiftMxRecords:PartyIdentification272? creditor =

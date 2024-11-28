@@ -12,13 +12,7 @@ isolated function transformCamt026ToMT195(camtIsoRecord:Camt026Document document
         block2: check createMtBlock2("195", document.UblToApply.SplmtryData, document.UblToApply.Assgnmt.CreDtTm),
         block3: check createMtBlock3(document.UblToApply.SplmtryData, (), ""),
         block4: {
-            MT20: {
-                name: "20",
-                msgId: {
-                    content: document.UblToApply.Case?.Id.toString(),
-                    number: "1"
-                }
-            },
+            MT20: check deriveMT20(document.UblToApply.Case?.Id),
             MT21: {
                 name: "21",
                 Ref: {

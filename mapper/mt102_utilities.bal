@@ -17,58 +17,6 @@
 import ballerinax/financial.iso20022.payments_clearing_and_settlement as SwiftMxRecords;
 import ballerinax/financial.swift.mt as swiftmt;
 
-# Get the ordering customer from the Pacs008 document.
-#
-# + document - The Pacs008 document
-# + return - The ordering customer or an empty record
-isolated function getMT102OrderingCustomerFromPacs008Document(SwiftMxRecords:Pacs008Document document)
-returns swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? {
-
-    SwiftMxRecords:PartyIdentification272? initgPty = document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].InitgPty;
-
-    if initgPty is () {
-        return ();
-    }
-
-    if initgPty.Id != () && initgPty.PstlAdr == () {
-        return <swiftmt:MT50F>{
-            name: "50F",
-            PrtyIdn: {
-                content: getEmptyStrIfNull(initgPty.Id),
-                number: "1"
-            },
-            CdTyp: [
-                {
-                    content: getEmptyStrIfNull(initgPty.Nm),
-                    number: "2"
-                }
-            ],
-            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>initgPty.PstlAdr?.AdrLine)
-        };
-    }
-
-    if initgPty.Id != () {
-        return <swiftmt:MT50A>{
-            name: "50A",
-            Acc: (),
-            IdnCd: {
-                content: getEmptyStrIfNull(initgPty.Id),
-                number: "1"
-            }
-        };
-    }
-
-    if initgPty.Nm == () && initgPty.PstlAdr != () {
-        return <swiftmt:MT50K>{
-            name: "50K",
-            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>initgPty.PstlAdr?.AdrLine),
-            Nm: getNamesArrayFromNameString(getEmptyStrIfNull(initgPty.Nm))
-        };
-    }
-
-    return ();
-}
-
 # Get the ordering institution from the Pacs008 document.
 #
 # + document - The Pacs008 document
