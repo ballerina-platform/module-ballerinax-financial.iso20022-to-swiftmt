@@ -139,7 +139,7 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
         Amnt: {content: convertDecimalNumberToSwiftDecimal(grpHdr.CtrlSum), number: "1"}
     };
 
-    swiftmt:MT71G MT71G = check convertCharges16toMT71G(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
+    swiftmt:MT71G? MT71G = check convertCharges16toMT71G(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
 
     swiftmt:MT13C? MT13C = check convertTimeToMT13C(firstTransaction.SttlmTmIndctn, firstTransaction.SttlmTmReq);
 
@@ -301,8 +301,8 @@ returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
             Cd: getDetailsOfChargesFromChargeBearerType1Code(transaxion.ChrgBr, "1")
         };
 
-        swiftmt:MT71F MT71F = check convertCharges16toMT71F(transaxion.ChrgsInf, transaxion.ChrgBr);
-        swiftmt:MT71G MT71G = check convertCharges16toMT71G(transaxion.ChrgsInf, transaxion.ChrgBr);
+        swiftmt:MT71F? MT71F = check convertCharges16toMT71F(transaxion.ChrgsInf, transaxion.ChrgBr);
+        swiftmt:MT71G? MT71G = check convertCharges16toMT71G(transaxion.ChrgsInf, transaxion.ChrgBr);
 
         swiftmt:MT36 MT36 = {
             name: "36",
@@ -409,7 +409,6 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
         }
     };
 
-    // Transform and map MXDate, MTCurrency, and MTAmount to MT32A
     swiftmt:MT32A MT32A = {
         name: "32A",
         Dt: {
@@ -507,8 +506,8 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
         name: "71A",
         Cd: getDetailsOfChargesFromChargeBearerType1Code(firstTransaction.ChrgBr)
     };
-    swiftmt:MT71F MT71F = check convertCharges16toMT71F(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
-    swiftmt:MT71G MT71G = check convertCharges16toMT71G(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
+    swiftmt:MT71F? MT71F = check convertCharges16toMT71F(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
+    swiftmt:MT71G? MT71G = check convertCharges16toMT71G(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
 
     swiftmt:MT72 MT72 = mapToMT72(firstTransaction.PmtTpInf?.SvcLvl, firstTransaction.PmtTpInf?.CtgyPurp, firstTransaction.PmtTpInf?.LclInstrm);
 

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/regex;
 import ballerina/time;
 import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
@@ -69,7 +68,6 @@ isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, painI
     if (mtMessageId != ()) {
         messageType = mtMessageId.toString();
     } else if (supplementaryData != ()) {
-        // If the message type isn't provided directly through mtMessageId, try to find it in the supplementary data
         foreach var data in supplementaryData {
             if (data.Envlp.hasKey("MessageType")) {
                 messageType = data.Envlp["MessageType"].toString();
@@ -102,7 +100,6 @@ isolated function createMtBlock2(string? mtMessageId, painIsoRecord:Supplementar
     if (mtMessageId != ()) {
         messageType = mtMessageId.toString();
     } else if (supplementaryData != ()) {
-        // If the message type isn't provided directly through mtMessageId, try to find it in the supplementary data
         foreach var data in supplementaryData {
             if (data.Envlp.hasKey("MessageType")) {
                 messageType = data.Envlp["MessageType"].toString();
@@ -114,8 +111,6 @@ isolated function createMtBlock2(string? mtMessageId, painIsoRecord:Supplementar
     if (messageType == "") {
         return error("Failed to identify the message type");
     }
-
-    io:println(isoDateTime);
 
     string?[] swiftMtDateTime = convertToSwiftMTDateTime(isoDateTime.toString());
 
@@ -300,24 +295,21 @@ isolated function convertCharges16toMT71a(painIsoRecord:Charges16[]? charges) re
 # Convert the charges from the MX message to the MT71F message.
 #
 # + charges - The charges from the MX message.
+# + chargeBearer - The charge bearer from the MX message.
 # + return - The MT71F message or an error if the conversion fails.
-isolated function convertCharges16toMT71F(painIsoRecord:Charges16[]? charges, string? chargeBearer) returns swiftmt:MT71F|error {
-    // Initialize an array to hold MT71A and MT71G results.
+isolated function convertCharges16toMT71F(painIsoRecord:Charges16[]? charges, string? chargeBearer) returns swiftmt:MT71F?|error {
     (swiftmt:MT71F|swiftmt:MT71G)[] mt71a = [];
 
-    // Check if charges exist and proceed if ChargeBearer is 'CRED' or 'SHAR'.
     if chargeBearer == "CRED" || chargeBearer == "SHAR" {
         mt71a = convertCharges16toMT71a(charges);
     }
 
-    // Iterate over results to find the first MT71F entry.
     foreach (swiftmt:MT71F|swiftmt:MT71G) e in mt71a {
         if e is swiftmt:MT71F {
             return check e.ensureType(swiftmt:MT71F);
         }
     }
 
-    // If no MT71F entry is found, return a default message with empty content.
     return {
         name: "71F",
         Ccy: {content: "NOTPROVIDED", number: "1"},
@@ -330,34 +322,30 @@ isolated function convertCharges16toMT71F(painIsoRecord:Charges16[]? charges, st
 # + charges - The charges from the MX message.
 # + chargeBearer - The charge bearer from the MX message.
 # + return - The MT71G message or an error if the conversion fails.
-isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges, string? chargeBearer) returns swiftmt:MT71G|error {
+isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges, string? chargeBearer) returns swiftmt:MT71G?|error {
     if charges == () || charges.length() == 0 {
-        return error("Charges information is missing.");
+        return ();
     }
 
     if chargeBearer != "DEBT" {
-        return error("ChargeBearer is not 'DEBT'. No MT71G conversion required.");
+        return ();
     }
 
     decimal mxTotalAmount = 0.0;
     string? mtCurrency = ();
     string mtAmount = "";
 
-    // Iterate through ChargesInformation to validate and sum amounts.
     foreach painIsoRecord:Charges16 charge in charges {
-        // Validate that all charges have the same currency as the first charge.
         string currentCurrency = charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy;
         if mtCurrency is () {
-            mtCurrency = currentCurrency; // Initialize currency from the first charge.
+            mtCurrency = currentCurrency;
         } else if mtCurrency != currentCurrency {
             return error("All charges must have the same currency (Error Code: T20045).");
         }
 
-        // Accumulate the total amount in MX format.
         mxTotalAmount += check charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType.ensureType(decimal);
     }
 
-    // Convert the total amount to MT format.
     mtAmount = convertDecimalNumberToSwiftDecimal(mxTotalAmount);
     if mtAmount.length() > 15 {
         return error("Amount exceeds maximum length of 15 characters (Error Codes: T20039, T13005).");
@@ -367,7 +355,6 @@ isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges, st
         return error("Amount cannot be zero (Error Code: T13009).");
     }
 
-    // Construct the MT71G field.
     swiftmt:MT71G mt71g = {
         name: "71G",
         Ccy: {content: mtCurrency ?: "NOTPROVIDED", number: "1"},
@@ -397,7 +384,6 @@ isolated function createMT13C(string code, painIsoRecord:ISOTime?|painIsoRecord:
         return error("No valid time provided to map MT13C.");
     }
 
-    // Convert the time to HHMM format
     time:Utc isoTime = check time:utcFromString(time.toString());
     time:Civil civilTime = time:utcToCivil(isoTime);
     string hour = civilTime.hour < 10 ? "0" + civilTime.hour.toString() : civilTime.hour.toString();
@@ -408,8 +394,8 @@ isolated function createMT13C(string code, painIsoRecord:ISOTime?|painIsoRecord:
         name: "13C",
         Cd: {content: code, number: "1"},
         Tm: {content: convertedTime, number: "2"},
-        Sgn: {content: "+", number: "3"}, // Default to '+' as per mapping
-        TmOfst: {content: "0000", number: "4"} // Default offset, can be updated if required
+        Sgn: {content: "+", number: "3"},
+        TmOfst: {content: "0000", number: "4"}
     };
 }
 
@@ -421,9 +407,8 @@ isolated function createMT13C(string code, painIsoRecord:ISOTime?|painIsoRecord:
 isolated function convertTimeToMT13C(
         painIsoRecord:SettlementDateTimeIndication1? SttlmTmIndctn,
         painIsoRecord:SettlementTimeRequest2? SttlmTmReq
-) returns swiftmt:MT13C|error {
+) returns swiftmt:MT13C?|error {
 
-    // Check and create MT13C based on available data
     if SttlmTmIndctn?.DbtDtTm is painIsoRecord:ISODateTime {
         return check createMT13C("/SNDTIME/", SttlmTmIndctn?.DbtDtTm);
     } else if SttlmTmIndctn?.CdtDtTm is painIsoRecord:ISODateTime {
@@ -438,8 +423,7 @@ isolated function convertTimeToMT13C(
         return check createMT13C("/REJTIME/", SttlmTmReq?.RjctTm);
     }
 
-    // If no valid data is found, return an error
-    return error("No valid settlement time information provided to map MT13C.");
+    return ();
 }
 
 # Get the remittance information from the payment identification or remittance information.
@@ -462,29 +446,23 @@ isolated function getRemittanceInformation(painIsoRecord:PaymentIdentification13
     string number = "1";
 
     string:RegExp regExp = re `:26T:[A-Z0-9]{3}`;
-
-    // Check for Purpose with Proprietary containing the pattern ":26T:[A-Z0-9]{3}"
     if (Prps?.Prtry != ()) {
         string? proprietary = Prps?.Prtry;
         if proprietary is string && proprietary.matches(regExp) {
-            // Map to field 26T
             name = "26T";
             content = proprietary.substring(5, 8);
             return {name, Nrtv: {content, number}};
         }
     }
 
-    // Handle cases for PmtId
     if (PmtId?.EndToEndId != ()) {
         content = getEmptyStrIfNull(PmtId?.EndToEndId);
     }
-    // Handle cases for Remittance Information
     else if (RmtInf?.Ustrd != ()) {
         string[] unstructured = RmtInf?.Ustrd ?: [];
         content = joinStringArray(unstructured, "\n");
     }
 
-    // Default to Field 70 with the extracted content
     return {name, Nrtv: {content, number}};
 }
 
@@ -530,8 +508,6 @@ isolated function getNamesArrayFromNameString(string nameString) returns swiftmt
             number: (i + 1).toString()
         });
     }
-
-    io:println(result);
 
     return result;
 }
@@ -858,7 +834,6 @@ isolated function mapToMT72(pacsIsoRecord:ServiceLevel8Choice[]? serviceLevels,
 
     pacsIsoRecord:ServiceLevel8Choice? serviceLevel = serviceLevels[0];
 
-    // Handle ServiceLevel Code
     if serviceLevel?.Cd is string {
         string code = serviceLevel?.Cd.toString();
         string:RegExp regex = re `^G00[1-9]$`;
@@ -868,13 +843,11 @@ isolated function mapToMT72(pacsIsoRecord:ServiceLevel8Choice[]? serviceLevels,
         }
     }
 
-    // Handle ServiceLevel Proprietary
     if serviceLevel?.Prtry is string {
         string proprietary = serviceLevel?.Prtry.toString();
         content += "/SVCLVL/" + proprietary + " ";
     }
 
-    // Handle CategoryPurpose Code
     if categoryPurpose?.Cd is string {
         string code = categoryPurpose?.Cd.toString();
 
@@ -883,7 +856,6 @@ isolated function mapToMT72(pacsIsoRecord:ServiceLevel8Choice[]? serviceLevels,
         }
     }
 
-    // Handle CategoryPurpose Proprietary
     if categoryPurpose?.Prtry is string {
         string proprietary = categoryPurpose?.Prtry.toString();
 
@@ -892,13 +864,11 @@ isolated function mapToMT72(pacsIsoRecord:ServiceLevel8Choice[]? serviceLevels,
         }
     }
 
-    // Handle LocalInstrument Code
     if localInstrument?.Cd is string {
         string code = localInstrument?.Cd.toString();
         content += "/LOCINS/" + code + " ";
     }
 
-    // Handle LocalInstrument Proprietary
     if localInstrument?.Prtry is string {
         string proprietary = localInstrument?.Prtry.toString();
 
@@ -908,7 +878,6 @@ isolated function mapToMT72(pacsIsoRecord:ServiceLevel8Choice[]? serviceLevels,
         }
     }
 
-    // Trim extra spaces and check if content is not empty
     content = content.trim();
     if content == "" {
         return {
@@ -946,24 +915,20 @@ isolated function convertISODateToYYMMDD(string isoDate, string Default = "") re
 # + caseId - The case identification from the camt.056 message
 # + return - Returns the MT20 field or an error if the mapping fails
 isolated function deriveMT20(string? caseId) returns swiftmt:MT20|error {
-    // Local variable for the derived value
     string field20 = "NOTPROVIDED";
 
     if caseId is string {
-        // Step 1: Check length and truncate if necessary
         if caseId.length() > 16 {
-            field20 = caseId.substring(0, 15) + "+"; // Truncate and append "+"
+            field20 = caseId.substring(0, 15) + "+";
         } else {
             field20 = caseId;
         }
 
-        // Step 2: Validate the format
         if field20.startsWith("/") || field20.endsWith("/") || field20.matches(re `//`) {
-            field20 = "NOTPROVIDED"; // Invalid format, set to "NOTPROVIDED"
+            field20 = "NOTPROVIDED";
         }
     }
 
-    // Construct and return the MT20 field
     return {
         name: "20",
         msgId: {
@@ -982,9 +947,8 @@ isolated function deriveMT11S(
         camtIsoRecord:OriginalGroupHeader21? orgnlGrpInfo,
         string? orgnlCreationDateTime
 ) returns swiftmt:MT11S|error {
-    // Local variables
-    string mtType = "202"; // Default value
-    string date = "991231"; // Default fallback date in case of missing date
+    string mtType = "202";
+    string date = "991231";
 
     string:RegExp pacs008 = re `pacs.008`;
     string:RegExp pacs003 = re `pacs.003`;
@@ -993,7 +957,6 @@ isolated function deriveMT11S(
     string:RegExp mt10x = re `MT10[0-9]{1}`;
     string:RegExp mt20x = re `MT20[0-9]{1}`;
 
-    // Determine MT type based on OriginalMessageNameIdentification
     if orgnlGrpInfo?.OrgnlMsgNmId is string {
         string orgnlMsgNmId = orgnlGrpInfo?.OrgnlMsgNmId.toString();
         if orgnlMsgNmId.matches(pacs008) {
@@ -1009,13 +972,11 @@ isolated function deriveMT11S(
         }
     }
 
-    // Determine date based on OriginalCreationDateTime
     if orgnlCreationDateTime is string && orgnlCreationDateTime.length() >= 10 {
         string mxDate = orgnlCreationDateTime.substring(0, 10); // Extract YYYY-MM-DD
         date = convertISODateToYYMMDD(mxDate, "991231");
     }
 
-    // Construct MT11S field
     return {
         name: "11S",
         MtNum: {
@@ -1039,7 +1000,6 @@ isolated function deriveMT32A(
         camtIsoRecord:ISODate? orgnlIntrBkSttlmDt
 ) returns swiftmt:MT32A|error {
     if orgnlIntrBkSttlmAmt is camtIsoRecord:ActiveOrHistoricCurrencyAndAmount && orgnlIntrBkSttlmDt is camtIsoRecord:ISODate {
-        // Extract components
         string date = convertISODateToYYMMDD(orgnlIntrBkSttlmDt);
         string currency = orgnlIntrBkSttlmAmt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy;
         string amount = orgnlIntrBkSttlmAmt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString();
@@ -1059,37 +1019,32 @@ isolated function deriveMT32A(
 # + undrlyg - The underlying transaction details
 # + return - Returns a valid reference for MT21 or "NOTPROVIDED" if invalid
 isolated function getOriginalInstructionOrUETR(camtIsoRecord:UnderlyingTransaction34[]? undrlyg) returns string {
-    // Local variable to store the reference
     string field21 = "NOTPROVIDED";
 
     if undrlyg is camtIsoRecord:UnderlyingTransaction34[] {
         foreach camtIsoRecord:UnderlyingTransaction34 trans in undrlyg {
             foreach camtIsoRecord:PaymentTransaction155 txInf in trans.TxInf ?: [] {
-                // Step 1: Use OriginalInstructionIdentification if available
                 if txInf.OrgnlInstrId is string {
                     field21 = txInf.OrgnlInstrId.toString();
                 }
-                // Step 2: Fallback to UETR if OriginalInstructionIdentification is absent
                 else if txInf.OrgnlUETR is string {
                     field21 = txInf.OrgnlUETR.toString();
                 }
 
-                // Step 3: Truncate if necessary
                 if field21.length() > 16 {
                     field21 = field21.substring(0, 15) + "+"; // Truncate and append "+"
                 }
 
-                // Step 4: Validate format
                 if field21.startsWith("/") || field21.endsWith("/") || field21.matches(re `//`) {
-                    field21 = "NOTPROVIDED"; // Set to "NOTPROVIDED" if format is invalid
+                    field21 = "NOTPROVIDED";
                 }
 
-                return field21; // Return the first valid field
+                return field21;
             }
         }
     }
 
-    return field21; // Return default "NOTPROVIDED" if no valid reference found
+    return field21;
 }
 
 # Get the Original Instruction Identification or UETR from the underlying transactions.
@@ -1097,7 +1052,6 @@ isolated function getOriginalInstructionOrUETR(camtIsoRecord:UnderlyingTransacti
 # + undrlyg - The underlying transaction details
 # + return - Returns a valid reference for MT21 or "NOTPROVIDED" if invalid
 isolated function getOriginalInstructionOrUETRFromCamt055(camtIsoRecord:UnderlyingTransaction33[]? undrlyg) returns string {
-    // Local variable to store the reference
     string field21 = "NOTPROVIDED";
 
     if undrlyg is camtIsoRecord:UnderlyingTransaction33[] {
@@ -1106,26 +1060,22 @@ isolated function getOriginalInstructionOrUETRFromCamt055(camtIsoRecord:Underlyi
             if OrgnlPmtInfAndCxl is camtIsoRecord:OriginalPaymentInstruction49[] {
                 foreach camtIsoRecord:OriginalPaymentInstruction49 orgnlPmtInf in OrgnlPmtInfAndCxl {
                     foreach camtIsoRecord:PaymentTransaction154 txInf in orgnlPmtInf.TxInf ?: [] {
-                        // Step 1: Use OriginalInstructionIdentification if available
                         if txInf.OrgnlInstrId is string {
                             field21 = txInf.OrgnlInstrId.toString();
                         }
-                        // Step 2: Fallback to UETR if OriginalInstructionIdentification is absent
                         else if txInf.OrgnlUETR is string {
                             field21 = txInf.OrgnlUETR.toString();
                         }
 
-                        // Step 3: Truncate if necessary
                         if field21.length() > 16 {
-                            field21 = field21.substring(0, 15) + "+"; // Truncate and append "+"
+                            field21 = field21.substring(0, 15) + "+";
                         }
 
-                        // Step 4: Validate format
                         if field21.startsWith("/") || field21.endsWith("/") || field21.matches(re `//`) {
-                            field21 = "NOTPROVIDED"; // Set to "NOTPROVIDED" if format is invalid
+                            field21 = "NOTPROVIDED";
                         }
 
-                        return field21; // Return the first valid field
+                        return field21;
                     }
                 }
 
@@ -1134,7 +1084,7 @@ isolated function getOriginalInstructionOrUETRFromCamt055(camtIsoRecord:Underlyi
         }
     }
 
-    return field21; // Return default "NOTPROVIDED" if no valid reference found
+    return field21;
 }
 
 # Extracts narrative information from cancellation reasons in the camt.056 message.

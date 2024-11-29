@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
@@ -75,8 +74,6 @@ returns swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? {
     }
 
     painIsoRecord:PaymentInstruction44 firstTransaction = payments[0];
-
-    io:println(firstTransaction.Dbtr?.Nm);
 
     if (firstTransaction.Dbtr.Nm != () && firstTransaction.Dbtr.PstlAdr != ()) {
         return <swiftmt:MT50F>{
