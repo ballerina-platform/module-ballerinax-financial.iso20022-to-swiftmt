@@ -40,7 +40,7 @@ isolated function transformCamt055ToMT192(camtIsoRecord:Camt055Document document
     );
 
     // Step 4: Create Block 4
-    swiftmt:MT20 mt20 = check deriveMT20(document.CstmrPmtCxlReq.Case?.Id);
+    swiftmt:MT20 mt20 = check getMT20(document.CstmrPmtCxlReq.Case?.Id);
 
     swiftmt:MT21 mt21 = {
         name: "21",
@@ -50,7 +50,7 @@ isolated function transformCamt055ToMT192(camtIsoRecord:Camt055Document document
         }
     };
 
-    swiftmt:MT11S mt11s = check deriveMT11S(
+    swiftmt:MT11S mt11s = check getMT11S(
                 document.CstmrPmtCxlReq.Undrlyg[0].OrgnlGrpInfAndCxl,
             document.CstmrPmtCxlReq.Undrlyg[0].OrgnlGrpInfAndCxl?.OrgnlCreDtTm
     );

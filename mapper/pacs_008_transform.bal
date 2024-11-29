@@ -117,7 +117,7 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
         }
     };
 
-    swiftmt:MT32A MT32A = check deriveMT32A(firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmDt);
+    swiftmt:MT32A MT32A = check getMT32A(firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmDt);
 
     swiftmt:MT19 MT19 = {
         name: "19",
@@ -389,7 +389,7 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
         }
     };
 
-    swiftmt:MT32A MT32A = check deriveMT32A(firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmDt);
+    swiftmt:MT32A MT32A = check getMT32A(firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmDt);
 
     swiftmt:MT33B MT33B = {
         name: "33B",

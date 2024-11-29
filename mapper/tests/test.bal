@@ -1,7 +1,21 @@
+// Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/data.xmldata;
-// import ballerina/io;
 import ballerina/test;
-// import ballerinax/financial.iso20022 as swiftmx;
 import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
 import ballerinax/financial.iso20022.payments_clearing_and_settlement as pacsIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
@@ -295,13 +309,10 @@ function testTransformPacs003DocumenttoMT104() returns error? {
 ""}DEBT</ChrgBr><DrctDbtTx><MndtRltdInf/></DrctDbtTx><Cdtr><PstlAdr/><Id><OrgId/></Id></Cdtr><CdtrAcct><Id><Othr><SchmeNm/></Othr></Id></CdtrAcct><CdtrAgt><FinInstnId><PstlAdr/></FinInstnId></CdtrAgt><InitgPty><Id><OrgId/><PrvtId><Othr/></PrvtId></Id></InitgPty><IntrmyAgt1><FinInstnId/></IntrmyAgt1><Dbtr><PstlAdr/><Id><OrgId/></Id></Dbtr><DbtrAcct><Id><Othr><SchmeNm/></Othr></Id></DbtrAcct><DbtrAgt><FinInstnId><PstlAdr/></FinInstnId></DbtrAgt><RgltryRptg><Dtls><Ctry>${
 ""}BE</Ctry><Cd>ORDERRES</Cd><Inf>MEILAAN 1, 9000 GENT</Inf></Dtls></RgltryRptg><RmtInf><Ustrd/></RmtInf></DrctDbtTxInf></FIToFICstmrDrctDbt></Document>`;
 
-    // Parse the Pacs003Document XML
     pacsIsoRecord:Pacs003Document pacs003Message = check xmldata:parseAsType(documentXML);
 
-    // Transform the Pacs003Document to MT104
     swiftmt:MT104Message|error mt104Message = transformPacs003DocumentToMT104(pacs003Message);
 
-    // Validate the transformation
     if (mt104Message is swiftmt:MT104Message) {
         test:assertEquals(mt104Message.block2.messageType, "104");
     } else {
@@ -326,13 +337,10 @@ function testTransformPacs003DocumenttoMT107() returns error? {
 ""}DEBT</ChrgBr><DrctDbtTx><MndtRltdInf/></DrctDbtTx><Cdtr><PstlAdr/><Id><OrgId/></Id></Cdtr><CdtrAcct><Id><Othr><SchmeNm/></Othr></Id></CdtrAcct><CdtrAgt><FinInstnId><PstlAdr/></FinInstnId></CdtrAgt><InitgPty><Id><OrgId/><PrvtId><Othr/></PrvtId></Id></InitgPty><IntrmyAgt1><FinInstnId/></IntrmyAgt1><Dbtr><PstlAdr/><Id><OrgId/></Id></Dbtr><DbtrAcct><Id><Othr><SchmeNm/></Othr></Id></DbtrAcct><DbtrAgt><FinInstnId><PstlAdr/></FinInstnId></DbtrAgt><RgltryRptg><Dtls><Ctry>${
 ""}BE</Ctry><Cd>ORDERRES</Cd><Inf>MEILAAN 1, 9000 GENT</Inf></Dtls></RgltryRptg><RmtInf><Ustrd/></RmtInf></DrctDbtTxInf></FIToFICstmrDrctDbt></Document>`;
 
-    // Parse the Pacs003Document XML
     pacsIsoRecord:Pacs003Document pacs003Message = check xmldata:parseAsType(documentXML);
 
-    // Transform the Pacs003Document to MT104
     swiftmt:MT107Message|error mt107Message = transformPacs003DocumentToMT107(pacs003Message);
 
-    // Validate the transformation
     if (mt107Message is swiftmt:MT107Message) {
         test:assertEquals(mt107Message.block2.messageType, "107");
     } else {

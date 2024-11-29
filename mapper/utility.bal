@@ -905,7 +905,7 @@ isolated function convertISODateToYYMMDD(string isoDate, string Default = "") re
 #
 # + caseId - The case identification from the camt.056 message
 # + return - Returns the MT20 field or an error if the mapping fails
-isolated function deriveMT20(string? caseId) returns swiftmt:MT20|error {
+isolated function getMT20(string? caseId) returns swiftmt:MT20|error {
     string field20 = "NOTPROVIDED";
 
     if caseId is string {
@@ -934,7 +934,7 @@ isolated function deriveMT20(string? caseId) returns swiftmt:MT20|error {
 # + orgnlGrpInfo - Original group information from the camt.056 message
 # + orgnlCreationDateTime - Original creation date-time from the camt.056 message
 # + return - Returns the MT11S field or an error if the mapping fails
-isolated function deriveMT11S(
+isolated function getMT11S(
         camtIsoRecord:OriginalGroupHeader21? orgnlGrpInfo,
         string? orgnlCreationDateTime
 ) returns swiftmt:MT11S|error {
@@ -986,7 +986,7 @@ isolated function deriveMT11S(
 # + orgnlIntrBkSttlmAmt - The original interbank settlement amount
 # + orgnlIntrBkSttlmDt - The original interbank settlement date
 # + return - Returns the MT32A record or an error if the mapping fails
-isolated function deriveMT32A(
+isolated function getMT32A(
         camtIsoRecord:ActiveOrHistoricCurrencyAndAmount? orgnlIntrBkSttlmAmt,
         camtIsoRecord:ISODate? orgnlIntrBkSttlmDt
 ) returns swiftmt:MT32A|error {

@@ -26,7 +26,7 @@ isolated function transformCamt028ToMT196(camtIsoRecord:Camt028Document document
     block2: check createMtBlock2("196", document.AddtlPmtInf.SplmtryData, document.AddtlPmtInf.Assgnmt.CreDtTm),
     block3: check createMtBlock3(document.AddtlPmtInf.SplmtryData, (), ""),
     block4: {
-        MT20: check deriveMT20(document.AddtlPmtInf.Case?.Id),
+        MT20: check getMT20(document.AddtlPmtInf.Case?.Id),
         MT21: {
             name: "21",
             Ref: {

@@ -46,7 +46,7 @@ isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document
 
     // Step 4: Create Block 4
     swiftmt:MTn92Block4 block4 = {
-        MT20: check deriveMT20(document.FIToFIPmtCxlReq.Case?.Id),
+        MT20: check getMT20(document.FIToFIPmtCxlReq.Case?.Id),
         MT21: {
             name: "21",
             Ref: {
@@ -54,7 +54,7 @@ isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document
                 number: "1"
             }
         },
-        MT11S: check deriveMT11S(
+        MT11S: check getMT11S(
                 document.FIToFIPmtCxlReq.Undrlyg[0].OrgnlGrpInfAndCxl,
                 document.FIToFIPmtCxlReq.Undrlyg[0].OrgnlGrpInfAndCxl?.OrgnlCreDtTm
         ),
@@ -63,7 +63,7 @@ isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document
             Nrtv: getNarrativeFromCancellationReason(document.FIToFIPmtCxlReq.Undrlyg)
         },
         MessageCopy: {
-            MT32A: check deriveMT32A(
+            MT32A: check getMT32A(
                     txInf0.OrgnlIntrBkSttlmAmt,
                     txInf0.OrgnlIntrBkSttlmDt
             )
