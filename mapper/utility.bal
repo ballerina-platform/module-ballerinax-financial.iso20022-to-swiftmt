@@ -364,19 +364,10 @@ isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges, st
     return mt71g;
 }
 
-isolated function getTime(painIsoRecord:ISOTime?|painIsoRecord:ISODateTime? time) returns string|error {
-    if time is () {
-        return "";
-    }
-    time:Utc isoTime = check time:utcFromString(time.toString());
-    time:Civil civilTime = time:utcToCivil(isoTime);
-
-    string hour = civilTime.hour < 10 ? "0" + civilTime.hour.toString() : civilTime.hour.toString();
-    string minute = civilTime.minute < 10 ? "0" + civilTime.minute.toString() : civilTime.minute.toString();
-    return hour + minute;
-}
-
-// Helper function to create MT13C for a given code and time
+# Create the MT13C message from the given code and time
+# + code - The code
+# + time - The time
+# + return - The MT13C message or an error if the conversion fails
 isolated function createMT13C(string code, painIsoRecord:ISOTime?|painIsoRecord:ISODateTime? time)
     returns swiftmt:MT13C|error {
 
@@ -438,8 +429,7 @@ isolated function convertTimeToMT13C(
 # + return - The MT70 message
 isolated function getRemittanceInformation(painIsoRecord:PaymentIdentification13? PmtId,
         painIsoRecord:RemittanceInformation22? RmtInf,
-        painIsoRecord:Purpose2Choice? Prps)
-                                            returns swiftmt:MT70 {
+        painIsoRecord:Purpose2Choice? Prps) returns swiftmt:MT70 {
 
     string name = "70";
     string content = "";
@@ -798,7 +788,7 @@ isolated function extractSwiftMtDateFromMXDate(string mxDate) returns string|err
     if (convertedDate is error) {
         return "";
     }
-    return convertedDate.content.substring(2, 6); // Extract YYMMDD starting from the third character.
+    return convertedDate.content.substring(2, 6);
 }
 
 isolated function isStructuredAddress(painIsoRecord:PartyIdentification272 creditor) returns boolean {
@@ -973,7 +963,7 @@ isolated function deriveMT11S(
     }
 
     if orgnlCreationDateTime is string && orgnlCreationDateTime.length() >= 10 {
-        string mxDate = orgnlCreationDateTime.substring(0, 10); // Extract YYYY-MM-DD
+        string mxDate = orgnlCreationDateTime.substring(0, 10);
         date = convertISODateToYYMMDD(mxDate, "991231");
     }
 
@@ -1006,9 +996,9 @@ isolated function deriveMT32A(
 
         return {
             name: "32A",
-            Dt: {content: date},
-            Ccy: {content: currency},
-            Amnt: {content: amount}
+            Dt: {content: date, number: "2"},
+            Ccy: {content: currency, number: "1"},
+            Amnt: {content: amount, number: "3"}
         };
     }
     return error("Failed to map MT32A from OriginalInterbankSettlement fields.");
@@ -1032,7 +1022,7 @@ isolated function getOriginalInstructionOrUETR(camtIsoRecord:UnderlyingTransacti
                 }
 
                 if field21.length() > 16 {
-                    field21 = field21.substring(0, 15) + "+"; // Truncate and append "+"
+                    field21 = field21.substring(0, 15) + "+";
                 }
 
                 if field21.startsWith("/") || field21.endsWith("/") || field21.matches(re `//`) {

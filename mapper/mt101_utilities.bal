@@ -106,20 +106,17 @@ isolated function getMT101AccountServicingInstitutionFromPain001Document(painIso
 returns swiftmt:MT52A?|swiftmt:MT52C? {
     painIsoRecord:CustomerCreditTransferInitiationV12 cstmrDrctDbtInitn = document.CstmrCdtTrfInitn;
     painIsoRecord:PaymentInstruction44[] payments = cstmrDrctDbtInitn.PmtInf;
+    painIsoRecord:PaymentInstruction44 firstTransaction = payments[0];
+    painIsoRecord:BranchAndFinancialInstitutionIdentification8? dbtrAgt = firstTransaction.DbtrAgt;
 
     if (payments.length() == 0) {
         return ();
     }
 
-    // Taking the first payment transaction as the reference.
-    painIsoRecord:PaymentInstruction44 firstTransaction = payments[0];
-    painIsoRecord:BranchAndFinancialInstitutionIdentification8? dbtrAgt = firstTransaction.DbtrAgt;
-
     if dbtrAgt is () {
         return ();
     }
 
-    // Use MT52A if identification code is available, else use MT52C
     if dbtrAgt.FinInstnId?.BICFI != () {
         return <swiftmt:MT52A>{
             name: "52A",
@@ -182,21 +179,18 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
         return ();
     }
 
-    // MT57A mapping if BICFI is available
     if cdtrAgt.FinInstnId?.BICFI != () {
         return <swiftmt:MT57A>{
             name: "57A",
             IdnCd: {content: getEmptyStrIfNull(cdtrAgt.FinInstnId.BICFI.toString()), number: "1"}
         };
     }
-    // MT57C mapping if ClrSysMmbId is available
     else if cdtrAgt.FinInstnId?.ClrSysMmbId?.MmbId != () {
         return <swiftmt:MT57C>{
             name: "57C",
             PrtyIdn: {content: cdtrAgt.FinInstnId.ClrSysMmbId?.MmbId.toString(), number: "1"}
         };
     }
-    // MT57D mapping if Othr identification is available, with additional name and address details
     else if cdtrAgt.FinInstnId?.Othr?.Id != () {
         return <swiftmt:MT57D>{
             name: "57D",
@@ -224,24 +218,17 @@ returns swiftmt:MT59|swiftmt:MT59A?|swiftmt:MT59F? {
         return ();
     }
 
-    // MT59A mapping if BIC code is available in Id
     if cdtr.Id?.OrgId?.AnyBIC != () {
         return <swiftmt:MT59A>{
             name: "59A",
             IdnCd: {content: getEmptyStrIfNull(cdtr.Id?.OrgId?.AnyBIC), number: "1"}
         };
     }
-    // MT59F mapping if structured address (postal address) is available
     else if cdtr.PstlAdr?.AdrLine != () {
         return <swiftmt:MT59F>{
             name: "59F",
             Acc: {content: cdtrAcct?.Id?.Othr?.Id.toString(), number: "1"},
-            Nm: [
-                {
-                    content: getEmptyStrIfNull(cdtr.Nm.toString()),
-                    number: "1"
-                }
-            ],
+            Nm: getNamesArrayFromNameString(cdtr.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>cdtr.PstlAdr?.AdrLine),
             CdTyp: [],
             CntyNTw: getMtCountryAndTownFromMxCountryAndTown(getEmptyStrIfNull(cdtr.PstlAdr?.Ctry),
@@ -249,7 +236,6 @@ returns swiftmt:MT59|swiftmt:MT59A?|swiftmt:MT59F? {
             )
         };
     }
-    // MT59 mapping for general beneficiary name or account info
     else {
         return <swiftmt:MT59>{
             name: "59",

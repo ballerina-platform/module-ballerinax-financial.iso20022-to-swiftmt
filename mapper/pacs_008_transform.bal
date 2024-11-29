@@ -61,7 +61,6 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
         }
     };
 
-    // Leave the content empty as the value is not available in the input
     swiftmt:MT23 MT23 = {
         name: "23",
         Cd: {content: firstTransaction.PmtTpInf?.CtgyPurp?.Cd.toString(), number: ""}
@@ -118,21 +117,7 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
         }
     };
 
-    swiftmt:MT32A MT32A = {
-        name: "32A",
-        Dt: {
-            content: check extractSwiftMtDateFromMXDate(firstTransaction.IntrBkSttlmDt.toString()),
-            number: "2"
-        },
-        Ccy: {
-            content: getActiveOrHistoricCurrencyAndAmountCcy(firstTransaction.InstdAmt),
-            number: "1"
-        },
-        Amnt: {
-            content: getActiveOrHistoricCurrencyAndAmountValue(firstTransaction.InstdAmt),
-            number: "3"
-        }
-    };
+    swiftmt:MT32A MT32A = check deriveMT32A(firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmDt);
 
     swiftmt:MT19 MT19 = {
         name: "19",
@@ -140,18 +125,13 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
     };
 
     swiftmt:MT71G? MT71G = check convertCharges16toMT71G(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
-
     swiftmt:MT13C? MT13C = check convertTimeToMT13C(firstTransaction.SttlmTmIndctn, firstTransaction.SttlmTmReq);
-
     swiftmt:MT53A?|swiftmt:MT53C? sendersCorrespondent = getMT102SendersCorrespondentFromPacs008Document(document);
     swiftmt:MT53A? MT53A = sendersCorrespondent is swiftmt:MT53A ? check sendersCorrespondent.ensureType(swiftmt:MT53A) : ();
     swiftmt:MT53C? MT53C = sendersCorrespondent is swiftmt:MT53C ? check sendersCorrespondent.ensureType(swiftmt:MT53C) : ();
-
     swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? receiversCorrespondent = getMT103ReceiversCorrespondentFromPacs008Document(document, isSTP);
     swiftmt:MT54A? MT54A = receiversCorrespondent is swiftmt:MT54A ? check receiversCorrespondent.ensureType(swiftmt:MT54A) : ();
-
     swiftmt:MT72 MT72 = mapToMT72(firstTransaction.PmtTpInf?.SvcLvl, firstTransaction.PmtTpInf?.CtgyPurp, firstTransaction.PmtTpInf?.LclInstrm);
-
     swiftmt:MT102STPTransaction[]|swiftmt:MT102Transaction[] Transactions = check createMT102Transactions(
             document.FIToFICstmrCdtTrf.CdtTrfTxInf,
             orderingCustomer,
@@ -409,21 +389,7 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
         }
     };
 
-    swiftmt:MT32A MT32A = {
-        name: "32A",
-        Dt: {
-            content: check extractSwiftMtDateFromMXDate(firstTransaction.IntrBkSttlmDt.toString()),
-            number: "2"
-        },
-        Ccy: {
-            content: getActiveOrHistoricCurrencyAndAmountCcy(firstTransaction.InstdAmt),
-            number: "1"
-        },
-        Amnt: {
-            content: getActiveOrHistoricCurrencyAndAmountValue(firstTransaction.InstdAmt),
-            number: "3"
-        }
-    };
+    swiftmt:MT32A MT32A = check deriveMT32A(firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmDt);
 
     swiftmt:MT33B MT33B = {
         name: "33B",

@@ -24,20 +24,14 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + return - The instructing party or an empty record
 isolated function getMT104InstructionPartyFromPain008Document(painIsoRecord:Pain008Document document)
 returns swiftmt:MT50C?|swiftmt:MT50L? {
-
-    // Extract the instructing party information from the Pain008 document.
     painIsoRecord:PartyIdentification272? instructingParty = document.CstmrDrctDbtInitn.GrpHdr.InitgPty;
 
     if instructingParty is () {
-        // Return empty if no instructing party is found.
         return ();
     }
 
     painIsoRecord:GenericPersonIdentification2[]? otherIds = instructingParty.Id?.PrvtId?.Othr;
-
-    // Determine whether to return MT50C or MT50L based on the presence of identifiers.
     if instructingParty.Id?.OrgId?.AnyBIC != () {
-        // MT50C format: If BIC is present, create MT50C with OrgId.
         return <swiftmt:MT50C>{
             name: "50C",
             IdnCd: {
@@ -46,7 +40,6 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
             }
         };
     } else if !(otherIds is ()) && otherIds.length() > 0 {
-        // MT50L format: If other identifiers are present in PrvtId, create MT50L.
         return <swiftmt:MT50L>{
             name: "50L",
             PrtyIdn: {
@@ -65,20 +58,14 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
 # + return - The ordering customer or an empty record
 isolated function getMT104CreditorFromPain008Document(painIsoRecord:Pain008Document document)
 returns swiftmt:MT50A?|swiftmt:MT50K? {
-
-    // Extract the creditor information from the Pain008 document.
     painIsoRecord:PartyIdentification272? creditor = document.CstmrDrctDbtInitn.PmtInf[0].Cdtr;
 
     if creditor is () {
-        // Return empty if no creditor is found.
         return ();
     }
 
     painIsoRecord:Max70Text[]? AdrLine = creditor.PstlAdr?.AdrLine;
-
-    // Determine whether to return MT50A or MT50K based on the presence of identifiers.
     if creditor.Id?.OrgId?.AnyBIC != () {
-        // MT50A format: If BIC is present, create MT50A with OrgId.
         return <swiftmt:MT50A>{
             name: "50A",
             IdnCd: {
@@ -87,7 +74,6 @@ returns swiftmt:MT50A?|swiftmt:MT50K? {
             }
         };
     } else if creditor.Nm != () || (!(AdrLine is ()) && AdrLine.length() > 0) {
-        // MT50K format: If name or address is present, create MT50K.
         return <swiftmt:MT50K>{
             name: "50K",
             Nm: getNamesArrayFromNameString(creditor.Nm.toString()),
@@ -104,16 +90,12 @@ returns swiftmt:MT50A?|swiftmt:MT50K? {
 # + return - The account servicing institution or an empty record
 isolated function getMT104CreditorsBankFromPain008Document(painIsoRecord:Pain008Document document)
 returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
-
-    // Extract the creditor's bank information from the Pain008 document.
     painIsoRecord:BranchAndFinancialInstitutionIdentification8? creditorsBank = document.CstmrDrctDbtInitn.PmtInf[0].CdtrAgt;
 
     if creditorsBank is () {
-        // Return empty if no creditor's bank is found.
         return ();
     }
 
-    // Check for MT52A format: If BICFI is available, return MT52A with BICFI.
     if creditorsBank.FinInstnId?.BICFI != () {
         return <swiftmt:MT52A>{
             name: "52A",
@@ -123,8 +105,6 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
             }
         };
     }
-
-    // Check for MT52C format: If clearing system member ID is available, return MT52C.
     else if creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId != () {
         return <swiftmt:MT52C>{
             name: "52C",
@@ -134,8 +114,6 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
             }
         };
     }
-
-    // Check for MT52D format: If name or address is available, return MT52D.
     else if creditorsBank.FinInstnId?.Nm != () || creditorsBank.FinInstnId?.PstlAdr?.AdrLine != () {
         return <swiftmt:MT52D>{
             name: "52D",
@@ -153,18 +131,12 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
 # + return - The document debtor's bank or an empty record
 isolated function getMT104TransactionDebtorsBankFromPain008Document(painIsoRecord:PaymentInstruction45 mxTransaction)
 returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
-
-    // Extract the debtor agent (debtor's bank) information from the Pain008 document.
     painIsoRecord:BranchAndFinancialInstitutionIdentification8? dbtrAgt = mxTransaction.DrctDbtTxInf[0].DbtrAgt;
 
     if dbtrAgt is () {
-        // Return empty if no debtor agent is found.
         return ();
     }
-
-    // Determine which MT57 format to use based on available identifiers in the debtor agent information.
     if dbtrAgt.FinInstnId?.BICFI != () {
-        // MT57A format: If BIC code is available, return MT57A with BICFI as the identification code.
         return <swiftmt:MT57A>{
             name: "57A",
             IdnCd: {
@@ -173,7 +145,6 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
             }
         };
     } else if dbtrAgt.FinInstnId?.ClrSysMmbId?.MmbId != () {
-        // MT57C format: If clearing system member ID is available, return MT57C with that ID.
         return <swiftmt:MT57C>{
             name: "57C",
             PrtyIdn: {
@@ -182,7 +153,6 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
             }
         };
     } else if dbtrAgt.FinInstnId?.Othr?.Id != () {
-        // MT57D format: If other identifier is available, return MT57D with additional name and address details.
         return <swiftmt:MT57D>{
             name: "57D",
             PrtyIdn: {
@@ -203,18 +173,12 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
 # + return - The document debtor or an empty record
 isolated function getMT104TransactionDebtorFromPain008Document(painIsoRecord:PaymentInstruction45 mxTransaction)
 returns swiftmt:MT59?|swiftmt:MT59A? {
-
-    // Extract debtor information from the Pain008 document.
     painIsoRecord:PartyIdentification272? debtor = mxTransaction.DrctDbtTxInf[0].Dbtr;
 
     if debtor is () {
-        // Return empty if no debtor information is found.
         return ();
     }
-
-    // Check if debtor has a BIC available for MT59A mapping.
     if debtor.Id?.OrgId?.AnyBIC != () {
-        // Map to MT59A with BIC.
         return <swiftmt:MT59A>{
             name: "59A",
             IdnCd: {
@@ -223,8 +187,6 @@ returns swiftmt:MT59?|swiftmt:MT59A? {
             }
         };
     }
-
-    // Otherwise, map to MT59 with debtor's name and address if available.
     else if debtor.Nm != () || debtor.PstlAdr?.AdrLine != () {
         return <swiftmt:MT59>{
             name: "59",
@@ -233,7 +195,6 @@ returns swiftmt:MT59?|swiftmt:MT59A? {
         };
     }
 
-    // Return empty if neither condition is met.
     return ();
 }
 
@@ -243,18 +204,12 @@ returns swiftmt:MT59?|swiftmt:MT59A? {
 # + return - The senders correspondent or an empty record
 isolated function getMT104SendersCorrespondentFromPain008Document(painIsoRecord:Pain008Document document)
 returns swiftmt:MT53A?|swiftmt:MT53B? {
-
-    // Extract forwarding agent information from the Pain008 document.
     painIsoRecord:BranchAndFinancialInstitutionIdentification8? sendersCorrespondent = document.CstmrDrctDbtInitn.GrpHdr.FwdgAgt;
 
     if sendersCorrespondent is () {
-        // Return empty if no sender's correspondent is found.
         return ();
     }
-
-    // Check if BICFI is available for MT53A format mapping.
     if sendersCorrespondent.FinInstnId?.BICFI != () {
-        // Map to MT53A with BIC code.
         return <swiftmt:MT53A>{
             name: "53A",
             IdnCd: {
@@ -263,8 +218,6 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
             }
         };
     }
-
-    // Map to MT53B if only location details are available.
     else if sendersCorrespondent.FinInstnId?.PstlAdr?.TwnNm != () {
         return <swiftmt:MT53B>{
             name: "53B",
@@ -275,7 +228,6 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
         };
     }
 
-    // Return empty if neither MT53A nor MT53B mapping is possible.
     return ();
 }
 
@@ -286,7 +238,6 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
 function getMT71AChargesCode(string chargeBearer) returns string {
 
     string mappedCode = "";
-
     if chargeBearer == "CRED" {
         mappedCode = "BEN";
     } else if chargeBearer == "DEBT" {
@@ -308,16 +259,11 @@ function getMT72Narrative(pacsIsoRecord:DirectDebitTransactionInformation31 docu
     if unstructuredInfo is () || unstructuredInfo.length() == 0 {
         return ();
     }
-
-    // Default to "RETN" as the reason for return if not specified.
     string code = "/RETN/";
-    // Check for other possible codes in the unstructured narrative.
     if unstructuredInfo[0].startsWith("/REJT/") {
         code = "/REJT/";
-        unstructuredInfo[0] = unstructuredInfo[0].substring(6); // Remove the code from the first line.
+        unstructuredInfo[0] = unstructuredInfo[0].substring(6);
     }
-
-    // Build the narrative with structured lines.
     string narrative = code + joinStringArray(unstructuredInfo, "\n//");
 
     return {
@@ -336,7 +282,6 @@ function getMT72Narrative(pacsIsoRecord:DirectDebitTransactionInformation31 docu
 isolated function processRegulatoryReportsInLoop(pacsIsoRecord:RegulatoryReporting3[] regulatoryReports) returns string {
     string[] narrativeParts = [];
     foreach pacsIsoRecord:RegulatoryReporting3 report in regulatoryReports {
-
         pacsIsoRecord:StructuredRegulatoryReporting3[]? Dtls = report.Dtls;
 
         if Dtls is () {
@@ -362,8 +307,6 @@ isolated function getMT77BRegulatoryReporting(pacsIsoRecord:RegulatoryReporting3
     if regulatoryReports is () || regulatoryReports.length() == 0 {
         return ();
     }
-
-    // Use the loop-based processing function for structured details.
     string narrative = processRegulatoryReportsInLoop(regulatoryReports);
 
     if narrative == "" {
@@ -385,24 +328,17 @@ isolated function getMT77BRegulatoryReporting(pacsIsoRecord:RegulatoryReporting3
 # + return - The instructing party or an empty record
 isolated function getMT104InstructionPartyFromPacs003Document(pacsIsoRecord:Pacs003Document document)
 returns swiftmt:MT50C?|swiftmt:MT50L? {
-
-    // Extract the instructing agent (InstgAgt) from the Group Header (GrpHdr).
     pacsIsoRecord:BranchAndFinancialInstitutionIdentification8? instructingParty = document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt;
 
     if instructingParty is () {
-        // Return empty if no instructing party is found.
         return ();
     }
 
     pacsIsoRecord:FinancialInstitutionIdentification23? finInstId = instructingParty.FinInstnId;
     if finInstId is () {
-        // Return empty if no financial institution information is found.
         return ();
     }
-
-    // Check if the instructing party has a BICFI (BIC Code).
     if finInstId.BICFI != () {
-        // Create MT50C if BICFI is present.
         return <swiftmt:MT50C>{
             name: "50C",
             IdnCd: {
@@ -411,10 +347,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
             }
         };
     }
-
-    // Check if the instructing party has Other identification.
     else if finInstId.Othr != () {
-        // Create MT50L if Other identification is present.
         return <swiftmt:MT50L>{
             name: "50L",
             PrtyIdn: {
@@ -433,20 +366,14 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
 # + return - The ordering customer or an empty record
 isolated function getMT104CreditorFromPacs003Document(pacsIsoRecord:Pacs003Document document)
 returns swiftmt:MT50A?|swiftmt:MT50K? {
-
-    // Extract the creditor information from the Pacs003 document.
     pacsIsoRecord:PartyIdentification272? creditor = document.FIToFICstmrDrctDbt.DrctDbtTxInf[0]?.Cdtr;
 
     if creditor is () {
-        // Return empty if no creditor is found.
         return ();
     }
 
     pacsIsoRecord:Max70Text[]? AdrLine = creditor.PstlAdr?.AdrLine;
-
-    // Determine whether to return MT50A or MT50K based on the presence of identifiers.
     if creditor.Id?.OrgId?.AnyBIC != () {
-        // MT50A format: If BIC is present, create MT50A with OrgId.
         return <swiftmt:MT50A>{
             name: "50A",
             IdnCd: {
@@ -455,7 +382,6 @@ returns swiftmt:MT50A?|swiftmt:MT50K? {
             }
         };
     } else if creditor.Nm != () || (!(AdrLine is ()) && AdrLine.length() > 0) {
-        // MT50K format: If name or address is present, create MT50K.
         return <swiftmt:MT50K>{
             name: "50K",
             Nm: getNamesArrayFromNameString(creditor.Nm.toString()),
@@ -472,24 +398,17 @@ returns swiftmt:MT50A?|swiftmt:MT50K? {
 # + return - The account servicing institution or an empty record
 isolated function getMT104CreditorsBankFromPacs003Document(pacsIsoRecord:Pacs003Document document)
 returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
-
-    // Extract the creditor's bank information from the Pacs003 document.
     pacsIsoRecord:BranchAndFinancialInstitutionIdentification8? creditorsBank = document.FIToFICstmrDrctDbt.DrctDbtTxInf[0]?.CdtrAgt;
 
     if creditorsBank is () {
-        // Return empty if no creditor's bank is found.
         return ();
     }
 
     pacsIsoRecord:FinancialInstitutionIdentification23? finInstId = creditorsBank.FinInstnId;
     if finInstId is () {
-        // Return empty if no financial institution information is found.
         return ();
     }
-
-    // Determine the MT52 format to use based on the presence of identifiers.
     if finInstId.BICFI != () {
-        // MT52A format: If BIC code is available, return MT52A with BICFI as the identification code.
         return <swiftmt:MT52A>{
             name: "52A",
             IdnCd: {
@@ -498,7 +417,6 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
             }
         };
     } else if finInstId.ClrSysMmbId?.MmbId != () {
-        // MT52C format: If clearing system member ID is available, return MT52C with that ID.
         return <swiftmt:MT52C>{
             name: "52C",
             PrtyIdn: {
@@ -507,7 +425,6 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
             }
         };
     } else if finInstId.Othr?.Id != () {
-        // MT52D format: If other identifier or name and address are available, return MT52D.
         return <swiftmt:MT52D>{
             name: "52D",
             PrtyIdn: {
@@ -519,7 +436,6 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
         };
     }
 
-    // Return empty if no applicable format can be derived.
     return ();
 }
 
@@ -529,24 +445,17 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
 # + return - The document debtor's bank or an empty record
 isolated function getMT104TransactionDebtorsBankFromPacs003Document(pacsIsoRecord:DirectDebitTransactionInformation31 document)
 returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
-
-    // Extract the debtor agent (debtor's bank) from the Pacs003 document.
     pacsIsoRecord:BranchAndFinancialInstitutionIdentification8? dbtrAgt = document.DbtrAgt;
 
     if dbtrAgt is () {
-        // Return empty if no debtor agent is found.
         return ();
     }
 
     pacsIsoRecord:FinancialInstitutionIdentification23? finInstId = dbtrAgt.FinInstnId;
     if finInstId is () {
-        // Return empty if no financial institution information is found.
         return ();
     }
-
-    // Determine the MT57 format based on the presence of identifiers.
     if finInstId.BICFI != () {
-        // MT57A format: If BIC code is available, return MT57A with BICFI.
         return <swiftmt:MT57A>{
             name: "57A",
             IdnCd: {
@@ -555,7 +464,6 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
             }
         };
     } else if finInstId.ClrSysMmbId?.MmbId != () {
-        // MT57C format: If clearing system member ID is available, return MT57C.
         return <swiftmt:MT57C>{
             name: "57C",
             PrtyIdn: {
@@ -564,7 +472,6 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
             }
         };
     } else if finInstId.Othr?.Id != () {
-        // MT57D format: If other identifier or name and address are available, return MT57D.
         return <swiftmt:MT57D>{
             name: "57D",
             PrtyIdn: {
@@ -585,18 +492,13 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
 # + return - The document debtor or an empty record
 isolated function getMT104TransactionDebtorFromPacs003Document(pacsIsoRecord:DirectDebitTransactionInformation31 document)
 returns swiftmt:MT59?|swiftmt:MT59A? {
-
-    // Extract the debtor from the Pacs003 document.
     pacsIsoRecord:PartyIdentification272? debtor = document.Dbtr;
 
     if debtor is () {
-        // Return empty if no debtor is found.
         return ();
     }
 
-    // Check for BIC availability for MT59A mapping.
     if debtor.Id?.OrgId?.AnyBIC != () {
-        // MT59A format: Map to MT59A with BIC.
         return <swiftmt:MT59A>{
             name: "59A",
             IdnCd: {
@@ -606,7 +508,6 @@ returns swiftmt:MT59?|swiftmt:MT59A? {
         };
     }
 
-    // Otherwise, map to MT59 with name and address if available.
     else if debtor.Nm != () || debtor.PstlAdr?.AdrLine != () {
         return <swiftmt:MT59>{
             name: "59",
@@ -624,24 +525,17 @@ returns swiftmt:MT59?|swiftmt:MT59A? {
 # + return - The sender's correspondent or an empty record
 isolated function getMT104SendersCorrespondentFromPacs003Document(pacsIsoRecord:Pacs003Document document)
 returns swiftmt:MT53A?|swiftmt:MT53B? {
-
-    // Extract the forwarding agent (sender's correspondent) from the Pacs003 document.
     pacsIsoRecord:BranchAndFinancialInstitutionIdentification8? sendersCorrespondent = document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt;
 
     if sendersCorrespondent is () {
-        // Return empty if no sender's correspondent is found.
         return ();
     }
 
     pacsIsoRecord:FinancialInstitutionIdentification23? finInstId = sendersCorrespondent.FinInstnId;
     if finInstId is () {
-        // Return empty if no financial institution information is found.
         return ();
     }
-
-    // Check for BICFI for MT53A mapping.
     if finInstId.BICFI != () {
-        // MT53A format: Map to MT53A with BICFI as the identifier code.
         return <swiftmt:MT53A>{
             name: "53A",
             IdnCd: {
@@ -651,9 +545,7 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
         };
     }
 
-    // Check for the presence of postal address location (Town Name) for MT53B mapping.
     if finInstId.PstlAdr?.TwnNm != () {
-        // MT53B format: Map to MT53B with location details.
         return <swiftmt:MT53B>{
             name: "53B",
             Lctn: {

@@ -1,3 +1,19 @@
+// Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerinax/financial.iso20022.payments_clearing_and_settlement as pacsIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
@@ -41,14 +57,14 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
                     number: "1"
                 }
             },
-            MT23E: !(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtTpInf?.CtgyPurp?.Cd is ()) ? {
+            MT23E: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtTpInf?.CtgyPurp?.Cd is () ? () : {
                     name: "23E",
                     InstrnCd: {content: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtTpInf?.CtgyPurp?.Cd.toString(), number: "1"}
-                } : (),
-            MT26T: !(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].Purp?.Cd is ()) ? {
+                },
+            MT26T: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].Purp?.Cd is () ? () : {
                     name: "26T",
                     Typ: {content: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].Purp?.Cd.toString(), number: "1"}
-                } : (),
+                },
             MT30: {
                 name: "30",
                 Dt: check convertISODateStringToSwiftMtDate(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].IntrBkSttlmDt.toString())
@@ -62,10 +78,10 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
             MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
             MT50A: creditor is swiftmt:MT50A ? creditor : (),
             MT50K: creditor is swiftmt:MT50K ? creditor : (),
-            MT51A: !(document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt is ()) ? {
+            MT51A: document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt is () ? () : {
                     name: "51A",
                     IdnCd: {content: document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI.toString(), number: "1"}
-                } : (),
+                },
             MT52A: creditorsBank is swiftmt:MT52A ? creditorsBank : (),
             MT52C: creditorsBank is swiftmt:MT52C ? creditorsBank : (),
             MT52D: creditorsBank is swiftmt:MT52D ? creditorsBank : (),
@@ -78,22 +94,19 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
                     number: "1"
                 }
             },
-            MT71F: !(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf is ()) ? {
+            MT71F: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf is () ? () : {
                     name: "71F",
                     Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString(), number: "1"},
                     Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString(), number: "2"}
-                } : (),
-            MT71G: !(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf is ()) ? {
+                },
+            MT71G: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf is () ? () : {
                     name: "71G",
                     Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString(), number: "1"},
                     Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString(), number: "2"}
-                } : (),
-            MT72: !(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RmtInf?.Ustrd is ()) ?
-                getMT72Narrative(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0])
-                : (),
-            MT77B: !(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RgltryRptg is ()) ?
-                getMT77BRegulatoryReporting(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RgltryRptg)
-                : (),
+                },
+            MT72: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RmtInf?.Ustrd is () ? () : getMT72Narrative(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0]),
+            MT77B: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RgltryRptg is () ? () :
+                getMT77BRegulatoryReporting(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RgltryRptg),
             Transaction: transactions
         },
         block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrDrctDbt.SplmtryData)
@@ -185,13 +198,13 @@ function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document)
         block2: check createMtBlock2("107", document.FIToFICstmrDrctDbt.SplmtryData, document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
         block3: check createMtBlock3(document.FIToFICstmrDrctDbt.SplmtryData, document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId.UETR, ""),
         block4: {
-            MT19: !(document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum is ()) ? {
+            MT19: document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum is () ? () : {
                     name: "19",
                     Amnt: {
                         content: document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum.toString(),
                         number: "1"
                     }
-                } : (),
+                },
             MT20: {
                 name: "20",
                 msgId: {
@@ -206,13 +219,13 @@ function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document)
                     number: "1"
                 }
             },
-            MT23E: !(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtTpInf?.CtgyPurp?.Cd is ()) ? {
+            MT23E: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtTpInf?.CtgyPurp?.Cd is () ? () : {
                     name: "23E",
                     InstrnCd: {
                         content: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtTpInf?.CtgyPurp?.Cd.toString(),
                         number: "1"
                     }
-                } : (),
+                },
             MT30: {
                 name: "30",
                 Dt: check convertISODateStringToSwiftMtDate(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].IntrBkSttlmDt.toString())
@@ -244,7 +257,7 @@ function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document)
                     number: "1"
                 }
             },
-            MT71F: !(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf is ()) ? {
+            MT71F: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf is () ? () : {
                     name: "71F",
                     Ccy: {
                         content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString(),
@@ -254,8 +267,8 @@ function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document)
                         content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString(),
                         number: "2"
                     }
-                } : (),
-            MT71G: !(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf is ()) ? {
+                },
+            MT71G: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf is () ? () : {
                     name: "71G",
                     Ccy: {
                         content: (<pacsIsoRecord:Charges16?>getLastElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString(),
@@ -265,13 +278,9 @@ function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document)
                         content: (<pacsIsoRecord:Charges16?>getLastElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString(),
                         number: "2"
                     }
-                } : (),
-            MT72: !(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RmtInf?.Ustrd is ()) ?
-                getMT72Narrative(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0])
-                : (),
-            MT77B: !(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RgltryRptg is ()) ?
-                getMT77BRegulatoryReporting(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RgltryRptg)
-                : (),
+                },
+            MT72: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RmtInf?.Ustrd is () ? () : getMT72Narrative(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0]),
+            MT77B: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RgltryRptg is () ? () : getMT77BRegulatoryReporting(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RgltryRptg),
             Transaction: transactions
         },
         block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrDrctDbt.SplmtryData)

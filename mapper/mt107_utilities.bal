@@ -38,7 +38,6 @@ isolated function getMT107CreditorFromPacs003Document(
     pacsIsoRecord:PartyIdentification272 creditor = document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].Cdtr;
 
     if creditor.Id?.OrgId?.AnyBIC is string {
-        // Return MT50A if BIC is present
         return <swiftmt:MT50A>{
             name: "50A",
             IdnCd: {
@@ -47,7 +46,6 @@ isolated function getMT107CreditorFromPacs003Document(
             }
         };
     } else if creditor.Nm is string || creditor.PstlAdr?.AdrLine is string[] {
-        // Return MT50K if the name or address lines are present
         return <swiftmt:MT50K>{
             name: "50K",
             Acc: {
@@ -71,11 +69,9 @@ isolated function getMT107CreditorFromPacs003Document(
 isolated function getMT107CreditorsBankFromPacs003Document(
         pacsIsoRecord:Pacs003Document document
 ) returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
-    // Retrieve the creditor's agent information
     pacsIsoRecord:BranchAndFinancialInstitutionIdentification8 creditorsBank =
         document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].CdtrAgt;
 
-    // Check if the creditor's bank has an Identifier Code (BIC)
     if creditorsBank.FinInstnId?.BICFI is string {
         return <swiftmt:MT52A>{
             name: "52A",
@@ -84,16 +80,15 @@ isolated function getMT107CreditorsBankFromPacs003Document(
                 number: "1"
             },
             PrtyIdnTyp: {
-                content: creditorsBank.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd.toString(), // Party Identifier Type if available
+                content: creditorsBank.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd.toString(),
                 number: "1"
-            }, // Party Identifier Type if available
+            },
             PrtyIdn: {
-                content: creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId.toString(), // Party Identifier if available
+                content: creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId.toString(),
                 number: "1"
-            } // Party Identifier if available
+            }
         };
     }
-    // Check if the creditor's bank has a clearing system code and party identifier
     else if creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId is string {
         return <swiftmt:MT52C>{
             name: "52C",
@@ -103,24 +98,22 @@ isolated function getMT107CreditorsBankFromPacs003Document(
             }
         };
     }
-    // Check if the creditor's bank has a name and address
     else if creditorsBank.FinInstnId?.Nm is string {
         return <swiftmt:MT52D>{
             name: "52D",
             PrtyIdn: {
-                content: creditorsBank.FinInstnId?.Othr?.Id.toString(), // Optional Party Identifier
+                content: creditorsBank.FinInstnId?.Othr?.Id.toString(),
                 number: "1"
-            }, // Optional Party Identifier
+            },
             PrtyIdnTyp: {
-                content: creditorsBank.FinInstnId?.Othr?.SchmeNm?.Cd.toString(), // Optional Party Identifier Type
+                content: creditorsBank.FinInstnId?.Othr?.SchmeNm?.Cd.toString(),
                 number: "1"
-            }, // Optional Party Identifier Type
-            Nm: getNamesArrayFromNameString(creditorsBank.FinInstnId.Nm.toString()), // Name as an array
-            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditorsBank.FinInstnId.PstlAdr?.AdrLine) // Address as an array
+            },
+            Nm: getNamesArrayFromNameString(creditorsBank.FinInstnId.Nm.toString()),
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditorsBank.FinInstnId.PstlAdr?.AdrLine)
         };
     }
 
-    // Return null if no valid creditor's bank information is found
     return ();
 }
 
@@ -131,16 +124,13 @@ isolated function getMT107CreditorsBankFromPacs003Document(
 isolated function getMT107SendersCorrespondentFromPacs003Document(
         pacsIsoRecord:Pacs003Document document
 ) returns swiftmt:MT53A?|swiftmt:MT53B? {
-    // Retrieve the sender's correspondent information
     pacsIsoRecord:BranchAndFinancialInstitutionIdentification8? sendersCorrespondent =
         document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt;
 
     if sendersCorrespondent is () {
-        // Return null if sender's correspondent information is not available
         return ();
     }
 
-    // Check if the sender's correspondent has an Identifier Code (BIC)
     if sendersCorrespondent.FinInstnId?.BICFI is string {
         return <swiftmt:MT53A>{
             name: "53A",
@@ -158,7 +148,6 @@ isolated function getMT107SendersCorrespondentFromPacs003Document(
                 } : ()
         };
     }
-    // Check if the sender's correspondent has a location (Option B)
     else if sendersCorrespondent.FinInstnId?.Nm is string {
         return <swiftmt:MT53B>{
             name: "53B",
@@ -177,7 +166,6 @@ isolated function getMT107SendersCorrespondentFromPacs003Document(
         };
     }
 
-    // Return null if no valid sender's correspondent information is found
     return ();
 }
 

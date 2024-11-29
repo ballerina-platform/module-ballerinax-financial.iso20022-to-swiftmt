@@ -31,7 +31,6 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
         return ();
     }
 
-    // Check if BICFI is present for MT52A (BIC-based identification)
     if FinInstnId.BICFI != () {
         return <swiftmt:MT52A>{
             name: "52A",
@@ -44,10 +43,8 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
         };
     }
 
-    // Check if Other Id and Scheme Name are available for MT52A or MT52B (Clearing system or other identifiers)
     if FinInstnId.Othr?.Id != () {
         if isSTP {
-            // Use MT52A format for STP messages
             return <swiftmt:MT52A>{
                 name: "52A",
                 PrtyIdnTyp: {
@@ -64,7 +61,6 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
                 }
             };
         } else {
-            // Use MT52B format for non-STP messages
             return <swiftmt:MT52B>{
                 name: "52B",
                 PrtyIdnTyp: {
@@ -83,7 +79,6 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
         }
     }
 
-    // Check if Postal Address is available for MT52B (Location-based identification)
     if FinInstnId.PstlAdr != () {
         return <swiftmt:MT52B>{
             name: "52B",
@@ -106,7 +101,6 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
 # + return - The account with institution as MT57A or MT57C, or an empty record if not found
 isolated function getMT102TransactionAccountWithInstitutionFromPacs008Document(SwiftMxRecords:CreditTransferTransaction64 mxTransaction, boolean isSTP)
 returns swiftmt:MT57A?|swiftmt:MT57C? {
-
     SwiftMxRecords:BranchAndFinancialInstitutionIdentification8? CreditorAgent = mxTransaction.CdtrAgt;
     SwiftMxRecords:CashAccount40? CreditorAgentAccount = mxTransaction.CdtrAgtAcct;
 
@@ -114,7 +108,6 @@ returns swiftmt:MT57A?|swiftmt:MT57C? {
         return ();
     }
 
-    // Check if BICFI is present in Creditor Agent (Option A)
     if CreditorAgent?.FinInstnId?.BICFI != () {
         return <swiftmt:MT57A>{
             name: "57A",
@@ -127,7 +120,6 @@ returns swiftmt:MT57A?|swiftmt:MT57C? {
         };
     }
 
-    // Check if account identification is available in Creditor Agent Account (Option C)
     if CreditorAgentAccount?.Id?.Othr?.Id != () {
         return <swiftmt:MT57C>{
             name: "57C",
@@ -196,7 +188,6 @@ returns swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? {
 # + return - The sender's correspondent as MT53A or MT53C, or an empty record if not found
 isolated function getMT102SendersCorrespondentFromPacs008Document(SwiftMxRecords:Pacs008Document document)
 returns swiftmt:MT53A?|swiftmt:MT53C? {
-
     SwiftMxRecords:BranchAndFinancialInstitutionIdentification8? PrvsInstgAgt1 = document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PrvsInstgAgt1;
     SwiftMxRecords:CashAccount40? PrvsInstgAgt1Acct = document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PrvsInstgAgt1Acct;
 
@@ -204,7 +195,6 @@ returns swiftmt:MT53A?|swiftmt:MT53C? {
         return ();
     }
 
-    // Check if BICFI (Option A) is available in Previous Instructing Agent 1
     if PrvsInstgAgt1?.FinInstnId?.BICFI != () {
         return <swiftmt:MT53A>{
             name: "53A",
@@ -217,7 +207,6 @@ returns swiftmt:MT53A?|swiftmt:MT53C? {
         };
     }
 
-    // Check if account identification (Option C) is available in Previous Instructing Agent 1 Account
     if PrvsInstgAgt1Acct?.Id?.Othr?.Id != () {
         return <swiftmt:MT53C>{
             name: "53C",
