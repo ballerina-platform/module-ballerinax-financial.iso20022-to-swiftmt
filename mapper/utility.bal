@@ -128,6 +128,7 @@ isolated function createMtBlock2(string? mtMessageId, painIsoRecord:Supplementar
 #
 # + supplementaryData - The supplementary data of the MX message
 # + uetr - The unique end-to-end transaction reference
+# + validationFlag - The validation flag
 # + return - The block 3 of the MT message or an error if the block 3 cannot be created
 isolated function createMtBlock3(painIsoRecord:SupplementaryData1[]? supplementaryData, painIsoRecord:UUIDv4Identifier? uetr, string validationFlag) returns swiftmt:Block3?|error {
 
