@@ -1,6 +1,9 @@
 import ballerinax/financial.iso20022.payments_clearing_and_settlement as pacsIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
+# Get MT107 message from Pacs003Document
+# + document - The Pacs003 document.
+# + return - The corresponding MT107 message.
 isolated function getMT107InstructionPartyFromPacs003Document(
         pacsIsoRecord:Pacs003Document document
 ) returns swiftmt:MT50C?|swiftmt:MT50L? {
@@ -32,6 +35,9 @@ isolated function getMT107InstructionPartyFromPacs003Document(
     return ();
 }
 
+# Extracts the creditor's information from a Pacs003Document.
+# + document - The Pacs003 document.
+# + return - The corresponding MT50A or MT50K record, or null if no matching data is found.
 isolated function getMT107CreditorFromPacs003Document(
         pacsIsoRecord:Pacs003Document document
 ) returns swiftmt:MT50A?|swiftmt:MT50K? {

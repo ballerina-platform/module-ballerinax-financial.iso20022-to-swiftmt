@@ -119,7 +119,6 @@ returns swiftmt:MT57A?|swiftmt:MT57C? {
             }
         };
     }
-
     if CreditorAgentAccount?.Id?.Othr?.Id != () {
         return <swiftmt:MT57C>{
             name: "57C",
@@ -156,7 +155,6 @@ returns swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? {
             }
         };
     }
-
     if Cdtr.Nm != () && Cdtr.PstlAdr?.AdrLine != () {
         return <swiftmt:MT59F>{
             name: "59F",
@@ -169,7 +167,6 @@ returns swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? {
             )
         };
     }
-
     if Cdtr.PstlAdr != () && Cdtr.PstlAdr?.AdrLine != () {
         return <swiftmt:MT59>{
             name: "59",
@@ -206,7 +203,6 @@ returns swiftmt:MT53A?|swiftmt:MT53C? {
             }
         };
     }
-
     if PrvsInstgAgt1Acct?.Id?.Othr?.Id != () {
         return <swiftmt:MT53C>{
             name: "53C",

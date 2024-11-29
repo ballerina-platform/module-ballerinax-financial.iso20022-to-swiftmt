@@ -178,7 +178,6 @@ isolated function getMT103OrderingInstitutionFromPacs008Document(
             }
         };
     }
-
     if debtorAgent.FinInstnId?.PstlAdr != () {
         boolean isStructured = (<string[]>debtorAgent.FinInstnId.PstlAdr?.AdrLine).length() > 0;
 
@@ -196,7 +195,6 @@ isolated function getMT103OrderingInstitutionFromPacs008Document(
             };
         }
     }
-
     if debtorAgent.FinInstnId?.Nm != () {
         return <swiftmt:MT52D>{
             name: "52D",
@@ -241,7 +239,6 @@ isolated function getMT103SendersCorrespondentFromPacs008Document(
             };
         }
     }
-
     if PrvsInstgAgt1.FinInstnId?.Nm != () && PrvsInstgAgt1.FinInstnId?.PstlAdr == () {
         return <swiftmt:MT53B>{
             name: "53B",
@@ -251,7 +248,6 @@ isolated function getMT103SendersCorrespondentFromPacs008Document(
             }
         };
     }
-
     if PrvsInstgAgt1.FinInstnId?.PstlAdr != () {
         return <swiftmt:MT53D>{
             name: "53D",
@@ -294,7 +290,6 @@ returns swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? {
             }
         };
     }
-
     if InstdRmbrsmntAgt.FinInstnId?.Nm != () && InstdRmbrsmntAgt.FinInstnId?.PstlAdr == () {
         return <swiftmt:MT54B>{
             name: "54B",
@@ -306,7 +301,6 @@ returns swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? {
             }
         };
     }
-
     if InstdRmbrsmntAgt.FinInstnId?.PstlAdr != () {
         return <swiftmt:MT54D>{
             name: "54D",
@@ -352,7 +346,6 @@ returns swiftmt:MT55A?|swiftmt:MT55B?|swiftmt:MT55D? {
             }
         };
     }
-
     if ThirdRmbrsmntAgt.FinInstnId?.Nm != () && ThirdRmbrsmntAgt.FinInstnId?.PstlAdr == () {
         return <swiftmt:MT55B>{
             name: "55B",
@@ -364,7 +357,6 @@ returns swiftmt:MT55A?|swiftmt:MT55B?|swiftmt:MT55D? {
             }
         };
     }
-
     if ThirdRmbrsmntAgt.FinInstnId?.PstlAdr != () {
         return <swiftmt:MT55D>{
             name: "55D",
@@ -404,7 +396,6 @@ isolated function getMT103AccountWithInstitutionFromPacs008Document(
             }
         };
     }
-
     if creditorAgent.FinInstnId?.Nm != () && creditorAgent.FinInstnId?.PstlAdr == () {
         return <swiftmt:MT57B>{
             name: "57B",
@@ -414,7 +405,6 @@ isolated function getMT103AccountWithInstitutionFromPacs008Document(
             }
         };
     }
-
     if creditorAgent.FinInstnId?.Othr?.Id != () {
         return <swiftmt:MT57C>{
             name: "57C",
@@ -484,7 +474,6 @@ isolated function getMT103IntermediaryInstitutionFromPacs008Document(
             }
         };
     }
-
     if intrmyAgt.FinInstnId?.ClrSysMmbId?.MmbId != () {
         string identifier = getClearingPrefix(clearingChannel) + getEmptyStrIfNull(intrmyAgt.FinInstnId?.ClrSysMmbId?.MmbId);
 
@@ -496,7 +485,6 @@ isolated function getMT103IntermediaryInstitutionFromPacs008Document(
             }
         };
     }
-
     if intrmyAgt.FinInstnId?.Othr?.Id != () {
         return <swiftmt:MT56D>{
             name: "56D",
@@ -553,7 +541,6 @@ isolated function getBeneficiaryCustomerFromPacs008Document(
             }
         };
     }
-
     if creditor.PstlAdr?.Ctry != () || creditor.PstlAdr?.AdrLine != () {
         boolean structuredAddressIndicator = isStructuredAddress(creditor);
 
@@ -589,7 +576,6 @@ isolated function getBeneficiaryCustomerFromPacs008Document(
             };
         }
     }
-
     if creditor.Nm != () {
         return <swiftmt:MT59>{
             name: "59",
@@ -601,6 +587,9 @@ isolated function getBeneficiaryCustomerFromPacs008Document(
     return ();
 }
 
+# Map the category purpose to MT23E.
+# + categoryPurpose - The category purpose
+# + return - The MT23E records
 isolated function mapCategoryPurposeToMT23E(
         SwiftMxRecords:CategoryPurpose1Choice? categoryPurpose
 ) returns swiftmt:MT23E[] {
@@ -622,7 +611,6 @@ isolated function mapCategoryPurposeToMT23E(
             });
         }
     }
-
     if categoryPurpose?.Prtry is string {
         string proprietary = categoryPurpose.Prtry.toString();
         if proprietary.includes("CHQB") {

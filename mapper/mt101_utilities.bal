@@ -28,9 +28,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
     if (id is ()) {
         return ();
     }
-
     painIsoRecord:OrganisationIdentification39? OrgId = id?.OrgId;
-
     if (OrgId != ()) {
         return <swiftmt:MT50C>{
             name: "50C",
@@ -42,7 +40,6 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
     }
 
     painIsoRecord:PersonIdentification18? PrvtId = id?.PrvtId;
-
     if (PrvtId != ()) {
         painIsoRecord:GenericPersonIdentification2[]? Othr = id?.PrvtId?.Othr;
 
@@ -74,7 +71,6 @@ returns swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? {
     }
 
     painIsoRecord:PaymentInstruction44 firstTransaction = payments[0];
-
     if (firstTransaction.Dbtr.Nm != () && firstTransaction.Dbtr.PstlAdr != ()) {
         return <swiftmt:MT50F>{
             name: "50F",
