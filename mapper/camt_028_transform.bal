@@ -59,35 +59,3 @@ isolated function transformCamt028ToMT196(camtIsoRecord:Camt028Document document
     block5: check createMtBlock5FromSupplementaryData(document.AddtlPmtInf.SplmtryData)
 
 };
-
-# Extracts narrative information from supplementary data.
-# + supplData - Array of supplementary data from the camt.028 document.
-# + return - Returns a narrative string extracted from the supplementary data.
-isolated function extractNarrativeFromSupplementaryData(camtIsoRecord:SupplementaryData1[]? supplData) returns string {
-    if supplData is camtIsoRecord:SupplementaryData1[] {
-        foreach camtIsoRecord:SupplementaryData1 data in supplData {
-            if data.Envlp.Nrtv is string {
-                return data.Envlp.Nrtv.toString();
-            }
-        }
-    }
-    return "";
-}
-
-# Extracts additional narrative information from supplementary data.
-# + supplData - Array of supplementary data from the camt.028 document.
-# + return - Returns an array of narrative lines extracted from the supplementary data. 
-isolated function getAdditionalNarrativeInfo(camtIsoRecord:SupplementaryData1[]? supplData) returns swiftmt:Nrtv[] {
-    swiftmt:Nrtv[] narratives = [];
-    if supplData is camtIsoRecord:SupplementaryData1[] {
-        foreach camtIsoRecord:SupplementaryData1 data in supplData {
-            if data.Envlp.Nrtv is string {
-                narratives.push({
-                    content: data.Envlp.Nrtv.toString(),
-                    number: "1"
-                });
-            }
-        }
-    }
-    return narratives;
-}

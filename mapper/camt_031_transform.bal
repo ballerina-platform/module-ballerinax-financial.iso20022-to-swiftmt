@@ -60,24 +60,3 @@ isolated function transformCamt031ToMT196(camtIsoRecord:Camt031Document document
     block5: check createMtBlock5FromSupplementaryData(document.RjctInvstgtn.SplmtryData)
 };
 
-# Maps an investigation rejection code to a narrative string.
-# + rejectionCode - The rejection code from the camt.031 document.
-# + return - The corresponding narrative string for the rejection code.
-isolated function getRejectionReasonNarrative(camtIsoRecord:InvestigationRejection1Code rejectionCode) returns string {
-    if rejectionCode == camtIsoRecord:NFND {
-        return "Investigation rejected: Not found.";
-    } else if (rejectionCode == camtIsoRecord:NAUT) {
-        return "Investigation rejected: Not authorized.";
-    } else if (rejectionCode == camtIsoRecord:UKNW) {
-        return "Investigation rejected: Unknown.";
-    } else if (rejectionCode == camtIsoRecord:PCOR) {
-        return "Investigation rejected: Pending correction.";
-    } else if (rejectionCode == camtIsoRecord:WMSG) {
-        return "Investigation rejected: Wrong message.";
-    } else if (rejectionCode == camtIsoRecord:RNCR) {
-        return "Investigation rejected: Reason not clear.";
-    } else if (rejectionCode == camtIsoRecord:MROI) {
-        return "Investigation rejected: Message received out of scope.";
-    }
-}
-

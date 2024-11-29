@@ -1044,7 +1044,6 @@ isolated function getOriginalInstructionOrUETR(camtIsoRecord:UnderlyingTransacti
 # + return - Returns a valid reference for MT21 or "NOTPROVIDED" if invalid
 isolated function getOriginalInstructionOrUETRFromCamt055(camtIsoRecord:UnderlyingTransaction33[]? undrlyg) returns string {
     string field21 = "NOTPROVIDED";
-
     if undrlyg is camtIsoRecord:UnderlyingTransaction33[] {
         foreach camtIsoRecord:UnderlyingTransaction33 trans in undrlyg {
             camtIsoRecord:OriginalPaymentInstruction49[]? OrgnlPmtInfAndCxl = trans.OrgnlPmtInfAndCxl;
@@ -1102,3 +1101,158 @@ isolated function getNarrativeFromCancellationReason(camtIsoRecord:UnderlyingTra
     return narratives;
 }
 
+# Formats the narrative for Field 77A to comply with the 20*35x format.
+#
+# + narrative - The original narrative as a string.
+# + return - An Nrtv record containing the formatted narrative.
+isolated function formatNarrative(string? narrative) returns swiftmt:Nrtv {
+    string formattedNarrative = "";
+    int lineLength = 35;
+
+    if narrative is () {
+        return {
+            content: "",
+            number: "1"
+        };
+    }
+
+    foreach int i in 0 ... narrative.length() / lineLength {
+        string line = narrative.substring(i * lineLength, int:min((i + 1) * lineLength, narrative.length()));
+        formattedNarrative += line + (i == narrative.length() / lineLength ? "" : "\n");
+    }
+
+    return {
+        content: formattedNarrative,
+        number: "1"
+    };
+}
+
+# Formats the narrative description for Field 79 to comply with the 35*50x format.
+#
+# + narrative - The original narrative as a string.
+# + return - An array of Nrtv records, each containing a part of the narrative.
+isolated function formatNarrativeDescription(string narrative) returns swiftmt:Nrtv[] {
+    swiftmt:Nrtv[] formattedNarrative = [];
+    int lineCount = 1;
+    foreach int i in 0 ... narrative.length() / 50 {
+        string line = narrative.substring(i * 50, int:min((i + 1) * 50, narrative.length()));
+        formattedNarrative.push({
+            content: line,
+            number: lineCount.toString()
+        });
+        lineCount += 1;
+    }
+    return formattedNarrative;
+}
+
+# Constructs a concatenated queries narrative for the MT75 field.
+#
+# + missingOrIncorrectInfo - The `MissingOrIncorrectData1` structure containing missing and incorrect information.
+# + return - Returns a concatenated string of queries or an empty string if no data is available.
+isolated function getConcatenatedQueries(camtIsoRecord:MissingOrIncorrectData1? missingOrIncorrectInfo) returns string {
+    if missingOrIncorrectInfo is () {
+        return "";
+    }
+
+    string queriesContent = "";
+    int queryNumber = 1;
+    camtIsoRecord:UnableToApplyMissing2[]? missingInfo = missingOrIncorrectInfo.MssngInf;
+
+    if !(missingInfo is ()) && missingInfo.length() > 0 {
+        foreach camtIsoRecord:UnableToApplyMissing2 missing in missingInfo {
+            string queryContent = "/" + queryNumber.toString() + "/";
+            if missing.Tp.Cd is string {
+                queryContent += missing.Tp.Cd.toString();
+            } else if missing.Tp.Prtry is string {
+                queryContent += missing.Tp.Prtry.toString();
+            } else {
+                queryContent += "Unknown Type";
+            }
+
+            if missing.AddtlMssngInf is string {
+                queryContent += " " + missing.AddtlMssngInf.toString();
+            }
+
+            queriesContent += queryContent + "\n";
+            queryNumber += 1;
+        }
+    }
+
+    camtIsoRecord:UnableToApplyIncorrect2[]? incorrectInfo = missingOrIncorrectInfo.IncrrctInf;
+
+    if incorrectInfo is camtIsoRecord:UnableToApplyIncorrect2[] && incorrectInfo.length() > 0 {
+        foreach camtIsoRecord:UnableToApplyIncorrect2 incorrect in incorrectInfo {
+            string queryContent = "/" + queryNumber.toString() + "/";
+
+            if incorrect.Tp.Cd is string {
+                queryContent += incorrect.Tp.Cd.toString();
+            } else if incorrect.Tp.Prtry is string {
+                queryContent += incorrect.Tp.Prtry.toString();
+            } else {
+                queryContent += "Unknown Type";
+            }
+
+            if incorrect.AddtlIncrrctInf is string {
+                queryContent += " " + incorrect.AddtlIncrrctInf.toString();
+            }
+
+            queriesContent += queryContent + "\n";
+            queryNumber += 1;
+        }
+    }
+
+    return queriesContent.substring(0, queriesContent.length() - 1);
+}
+
+# Extracts narrative information from supplementary data.
+# + supplData - Array of supplementary data from the camt.028 document.
+# + return - Returns a narrative string extracted from the supplementary data.
+isolated function extractNarrativeFromSupplementaryData(camtIsoRecord:SupplementaryData1[]? supplData) returns string {
+    if supplData is camtIsoRecord:SupplementaryData1[] {
+        foreach camtIsoRecord:SupplementaryData1 data in supplData {
+            if data.Envlp.Nrtv is string {
+                return data.Envlp.Nrtv.toString();
+            }
+        }
+    }
+    return "";
+}
+
+# Extracts additional narrative information from supplementary data.
+# + supplData - Array of supplementary data from the camt.028 document.
+# + return - Returns an array of narrative lines extracted from the supplementary data. 
+isolated function getAdditionalNarrativeInfo(camtIsoRecord:SupplementaryData1[]? supplData) returns swiftmt:Nrtv[] {
+    swiftmt:Nrtv[] narratives = [];
+    if supplData is camtIsoRecord:SupplementaryData1[] {
+        foreach camtIsoRecord:SupplementaryData1 data in supplData {
+            if data.Envlp.Nrtv is string {
+                narratives.push({
+                    content: data.Envlp.Nrtv.toString(),
+                    number: "1"
+                });
+            }
+        }
+    }
+    return narratives;
+}
+
+# Maps an investigation rejection code to a narrative string.
+# + rejectionCode - The rejection code from the camt.031 document.
+# + return - The corresponding narrative string for the rejection code.
+isolated function getRejectionReasonNarrative(camtIsoRecord:InvestigationRejection1Code rejectionCode) returns string {
+    if rejectionCode == camtIsoRecord:NFND {
+        return "Investigation rejected: Not found.";
+    } else if (rejectionCode == camtIsoRecord:NAUT) {
+        return "Investigation rejected: Not authorized.";
+    } else if (rejectionCode == camtIsoRecord:UKNW) {
+        return "Investigation rejected: Unknown.";
+    } else if (rejectionCode == camtIsoRecord:PCOR) {
+        return "Investigation rejected: Pending correction.";
+    } else if (rejectionCode == camtIsoRecord:WMSG) {
+        return "Investigation rejected: Wrong message.";
+    } else if (rejectionCode == camtIsoRecord:RNCR) {
+        return "Investigation rejected: Reason not clear.";
+    } else if (rejectionCode == camtIsoRecord:MROI) {
+        return "Investigation rejected: Message received out of scope.";
+    }
+}
