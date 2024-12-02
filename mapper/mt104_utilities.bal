@@ -209,6 +209,7 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
     if sendersCorrespondent is () {
         return ();
     }
+
     if sendersCorrespondent.FinInstnId?.BICFI != () {
         return <swiftmt:MT53A>{
             name: "53A",
@@ -236,7 +237,6 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
 # + chargeBearer - The charge bearer type from ISO 20022.
 # + return - Returns the mapped SWIFT MT104 charge code (BEN, OUR, SHA) or an empty string for unmapped values.
 function getMT71AChargesCode(string chargeBearer) returns string {
-
     string mappedCode = "";
     if chargeBearer == "CRED" {
         mappedCode = "BEN";
@@ -245,7 +245,6 @@ function getMT71AChargesCode(string chargeBearer) returns string {
     } else if chargeBearer == "SHAR" {
         mappedCode = "SHA";
     }
-
     return mappedCode;
 }
 
@@ -259,6 +258,7 @@ function getMT72Narrative(pacsIsoRecord:DirectDebitTransactionInformation31 docu
     if unstructuredInfo is () || unstructuredInfo.length() == 0 {
         return ();
     }
+
     string code = "/RETN/";
     if unstructuredInfo[0].startsWith("/REJT/") {
         code = "/REJT/";

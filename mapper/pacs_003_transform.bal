@@ -126,7 +126,6 @@ isolated function createMT104TransactionsFromPacs003(
         swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? creditorsBank
 ) returns swiftmt:MT104Transaction[]|error {
     swiftmt:MT104Transaction[] transactions = [];
-
     foreach pacsIsoRecord:DirectDebitTransactionInformation31 tx in drctDbtTxInf {
         swiftmt:MT21 MT21 = {
             name: "21",
@@ -293,7 +292,6 @@ isolated function createMT107TransactionsFromPacs003(
         swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? creditorsBank
 ) returns swiftmt:MT107Transaction[]|error {
     swiftmt:MT107Transaction[] transactions = [];
-
     foreach pacsIsoRecord:DirectDebitTransactionInformation31 tx in drctDbtTxInf {
         swiftmt:MT21 MT21 = {
             name: "21",

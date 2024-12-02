@@ -141,7 +141,6 @@ isolated function createMT104Transactions(
         swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? creditorsBank
 ) returns swiftmt:MT104Transaction[]|error {
     swiftmt:MT104Transaction[] transactions = [];
-
     foreach painIsoRecord:PaymentInstruction45 mxTransaction in mxTransactions {
         swiftmt:MT21 MT21 = {
             name: "21",
@@ -278,7 +277,5 @@ isolated function createMT104Transactions(
         });
 
     }
-
     return transactions;
 }
-

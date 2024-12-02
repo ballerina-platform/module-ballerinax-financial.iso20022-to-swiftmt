@@ -38,7 +38,6 @@ isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document
                 (),
                 ""
         ),
-
         block4: {
             MT20: check getMT20(document.FIToFIPmtCxlReq.Case?.Id),
             MT21: {

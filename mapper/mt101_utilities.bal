@@ -28,6 +28,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
     if (id is ()) {
         return ();
     }
+
     painIsoRecord:OrganisationIdentification39? OrgId = id?.OrgId;
     if (OrgId != ()) {
         return <swiftmt:MT50C>{

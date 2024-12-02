@@ -123,7 +123,7 @@ isolated function getOrderingCustomerFromPacs008Document(
                 number: "1"
             },
             Nm: getNamesArrayFromNameString(getEmptyStrIfNull(debtor.Nm)),
-            AdrsLine: [],
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtor.PstlAdr?.AdrLine),
             CntyNTw: [
                 {
                     content: "/NOTPROVIDED",
@@ -226,7 +226,6 @@ isolated function getMT103SendersCorrespondentFromPacs008Document(
 
     if (sttlmInf?.SttlmMtd == "INGA" || sttlmInf?.SttlmMtd == "INDA") && sttlmInf?.SttlmAcct is () {
         string mt53BIC = getEmptyStrIfNull(PrvsInstgAgt1.FinInstnId?.BICFI);
-
         if mt53BIC != "" && fromBIC is string && toBIC is string &&
             (mt53BIC.substring(0, 6) == fromBIC.substring(0, 6) ||
             mt53BIC.substring(0, 6) == toBIC.substring(0, 6)) {
@@ -387,7 +386,6 @@ isolated function getMT103AccountWithInstitutionFromPacs008Document(
 
     if creditorAgent.FinInstnId?.BICFI != () {
         string bicfi = getEmptyStrIfNull(creditorAgent.FinInstnId?.BICFI);
-
         return <swiftmt:MT57A>{
             name: "57A",
             IdnCd: {
@@ -653,4 +651,3 @@ isolated function mapCategoryPurposeToMT23E(
 
     return instructionCodes;
 }
-

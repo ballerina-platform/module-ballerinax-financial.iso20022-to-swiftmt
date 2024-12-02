@@ -91,13 +91,11 @@ isolated function createMT101Transactions(
     swiftmt:MT101Transaction[] transactions = [];
     foreach painIsoRecord:PaymentInstruction44 item in mxTransactions {
         painIsoRecord:CreditTransferTransaction61 creditTransferTransaction = item.CdtTrfTxInf[0];
-
         swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? intermediary = getMT101TransactionIntermediaryFromPain001Document(item);
         swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? accountWithInstitution = getMT101TransactionAcountWithInstitution(item);
         swiftmt:MT59|swiftmt:MT59A?|swiftmt:MT59F? beneficiary = getMT101TransactionBeneficiary(item);
 
         transactions.push({
-
             MT21: {
                 name: "21",
                 Ref: {

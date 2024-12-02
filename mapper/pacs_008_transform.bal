@@ -47,10 +47,8 @@ function transformPacs008DocumentToMT102STP(pacsIsoRecord:Pacs008Document docume
 # + isSTP - A boolean indicating whether the message is an STP message
 # + return - The block 4 of the MT102 message or an error if the transformation fails
 isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, boolean isSTP) returns swiftmt:MT102Block4|swiftmt:MT102STPBlock4|error {
-
     pacsIsoRecord:GroupHeader113 grpHdr = document.FIToFICstmrCdtTrf.GrpHdr;
     pacsIsoRecord:CreditTransferTransaction64[] transactions = document.FIToFICstmrCdtTrf.CdtTrfTxInf;
-
     pacsIsoRecord:CreditTransferTransaction64 firstTransaction = transactions[0];
 
     swiftmt:MT20 MT20 = {
@@ -207,9 +205,7 @@ isolated function createMT102Transactions(
 returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
     swiftmt:MT102Transaction[] transactions = [];
     swiftmt:MT102STPTransaction[] transactionsSTP = [];
-
     foreach pacsIsoRecord:CreditTransferTransaction64 transaxion in mxTransactions {
-
         swiftmt:MT21 MT21 = {
             name: "21",
             Ref: {
@@ -289,14 +285,14 @@ returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
             Rt: {content: convertDecimalNumberToSwiftDecimal(transaxion.XchgRate), number: "1"}
         };
 
-        if (isSTP) {
+        if isSTP {
             transactionsSTP.push({MT21, MT32B, MT50A, MT50F, MT50K, MT52A, MT57A, MT59, MT59A, MT59F, MT70, MT26T, MT77B, MT33B, MT71A, MT71F, MT71G, MT36});
         } else {
             transactions.push({MT21, MT32B, MT50A, MT50F, MT50K, MT52A, MT52B, MT52C, MT57A, MT57C, MT59, MT59A, MT59F, MT70, MT26T, MT77B, MT33B, MT71A, MT71F, MT71G, MT36});
         }
     }
 
-    if (isSTP) {
+    if isSTP {
         return transactionsSTP;
     } else {
         return transactions;
@@ -360,7 +356,6 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
     }
 
     pacsIsoRecord:CreditTransferTransaction64 firstTransaction = transactions[0];
-
     swiftmt:MT13C? MT13C = check convertTimeToMT13C(firstTransaction.SttlmTmIndctn, firstTransaction.SttlmTmReq);
 
     swiftmt:MT20 MT20 = {

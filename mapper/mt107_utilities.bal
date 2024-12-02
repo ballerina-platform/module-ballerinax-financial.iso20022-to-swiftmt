@@ -7,8 +7,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 isolated function getMT107InstructionPartyFromPacs003Document(
         pacsIsoRecord:Pacs003Document document
 ) returns swiftmt:MT50C?|swiftmt:MT50L? {
-    pacsIsoRecord:BranchAndFinancialInstitutionIdentification8? instructingParty =
-        document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt;
+    pacsIsoRecord:BranchAndFinancialInstitutionIdentification8? instructingParty = document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt;
 
     if instructingParty is () {
         return ();
@@ -75,8 +74,7 @@ isolated function getMT107CreditorFromPacs003Document(
 isolated function getMT107CreditorsBankFromPacs003Document(
         pacsIsoRecord:Pacs003Document document
 ) returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
-    pacsIsoRecord:BranchAndFinancialInstitutionIdentification8 creditorsBank =
-        document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].CdtrAgt;
+    pacsIsoRecord:BranchAndFinancialInstitutionIdentification8 creditorsBank = document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].CdtrAgt;
 
     if creditorsBank.FinInstnId?.BICFI is string {
         return <swiftmt:MT52A>{
