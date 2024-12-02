@@ -29,7 +29,7 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document)
     swiftmt:MT104Transaction[] transactions = check createMT104Transactions(document.CstmrDrctDbtInitn.PmtInf, instructingParty, creditor, creditorsBank)
     in {
         block1: check generateMtBlock1FromSupplementaryData(document.CstmrDrctDbtInitn.SplmtryData), // TODO - Add correct mapping
-        block2: check generateMtBlock2(MESSAGETYPE_104, document.CstmrDrctDbtInitn.GrpHdr.CreDtTm), // TODO - Add correct mapping
+        block2: check generateMtBlock2WithDateTime(MESSAGETYPE_104, document.CstmrDrctDbtInitn.GrpHdr.CreDtTm), // TODO - Add correct mapping
         block3: check generateMtBlock3(document.CstmrDrctDbtInitn.SplmtryData, document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId.UETR, EMPTY_STRING), // TODO - Add correct mapping
         block4: {
             MT19: {

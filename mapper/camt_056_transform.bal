@@ -28,7 +28,7 @@ isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document
     in {
 
         block1: check generateBlock1FromAssgnmt(document.FIToFIPmtCxlReq.Assgnmt),
-        block2: check generateMtBlock2(
+        block2: check generateMtBlock2WithDateTime(
                 MESSAGETYPE_192,
                 document.FIToFIPmtCxlReq.Assgnmt.CreDtTm
         ),

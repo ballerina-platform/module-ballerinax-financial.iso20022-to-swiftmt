@@ -28,8 +28,8 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
     swiftmt:MT53A?|swiftmt:MT53B? sendersCorrespondent = getMT104SendersCorrespondentFromPacs003Document(document),
     swiftmt:MT104Transaction[] transactions = check createMT104TransactionsFromPacs003(document.FIToFICstmrDrctDbt.DrctDbtTxInf, instructingParty, creditor, creditorsBank)
     in {
-        block1: check generateBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt),
-        block2: check generateMtBlock2(MESSAGETYPE_104, document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
+        block1: generateBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt),
+        block2: check generateMtBlock2WithDateTime(MESSAGETYPE_104, document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
         block3: check generateMtBlock3(document.FIToFICstmrDrctDbt.SplmtryData, document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId.UETR, ""),
         block4: {
             MT19: {
@@ -196,8 +196,8 @@ function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document)
             creditorsBank
     )
     in {
-        block1: check generateBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt),
-        block2: check generateMtBlock2(MESSAGETYPE_107, document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
+        block1: generateBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt),
+        block2: check generateMtBlock2WithDateTime(MESSAGETYPE_107, document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
         block3: check generateMtBlock3(document.FIToFICstmrDrctDbt.SplmtryData, document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId.UETR, ""),
         block4: {
             MT19: document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum is () ? () : {

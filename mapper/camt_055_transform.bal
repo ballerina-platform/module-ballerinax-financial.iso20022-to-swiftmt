@@ -23,7 +23,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + return - Returns an MT192 message in the `swiftmt:MTn92Message` format if successful, otherwise returns an error.
 isolated function transformCamt055ToMT192(camtIsoRecord:Camt055Document document) returns swiftmt:MTn92Message|error => {
     block1: check generateBlock1FromAssgnmt(document.CstmrPmtCxlReq.Assgnmt),
-    block2: check generateMtBlock2(
+    block2: check generateMtBlock2WithDateTime(
             MESSAGETYPE_192,
             document.CstmrPmtCxlReq.Assgnmt.CreDtTm
     ),

@@ -64,19 +64,10 @@ isolated function generateMtBlock1FromSupplementaryData(painIsoRecord:Supplement
 # + mtMessageId - The message type of the MT message
 # + supplementaryData - The supplementary data of the MX message
 # + return - The block 2 of the MT message or an error if the block 2 cannot be created
-isolated function generateMtBlock2FromSupplementaryData(string? mtMessageId, painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block2|error {
+isolated function generateMtBlock2(string? mtMessageId) returns swiftmt:Block2|error {
     string messageType = "";
 
-    if (mtMessageId != ()) {
-        messageType = mtMessageId.toString();
-    } else if (supplementaryData != ()) {
-        foreach var data in supplementaryData {
-            if (data.Envlp.hasKey("MessageType")) {
-                messageType = data.Envlp["MessageType"].toString();
-                break;
-            }
-        }
-    }
+    messageType = mtMessageId.toString();
 
     if (messageType == "") {
         return error("Failed to identify the message type");
@@ -97,7 +88,7 @@ isolated function generateMtBlock2FromSupplementaryData(string? mtMessageId, pai
 # + supplementaryData - The supplementary data of the MX message
 # + isoDateTime - The ISO date time of the MT message
 # + return - The block 2 of the MT message or an error if the block 2 cannot be created
-isolated function generateMtBlock2(string? mtMessageId, painIsoRecord:ISODateTime? isoDateTime) returns swiftmt:Block2|error {
+isolated function generateMtBlock2WithDateTime(string? mtMessageId, painIsoRecord:ISODateTime? isoDateTime) returns swiftmt:Block2|error {
     string messageType = mtMessageId.toString();
 
     if (messageType == "") {
@@ -151,7 +142,7 @@ isolated function generateMtBlock5FromSupplementaryData(painIsoRecord:Supplement
 }
 
 # Convert the MX payment amount 
-# + paymentTypeInformation - The payment type information from the MX message
+# + ccyAndAmount - The payment type information from the MX message
 # + return - The MT103 message or an error if the conversion fails
 isolated function getActiveOrHistoricCurrencyAndAmountCcy(painIsoRecord:ActiveOrHistoricCurrencyAndAmount? ccyAndAmount) returns string {
     if (ccyAndAmount == ()) {
@@ -162,7 +153,7 @@ isolated function getActiveOrHistoricCurrencyAndAmountCcy(painIsoRecord:ActiveOr
 }
 
 # Convert the MX payment amount
-# + paymentTypeInformation - The payment type information from the MX message
+# + ccyAndAmount - The payment type information from the MX message
 # + return - The MT103 message or an error if the conversion fails
 isolated function getActiveOrHistoricCurrencyAndAmountValue(painIsoRecord:ActiveOrHistoricCurrencyAndAmount? ccyAndAmount) returns string {
     if (ccyAndAmount == ()) {
@@ -644,7 +635,7 @@ isolated function extractNarrativeFromCancellationReason(camtIsoRecord:CustomerP
 # + InstgAgt - The instructing agent details.
 # + InstdAgt - The instructed agent details.
 # + return - Returns the constructed Block 1 of the MT message or null if it cannot be created.
-isolated function generateBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstgAgt, camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstdAgt) returns swiftmt:Block1?|error {
+isolated function generateBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstgAgt, camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstdAgt) returns swiftmt:Block1? {
     if (InstgAgt == () && InstdAgt == ()) || InstgAgt?.FinInstnId?.BICFI.toString().length() < 8 || InstdAgt?.FinInstnId?.BICFI.toString().length() < 8 {
         return ();
     }

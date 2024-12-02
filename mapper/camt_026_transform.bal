@@ -25,7 +25,7 @@ isolated function transformCamt026ToMT195(camtIsoRecord:Camt026Document document
     camtIsoRecord:SupplementaryData1[]? splmtryData = document.UblToApply.SplmtryData
     in {
         block1: check generateBlock1FromAssgnmt(document.UblToApply.Assgnmt),
-        block2: check generateMtBlock2(MESSAGETYPE_195, document.UblToApply.Assgnmt.CreDtTm),
+        block2: check generateMtBlock2WithDateTime(MESSAGETYPE_195, document.UblToApply.Assgnmt.CreDtTm),
         block3: check generateMtBlock3(document.UblToApply.SplmtryData, (), ""),
         block4: {
             MT20: check getMT20(document.UblToApply.Case?.Id),
