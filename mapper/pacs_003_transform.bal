@@ -48,7 +48,7 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
             },
             MT21E: {
                 name: MT23E_NAME,
-                Ref: {content: document.FIToFICstmrDrctDbt.GrpHdr.MsgId, number: "1"}
+                Ref: {content: document.FIToFICstmrDrctDbt.GrpHdr.MsgId, number: NUMBER1}
             },
             MT21R: {
                 name: MT21R_NAME,
@@ -59,11 +59,11 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
             },
             MT23E: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtTpInf?.CtgyPurp?.Cd is () ? () : {
                     name: MT23E_NAME,
-                    InstrnCd: {content: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtTpInf?.CtgyPurp?.Cd.toString(), number: "1"}
+                    InstrnCd: {content: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtTpInf?.CtgyPurp?.Cd.toString(), number: NUMBER1}
                 },
             MT26T: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].Purp?.Cd is () ? () : {
                     name: MT26T_NAME,
-                    Typ: {content: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].Purp?.Cd.toString(), number: "1"}
+                    Typ: {content: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].Purp?.Cd.toString(), number: NUMBER1}
                 },
             MT30: {
                 name: MT30_NAME,
@@ -71,8 +71,8 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
             },
             MT32B: {
                 name: MT32B_NAME,
-                Ccy: {content: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType.Ccy, number: "1"},
-                Amnt: {content: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType.toString(), number: "2"}
+                Ccy: {content: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
+                Amnt: {content: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType.toString(), number: NUMBER2}
             },
             MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
             MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
@@ -80,7 +80,7 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
             MT50K: creditor is swiftmt:MT50K ? creditor : (),
             MT51A: document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt is () ? () : {
                     name: MT51A_NAME,
-                    IdnCd: {content: document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI.toString(), number: "1"}
+                    IdnCd: {content: document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI.toString(), number: NUMBER1}
                 },
             MT52A: creditorsBank is swiftmt:MT52A ? creditorsBank : (),
             MT52C: creditorsBank is swiftmt:MT52C ? creditorsBank : (),
@@ -96,13 +96,13 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
             },
             MT71F: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf is () ? () : {
                     name: MT71F_NAME,
-                    Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString(), number: "1"},
-                    Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString(), number: "2"}
+                    Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString(), number: NUMBER1},
+                    Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString(), number: NUMBER2}
                 },
             MT71G: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf is () ? () : {
                     name: MT71G_NAME,
-                    Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString(), number: "1"},
-                    Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString(), number: "2"}
+                    Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString(), number: NUMBER1},
+                    Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString(), number: NUMBER2}
                 },
             MT72: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RmtInf?.Ustrd is () ? () : getMT72Narrative(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0]),
             MT77B: document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].RgltryRptg is () ? () :
@@ -137,13 +137,13 @@ isolated function createMT104TransactionsFromPacs003(
 
         swiftmt:MT23E MT23E = {
             name: MT23E_NAME,
-            InstrnCd: {content: getEmptyStrIfNull(tx.PmtTpInf?.CtgyPurp?.Cd), number: "1"}
+            InstrnCd: {content: getEmptyStrIfNull(tx.PmtTpInf?.CtgyPurp?.Cd), number: NUMBER1}
         };
 
         swiftmt:MT32B MT32B = {
             name: MT23B_NAME,
-            Ccy: {content: tx.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.Ccy, number: "1"},
-            Amnt: {content: tx.IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType.toString(), number: "2"}
+            Ccy: {content: tx.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
+            Amnt: {content: tx.IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType.toString(), number: NUMBER2}
         };
 
         swiftmt:MT50C? MT50C = instructingParty is swiftmt:MT50C ? instructingParty : ();

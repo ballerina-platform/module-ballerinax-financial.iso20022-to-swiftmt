@@ -111,7 +111,7 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
 
     swiftmt:MT19 MT19 = {
         name: MT19_NAME,
-        Amnt: {content: convertDecimalNumberToSwiftDecimal(grpHdr.CtrlSum), number: "1"}
+        Amnt: {content: convertDecimalNumberToSwiftDecimal(grpHdr.CtrlSum), number: NUMBER1}
     };
 
     swiftmt:MT71G? MT71G = check convertCharges16toMT71G(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
@@ -267,7 +267,7 @@ returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
 
         swiftmt:MT36 MT36 = {
             name: MT36_NAME,
-            Rt: {content: convertDecimalNumberToSwiftDecimal(transaxion.XchgRate), number: "1"}
+            Rt: {content: convertDecimalNumberToSwiftDecimal(transaxion.XchgRate), number: NUMBER1}
         };
 
         if isSTP {

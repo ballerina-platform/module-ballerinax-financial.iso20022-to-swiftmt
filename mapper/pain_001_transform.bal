@@ -43,17 +43,17 @@ function transformPain001DocumentToMT101(painIsoRecord:Pain001Document document)
             MT28D: { // TODO - Implement the correct mapping
                 name: MT28D_NAME,
                 MsgIdx: {
-                    content: "1",
-                    number: "1"
+                    content: NUMBER1,
+                    number: NUMBER1
                 },
                 Ttl: {
-                    content: "1",
-                    number: "2"
+                    content: NUMBER1,
+                    number: NUMBER2
                 }
             },
             MT30: {
                 name: MT30_NAME,
-                Dt: check convertISODateStringToSwiftMtDate(document.CstmrCdtTrfInitn.PmtInf[0].ReqdExctnDt.Dt.toString(), "1")
+                Dt: check convertISODateStringToSwiftMtDate(document.CstmrCdtTrfInitn.PmtInf[0].ReqdExctnDt.Dt.toString(), NUMBER1)
             },
             MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
             MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),

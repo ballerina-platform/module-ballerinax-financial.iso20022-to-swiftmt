@@ -33,12 +33,12 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
 
     if FinInstnId.BICFI != () {
         return <swiftmt:MT52A>{
-            name: "52A",
+            name: MT52A_NAME,
             PrtyIdnTyp: (),
             PrtyIdn: (),
             IdnCd: {
                 content: getEmptyStrIfNull(FinInstnId.BICFI),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -46,34 +46,34 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
     if FinInstnId.Othr?.Id != () {
         if isSTP {
             return <swiftmt:MT52A>{
-                name: "52A",
+                name: MT52A_NAME,
                 PrtyIdnTyp: {
                     content: getEmptyStrIfNull(FinInstnId.Othr?.SchmeNm?.Cd),
-                    number: "1"
+                    number: NUMBER1
                 },
                 PrtyIdn: {
                     content: getEmptyStrIfNull(FinInstnId.Othr?.Id),
-                    number: "2"
+                    number: NUMBER2
                 },
                 IdnCd: {
                     content: getEmptyStrIfNull(FinInstnId.Othr?.Id),
-                    number: "1"
+                    number: NUMBER1
                 }
             };
         } else {
             return <swiftmt:MT52B>{
-                name: "52B",
+                name: MT52B_NAME,
                 PrtyIdnTyp: {
                     content: getEmptyStrIfNull(FinInstnId.Othr?.SchmeNm?.Cd),
-                    number: "1"
+                    number: NUMBER1
                 },
                 PrtyIdn: {
                     content: getEmptyStrIfNull(FinInstnId.Othr?.Id),
-                    number: "2"
+                    number: NUMBER2
                 },
                 Lctn: {
                     content: getEmptyStrIfNull(FinInstnId.Othr?.Id),
-                    number: "1"
+                    number: NUMBER1
                 }
             };
         }
@@ -81,12 +81,12 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
 
     if FinInstnId.PstlAdr != () {
         return <swiftmt:MT52B>{
-            name: "52B",
+            name: MT52B_NAME,
             PrtyIdnTyp: (),
             PrtyIdn: (),
             Lctn: {
                 content: getEmptyStrIfNull(FinInstnId.PstlAdr?.AdrLine),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -110,21 +110,21 @@ returns swiftmt:MT57A?|swiftmt:MT57C? {
 
     if CreditorAgent?.FinInstnId?.BICFI != () {
         return <swiftmt:MT57A>{
-            name: "57A",
+            name: MT57A_NAME,
             PrtyIdnTyp: (),
             PrtyIdn: (),
             IdnCd: {
                 content: getEmptyStrIfNull(CreditorAgent?.FinInstnId?.BICFI),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
     if CreditorAgentAccount?.Id?.Othr?.Id != () {
         return <swiftmt:MT57C>{
-            name: "57C",
+            name: MT57C_NAME,
             PrtyIdn: {
                 content: getEmptyStrIfNull(CreditorAgentAccount?.Id?.Othr?.Id),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -148,20 +148,20 @@ returns swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? {
 
     if Cdtr.Id != () && Cdtr.Nm != () && Cdtr.PstlAdr == () {
         return <swiftmt:MT59A>{
-            name: "59A",
+            name: MT56A_NAME,
             IdnCd: {
                 content: getEmptyStrIfNull(Cdtr.Id),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
     if Cdtr.Nm != () && Cdtr.PstlAdr?.AdrLine != () {
         return <swiftmt:MT59F>{
-            name: "59F",
+            name: MT56F_NAME,
             Nm: getNamesArrayFromNameString(getEmptyStrIfNull(Cdtr.Nm)),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>Cdtr.PstlAdr?.AdrLine),
             CdTyp: [],
-            Acc: {content: CdtrAcct?.Id?.Othr?.Id.toString(), number: "1"},
+            Acc: {content: CdtrAcct?.Id?.Othr?.Id.toString(), number: NUMBER1},
             CntyNTw: getMtCountryAndTownFromMxCountryAndTown(getEmptyStrIfNull(Cdtr.PstlAdr?.Ctry),
                     getEmptyStrIfNull(Cdtr.PstlAdr?.TwnNm)
             )
@@ -169,7 +169,7 @@ returns swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? {
     }
     if Cdtr.PstlAdr != () && Cdtr.PstlAdr?.AdrLine != () {
         return <swiftmt:MT59>{
-            name: "59",
+            name: MT56F_NAME,
             Nm: getNamesArrayFromNameString(getEmptyStrIfNull(Cdtr.Nm)),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>Cdtr.PstlAdr?.AdrLine)
         };
@@ -194,21 +194,21 @@ returns swiftmt:MT53A?|swiftmt:MT53C? {
 
     if PrvsInstgAgt1?.FinInstnId?.BICFI != () {
         return <swiftmt:MT53A>{
-            name: "53A",
+            name: MT53A_NAME,
             PrtyIdnTyp: (),
             PrtyIdn: (),
             IdnCd: {
                 content: getEmptyStrIfNull(PrvsInstgAgt1?.FinInstnId?.BICFI),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
     if PrvsInstgAgt1Acct?.Id?.Othr?.Id != () {
         return <swiftmt:MT53C>{
-            name: "53C",
+            name: MT53C_NAME,
             Acc: {
                 content: getEmptyStrIfNull(PrvsInstgAgt1Acct?.Id?.IBAN),
-                number: "1"
+                number: NUMBER1
             }
         };
     }

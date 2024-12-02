@@ -62,12 +62,9 @@ isolated function generateMtBlock1FromSupplementaryData(painIsoRecord:Supplement
 # Currently, this function extracts the message type from the supplementary data if it is not provided directly.
 #
 # + mtMessageId - The message type of the MT message
-# + supplementaryData - The supplementary data of the MX message
 # + return - The block 2 of the MT message or an error if the block 2 cannot be created
 isolated function generateMtBlock2(string? mtMessageId) returns swiftmt:Block2|error {
-    string messageType = "";
-
-    messageType = mtMessageId.toString();
+    string messageType = mtMessageId.toString();
 
     if (messageType == "") {
         return error("Failed to identify the message type");
@@ -85,7 +82,6 @@ isolated function generateMtBlock2(string? mtMessageId) returns swiftmt:Block2|e
 # Currently, this function extracts the message type from the supplementary data if it is not provided directly.
 #
 # + mtMessageId - The message type of the MT message
-# + supplementaryData - The supplementary data of the MX message
 # + isoDateTime - The ISO date time of the MT message
 # + return - The block 2 of the MT message or an error if the block 2 cannot be created
 isolated function generateMtBlock2WithDateTime(string? mtMessageId, painIsoRecord:ISODateTime? isoDateTime) returns swiftmt:Block2|error {
@@ -99,8 +95,8 @@ isolated function generateMtBlock2WithDateTime(string? mtMessageId, painIsoRecor
 
     swiftmt:Block2 result = {
         messageType: messageType,
-        MIRDate: {content: swiftMtDateTime[0] ?: "", number: "1"},
-        senderInputTime: {content: swiftMtDateTime[1] ?: "", number: "1"}
+        MIRDate: {content: swiftMtDateTime[0] ?: "", number: NUMBER1},
+        senderInputTime: {content: swiftMtDateTime[1] ?: "", number: NUMBER1}
     };
 
     return result;
@@ -168,7 +164,7 @@ isolated function getActiveOrHistoricCurrencyAndAmountValue(painIsoRecord:Active
 # + date - The ISO date string
 # + number - The number of the date record
 # + return - The Swift MT date record or an error if the date cannot be converted
-isolated function convertISODateStringToSwiftMtDate(string date, string number = "1") returns swiftmt:Dt|error {
+isolated function convertISODateStringToSwiftMtDate(string date, string number = NUMBER1) returns swiftmt:Dt|error {
 
     string isoDate = date;
     if !isoDate.includes("T") {
@@ -207,7 +203,7 @@ isolated function getEmptyStrIfNull(anydata? value) returns string {
 # + chargeBearer - The charge bearer type
 # + number - The number of the charge record
 # + return - The charge record
-isolated function getDetailsOfChargesFromChargeBearerType1Code(painIsoRecord:ChargeBearerType1Code? chargeBearer = (), string number = "1") returns swiftmt:Cd {
+isolated function getDetailsOfChargesFromChargeBearerType1Code(painIsoRecord:ChargeBearerType1Code? chargeBearer = (), string number = NUMBER1) returns swiftmt:Cd {
     string chargeBearerType = "";
 
     if (chargeBearer != ()) {
@@ -262,8 +258,8 @@ isolated function convertCharges16toMT71a(painIsoRecord:Charges16[]? charges) re
             "CRED" => {
                 swiftmt:MT71F mt71f = {
                     name: "71F",
-                    Ccy: {content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: "1"},
-                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: "1"}
+                    Ccy: {content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
+                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER1}
                 };
 
                 result.push(mt71f);
@@ -272,8 +268,8 @@ isolated function convertCharges16toMT71a(painIsoRecord:Charges16[]? charges) re
             "DEBT" => {
                 swiftmt:MT71G mt71g = {
                     name: "71G",
-                    Ccy: {content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: "1"},
-                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: "1"}
+                    Ccy: {content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
+                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER1}
                 };
 
                 result.push(mt71g);
@@ -304,8 +300,8 @@ isolated function convertCharges16toMT71F(painIsoRecord:Charges16[]? charges, st
 
     return {
         name: "71F",
-        Ccy: {content: "NOTPROVIDED", number: "1"},
-        Amnt: {content: "0", number: "1"}
+        Ccy: {content: "NOTPROVIDED", number: NUMBER1},
+        Amnt: {content: "0", number: NUMBER1}
     };
 }
 
@@ -349,8 +345,8 @@ isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges, st
 
     swiftmt:MT71G mt71g = {
         name: "71G",
-        Ccy: {content: mtCurrency ?: "NOTPROVIDED", number: "1"},
-        Amnt: {content: mtAmount, number: "1"}
+        Ccy: {content: mtCurrency ?: "NOTPROVIDED", number: NUMBER1},
+        Amnt: {content: mtAmount, number: NUMBER1}
     };
 
     return mt71g;
@@ -375,10 +371,10 @@ isolated function createMT13C(string code, painIsoRecord:ISOTime?|painIsoRecord:
 
     return {
         name: "13C",
-        Cd: {content: code, number: "1"},
-        Tm: {content: convertedTime, number: "2"},
-        Sgn: {content: "+", number: "3"},
-        TmOfst: {content: "0000", number: "4"}
+        Cd: {content: code, number: NUMBER1},
+        Tm: {content: convertedTime, number: NUMBER2},
+        Sgn: {content: "+", number: NUMBER3},
+        TmOfst: {content: "0000", number: NUMBER4}
     };
 }
 
@@ -425,7 +421,7 @@ isolated function getRemittanceInformation(painIsoRecord:PaymentIdentification13
 
     string name = "70";
     string content = "";
-    string number = "1";
+    string number = NUMBER1;
 
     string:RegExp regExp = re `:26T:[A-Z0-9]{3}`;
     if (Prps?.Prtry != ()) {
@@ -524,7 +520,7 @@ isolated function getMtCountryAndTownFromMxCountryAndTown(string country, string
     if (countryAndTown != "") {
         result.push({
             content: countryAndTown,
-            number: "1"
+            number: NUMBER1
         });
     }
 
@@ -691,7 +687,7 @@ isolated function getNarrativeFromRegulatoryCreditTransferTransaction61(painIsoR
     if rgltryRptg == () {
         return {
             content: getEmptyStrIfNull(narratives),
-            number: "1"
+            number: NUMBER1
         };
     }
 
@@ -700,7 +696,7 @@ isolated function getNarrativeFromRegulatoryCreditTransferTransaction61(painIsoR
     if Dtls == () {
         return {
             content: getEmptyStrIfNull(narratives),
-            number: "1"
+            number: NUMBER1
         };
     }
 
@@ -709,7 +705,7 @@ isolated function getNarrativeFromRegulatoryCreditTransferTransaction61(painIsoR
     if r is () {
         return {
             content: getEmptyStrIfNull(narratives),
-            number: "1"
+            number: NUMBER1
         };
     }
 
@@ -717,7 +713,7 @@ isolated function getNarrativeFromRegulatoryCreditTransferTransaction61(painIsoR
 
     return {
         content: getEmptyStrIfNull(narratives),
-        number: "1"
+        number: NUMBER1
     };
 }
 
@@ -759,7 +755,7 @@ isolated function getAmountValueFromInterbankOrInstructedAmount(
 # + mxDate - The MX ISO date string to be converted.
 # + return - The converted YYMMDD format string.
 isolated function extractSwiftMtDateFromMXDate(string mxDate) returns string|error {
-    swiftmt:Dt|error convertedDate = check convertISODateStringToSwiftMtDate(mxDate, "2");
+    swiftmt:Dt|error convertedDate = check convertISODateStringToSwiftMtDate(mxDate, NUMBER2);
 
     if (convertedDate is error) {
         return "";
@@ -786,7 +782,7 @@ isolated function mapToMT72(pacsIsoRecord:ServiceLevel8Choice[]? serviceLevels,
 
     string name = "72";
     string content = "";
-    string number = "1";
+    string number = NUMBER1;
 
     if serviceLevels == () {
         return {
@@ -899,7 +895,7 @@ isolated function getMT20(string? caseId) returns swiftmt:MT20|error {
         name: "20",
         msgId: {
             content: field20,
-            number: "1"
+            number: NUMBER1
         }
     };
 }
@@ -947,11 +943,11 @@ isolated function getMT11S(
         name: "11S",
         MtNum: {
             content: mtType,
-            number: "1"
+            number: NUMBER1
         },
         Dt: {
             content: date,
-            number: "1"
+            number: NUMBER1
         }
     };
 }
@@ -972,9 +968,9 @@ isolated function getMT32A(
 
         return {
             name: "32A",
-            Dt: {content: date, number: "2"},
-            Ccy: {content: currency, number: "1"},
-            Amnt: {content: amount, number: "3"}
+            Dt: {content: date, number: NUMBER2},
+            Ccy: {content: currency, number: NUMBER1},
+            Amnt: {content: amount, number: NUMBER3}
         };
     }
     return error("Failed to map MT32A from OriginalInterbankSettlement fields.");
@@ -1065,7 +1061,7 @@ isolated function getNarrativeFromCancellationReason(camtIsoRecord:UnderlyingTra
                         foreach string info in <string[]>cxlRsn.AddtlInf {
                             narratives.push({
                                 content: info,
-                                number: "1"
+                                number: NUMBER1
                             });
                         }
                     }
@@ -1087,7 +1083,7 @@ isolated function formatNarrative(string? narrative) returns swiftmt:Nrtv {
     if narrative is () {
         return {
             content: "",
-            number: "1"
+            number: NUMBER1
         };
     }
 
@@ -1098,7 +1094,7 @@ isolated function formatNarrative(string? narrative) returns swiftmt:Nrtv {
 
     return {
         content: formattedNarrative,
-        number: "1"
+        number: NUMBER1
     };
 }
 
@@ -1203,7 +1199,7 @@ isolated function getAdditionalNarrativeInfo(camtIsoRecord:SupplementaryData1[]?
             if data.Envlp.Nrtv is string {
                 narratives.push({
                     content: data.Envlp.Nrtv.toString(),
-                    number: "1"
+                    number: NUMBER1
                 });
             }
         }

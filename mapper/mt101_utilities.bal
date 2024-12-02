@@ -32,10 +32,10 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
     painIsoRecord:OrganisationIdentification39? OrgId = id?.OrgId;
     if (OrgId != ()) {
         return <swiftmt:MT50C>{
-            name: "50C",
+            name: MT50C_NAME,
             IdnCd: {
                 content: getEmptyStrIfNull(OrgId?.AnyBIC),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -46,10 +46,10 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
 
         if (Othr != () && Othr.length() > 0) {
             return <swiftmt:MT50L>{
-                name: "50L",
+                name: MT50L_NAME,
                 PrtyIdn: {
                     content: getEmptyStrIfNull(Othr[0].Id),
-                    number: "1"
+                    number: NUMBER1
                 }
             };
         }
@@ -74,22 +74,16 @@ returns swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? {
     painIsoRecord:PaymentInstruction44 firstTransaction = payments[0];
     if (firstTransaction.Dbtr.Nm != () && firstTransaction.Dbtr.PstlAdr != ()) {
         return <swiftmt:MT50F>{
-            name: "50F",
+            name: MT50F_NAME,
             Nm: getNamesArrayFromNameString(firstTransaction.Dbtr?.Nm.toString()),
             CdTyp: [],
-            PrtyIdn: {content: "/" + firstTransaction.DbtrAcct?.Id?.Othr?.Id.toString(), number: "1"},
+            PrtyIdn: {content: "/" + firstTransaction.DbtrAcct?.Id?.Othr?.Id.toString(), number: NUMBER1},
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>firstTransaction.Dbtr?.PstlAdr?.AdrLine),
             CntyNTw: getMtCountryAndTownFromMxCountryAndTown(getEmptyStrIfNull(firstTransaction.Dbtr?.PstlAdr?.Ctry), getEmptyStrIfNull(firstTransaction.Dbtr?.PstlAdr?.TwnNm))
         };
     }
 
-    if (firstTransaction.DbtrAcct.Id != () && firstTransaction.Dbtr.Id != ()) {
-        return <swiftmt:MT50G>{
-            name: "50G",
-            Acc: {content: "", number: "1"},
-            IdnCd: {content: "", number: "1"}
-        };
-    }
+    // TODO - Need to implement MT50G and MT50H
 
     return ();
 
@@ -116,13 +110,13 @@ returns swiftmt:MT52A?|swiftmt:MT52C? {
 
     if dbtrAgt.FinInstnId?.BICFI != () {
         return <swiftmt:MT52A>{
-            name: "52A",
-            IdnCd: {content: getEmptyStrIfNull(dbtrAgt.FinInstnId?.BICFI.toString()), number: "1"}
+            name: MT52A_NAME,
+            IdnCd: {content: getEmptyStrIfNull(dbtrAgt.FinInstnId?.BICFI.toString()), number: NUMBER1}
         };
     } else if dbtrAgt.FinInstnId?.ClrSysMmbId?.MmbId != () {
         return <swiftmt:MT52C>{
-            name: "52C",
-            PrtyIdn: {content: getEmptyStrIfNull(dbtrAgt.FinInstnId.ClrSysMmbId?.MmbId.toString()), number: "1"}
+            name: MT52C_NAME,
+            PrtyIdn: {content: getEmptyStrIfNull(dbtrAgt.FinInstnId.ClrSysMmbId?.MmbId.toString()), number: NUMBER1}
         };
     }
 
@@ -143,19 +137,19 @@ returns swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? {
 
     if intrmyAgt.FinInstnId?.BICFI != () {
         return <swiftmt:MT56A>{
-            name: "56A",
-            IdnCd: {content: getEmptyStrIfNull(intrmyAgt.FinInstnId.BICFI.toString()), number: "1"},
-            PrtyIdn: {content: getEmptyStrIfNull(intrmyAgt.FinInstnId.ClrSysMmbId?.MmbId.toString()), number: "1"}
+            name: MT56A_NAME,
+            IdnCd: {content: getEmptyStrIfNull(intrmyAgt.FinInstnId.BICFI.toString()), number: NUMBER1},
+            PrtyIdn: {content: getEmptyStrIfNull(intrmyAgt.FinInstnId.ClrSysMmbId?.MmbId.toString()), number: NUMBER1}
         };
     } else if intrmyAgt.FinInstnId?.ClrSysMmbId?.MmbId != () {
         return <swiftmt:MT56C>{
-            name: "56C",
-            PrtyIdn: {content: getEmptyStrIfNull(intrmyAgt.FinInstnId.ClrSysMmbId?.MmbId.toString()), number: "1"}
+            name: MT56C_NAME,
+            PrtyIdn: {content: getEmptyStrIfNull(intrmyAgt.FinInstnId.ClrSysMmbId?.MmbId.toString()), number: NUMBER1}
         };
     } else if intrmyAgt.FinInstnId?.Othr?.Id != () {
         return <swiftmt:MT56D>{
-            name: "56D",
-            PrtyIdn: {content: getEmptyStrIfNull(intrmyAgt.FinInstnId.Othr?.Id.toString()), number: "1"},
+            name: MT56D_NAME,
+            PrtyIdn: {content: getEmptyStrIfNull(intrmyAgt.FinInstnId.Othr?.Id.toString()), number: NUMBER1},
             Nm: getNamesArrayFromNameString(intrmyAgt.FinInstnId.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>intrmyAgt.FinInstnId.PstlAdr?.AdrLine)
         };
@@ -178,20 +172,20 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
 
     if cdtrAgt.FinInstnId?.BICFI != () {
         return <swiftmt:MT57A>{
-            name: "57A",
-            IdnCd: {content: getEmptyStrIfNull(cdtrAgt.FinInstnId.BICFI.toString()), number: "1"}
+            name: MT57A_NAME,
+            IdnCd: {content: getEmptyStrIfNull(cdtrAgt.FinInstnId.BICFI.toString()), number: NUMBER1}
         };
     }
     else if cdtrAgt.FinInstnId?.ClrSysMmbId?.MmbId != () {
         return <swiftmt:MT57C>{
-            name: "57C",
-            PrtyIdn: {content: cdtrAgt.FinInstnId.ClrSysMmbId?.MmbId.toString(), number: "1"}
+            name: MT57C_NAME,
+            PrtyIdn: {content: cdtrAgt.FinInstnId.ClrSysMmbId?.MmbId.toString(), number: NUMBER1}
         };
     }
     else if cdtrAgt.FinInstnId?.Othr?.Id != () {
         return <swiftmt:MT57D>{
-            name: "57D",
-            PrtyIdn: {content: cdtrAgt.FinInstnId.Othr?.Id.toString(), number: "1"},
+            name: MT57D_NAME,
+            PrtyIdn: {content: cdtrAgt.FinInstnId.Othr?.Id.toString(), number: NUMBER1},
             Nm: getNamesArrayFromNameString(cdtrAgt.FinInstnId.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>cdtrAgt.FinInstnId.PstlAdr?.AdrLine)
 
@@ -217,14 +211,14 @@ returns swiftmt:MT59|swiftmt:MT59A?|swiftmt:MT59F? {
 
     if cdtr.Id?.OrgId?.AnyBIC != () {
         return <swiftmt:MT59A>{
-            name: "59A",
-            IdnCd: {content: getEmptyStrIfNull(cdtr.Id?.OrgId?.AnyBIC), number: "1"}
+            name: MT59A_NAME,
+            IdnCd: {content: getEmptyStrIfNull(cdtr.Id?.OrgId?.AnyBIC), number: NUMBER1}
         };
     }
     else if cdtr.PstlAdr?.AdrLine != () {
         return <swiftmt:MT59F>{
-            name: "59F",
-            Acc: {content: cdtrAcct?.Id?.Othr?.Id.toString(), number: "1"},
+            name: MT59F_NAME,
+            Acc: {content: cdtrAcct?.Id?.Othr?.Id.toString(), number: NUMBER1},
             Nm: getNamesArrayFromNameString(cdtr.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>cdtr.PstlAdr?.AdrLine),
             CdTyp: [],
@@ -235,7 +229,7 @@ returns swiftmt:MT59|swiftmt:MT59A?|swiftmt:MT59F? {
     }
     else {
         return <swiftmt:MT59>{
-            name: "59",
+            name: MT59_NAME,
             Nm: getNamesArrayFromNameString(cdtr.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>cdtr.PstlAdr?.AdrLine)
         };

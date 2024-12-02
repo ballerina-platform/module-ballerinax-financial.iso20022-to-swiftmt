@@ -152,7 +152,7 @@ isolated function createMT104Transactions(
 
         swiftmt:MT23E MT23E = {
             name: MT23E_NAME,
-            InstrnCd: {content: getEmptyStrIfNull(mxTransaction.PmtTpInf?.CtgyPurp?.Cd), number: "1"}
+            InstrnCd: {content: getEmptyStrIfNull(mxTransaction.PmtTpInf?.CtgyPurp?.Cd), number: NUMBER1}
         };
 
         swiftmt:MT21C MT21C = {
@@ -165,8 +165,8 @@ isolated function createMT104Transactions(
 
         swiftmt:MT32B MT32B = {
             name: "32B",
-            Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: "1"},
-            Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: "2"}
+            Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: NUMBER1},
+            Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: NUMBER2}
         };
 
         swiftmt:MT50C? MT50C = instrutingParty is swiftmt:MT50C ? instrutingParty : ();
@@ -190,13 +190,13 @@ isolated function createMT104Transactions(
 
         swiftmt:MT26T MT26T = {
             name: MT26T_NAME,
-            Typ: {content: getEmptyStrIfNull(mxTransaction.DrctDbtTxInf[0].Purp?.Cd), number: "1"}
+            Typ: {content: getEmptyStrIfNull(mxTransaction.DrctDbtTxInf[0].Purp?.Cd), number: NUMBER1}
         };
 
         swiftmt:MT33B MT33B = {
             name: MT33B_NAME,
-            Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: "1"},
-            Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: "2"}
+            Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: NUMBER1},
+            Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: NUMBER2}
         };
 
         swiftmt:MT71A MT71A = {

@@ -99,6 +99,25 @@ const string MT11S_NAME = "11S";
 const string MT76_NAME = "76";
 const string MT75_NAME = "75";
 const string MT77A_NAME = "77A";
+const string MT50C_NAME = "50C";
+const string MT50L_NAME = "50L";
+const string MT50F_NAME = "50F";
+const string MT50G_NAME = "50G";
+const string MT52A_NAME = "50A";
+const string MT52C_NAME = "50C";
+const string MT56A_NAME = "56A";
+const string MT56D_NAME = "56D";
+const string MT56C_NAME = "56C";
+const string MT57A_NAME = "57A";
+const string MT57C_NAME = "57C";
+const string MT57D_NAME = "57D";
+const string MT59A_NAME = "59A";
+const string MT59F_NAME = "59F";
+const string MT59_NAME = "59";
+const string MT52B_NAME = "52B";
+const string MT56F_NAME = "56F";
+const string MT53A_NAME = "53A";
+const string MT53C_NAME = "53C";
 
 # This record is used to store any type of MT message record and the type name
 #

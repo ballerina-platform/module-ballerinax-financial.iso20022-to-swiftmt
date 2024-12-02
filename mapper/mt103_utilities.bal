@@ -39,11 +39,11 @@ isolated function getOrderingCustomerFromPacs008Document(
                 name: "50A",
                 IdnCd: {
                     content: partyIdentifier,
-                    number: "1"
+                    number: NUMBER1
                 },
                 Acc: {
                     content: getEmptyStrIfNull(debtorAccount?.Id),
-                    number: "2"
+                    number: NUMBER2
                 }
             };
         }
@@ -52,7 +52,7 @@ isolated function getOrderingCustomerFromPacs008Document(
             name: "50A",
             IdnCd: {
                 content: partyIdentifier,
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -66,14 +66,14 @@ isolated function getOrderingCustomerFromPacs008Document(
             name: "50F",
             PrtyIdn: {
                 content: partyIdentifier,
-                number: "1"
+                number: NUMBER1
             },
             Nm: getNamesArrayFromNameString(getEmptyStrIfNull(debtor.Nm)),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtor.PstlAdr?.AdrLine),
             CntyNTw: [
                 {
                     content: getEmptyStrIfNull(debtor.PstlAdr?.Ctry),
-                    number: "3"
+                    number: NUMBER3
                 }
             ]
         };
@@ -91,14 +91,14 @@ isolated function getOrderingCustomerFromPacs008Document(
                 name: "50F",
                 PrtyIdn: {
                     content: partyIdentifier,
-                    number: "1"
+                    number: NUMBER1
                 },
                 Nm: getNamesArrayFromNameString(getEmptyStrIfNull(debtor.Nm)),
                 AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtor.PstlAdr?.AdrLine),
                 CntyNTw: [
                     {
                         content: getEmptyStrIfNull(debtor.PstlAdr?.Ctry),
-                        number: "3"
+                        number: NUMBER3
                     }
                 ]
             };
@@ -120,14 +120,14 @@ isolated function getOrderingCustomerFromPacs008Document(
             name: "50F",
             PrtyIdn: {
                 content: partyIdentifier,
-                number: "1"
+                number: NUMBER1
             },
             Nm: getNamesArrayFromNameString(getEmptyStrIfNull(debtor.Nm)),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtor.PstlAdr?.AdrLine),
             CntyNTw: [
                 {
                     content: "/NOTPROVIDED",
-                    number: "3"
+                    number: NUMBER3
                 }
             ]
         };
@@ -162,19 +162,19 @@ isolated function getMT103OrderingInstitutionFromPacs008Document(
 
         if debtorAgentAccount?.Id != () {
             return <swiftmt:MT52A>{
-                name: "52A",
+                name: MT52A_NAME,
                 IdnCd: {
                     content: bic,
-                    number: "1"
+                    number: NUMBER1
                 }
             };
         }
 
         return <swiftmt:MT52A>{
-            name: "52A",
+            name: MT52A_NAME,
             IdnCd: {
                 content: bic,
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -233,7 +233,7 @@ isolated function getMT103SendersCorrespondentFromPacs008Document(
                 name: "53A",
                 IdnCd: {
                     content: mt53BIC,
-                    number: "1"
+                    number: NUMBER1
                 }
             };
         }
@@ -243,7 +243,7 @@ isolated function getMT103SendersCorrespondentFromPacs008Document(
             name: "53B",
             Lctn: {
                 content: getEmptyStrIfNull(PrvsInstgAgt1.FinInstnId?.Nm),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -277,15 +277,15 @@ returns swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? {
             name: "54A",
             PrtyIdnTyp: {
                 content: getEmptyStrIfNull(InstdRmbrsmntAgtAcct?.Id?.Othr?.SchmeNm?.Cd),
-                number: "1"
+                number: NUMBER1
             },
             PrtyIdn: {
                 content: getEmptyStrIfNull(InstdRmbrsmntAgtAcct?.Id?.IBAN),
-                number: "1"
+                number: NUMBER1
             },
             IdnCd: {
                 content: getEmptyStrIfNull(InstdRmbrsmntAgt.FinInstnId?.BICFI),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -296,7 +296,7 @@ returns swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? {
             PrtyIdn: (()),
             Lctn: {
                 content: getEmptyStrIfNull(InstdRmbrsmntAgt.FinInstnId?.Nm),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -333,15 +333,15 @@ returns swiftmt:MT55A?|swiftmt:MT55B?|swiftmt:MT55D? {
             name: "55A",
             PrtyIdnTyp: {
                 content: getEmptyStrIfNull(ThirdRmbrsmntAgtAcct?.Id?.Othr?.SchmeNm?.Cd),
-                number: "1"
+                number: NUMBER1
             },
             PrtyIdn: {
                 content: getEmptyStrIfNull(ThirdRmbrsmntAgtAcct?.Id?.IBAN),
-                number: "1"
+                number: NUMBER1
             },
             IdnCd: {
                 content: getEmptyStrIfNull(ThirdRmbrsmntAgt.FinInstnId?.BICFI),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -352,7 +352,7 @@ returns swiftmt:MT55A?|swiftmt:MT55B?|swiftmt:MT55D? {
             PrtyIdn: (),
             Lctn: {
                 content: getEmptyStrIfNull(ThirdRmbrsmntAgt.FinInstnId?.Nm),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -387,10 +387,10 @@ isolated function getMT103AccountWithInstitutionFromPacs008Document(
     if creditorAgent.FinInstnId?.BICFI != () {
         string bicfi = getEmptyStrIfNull(creditorAgent.FinInstnId?.BICFI);
         return <swiftmt:MT57A>{
-            name: "57A",
+            name: MT57A_NAME,
             IdnCd: {
                 content: bicfi,
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -399,16 +399,16 @@ isolated function getMT103AccountWithInstitutionFromPacs008Document(
             name: "57B",
             Lctn: {
                 content: getEmptyStrIfNull(creditorAgent.FinInstnId?.Nm),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
     if creditorAgent.FinInstnId?.Othr?.Id != () {
         return <swiftmt:MT57C>{
-            name: "57C",
+            name: MT57C_NAME,
             PrtyIdn: {
                 content: getEmptyStrIfNull(creditorAgent.FinInstnId?.Othr?.Id),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -459,7 +459,7 @@ isolated function getMT103IntermediaryInstitutionFromPacs008Document(
                 name: "56A",
                 IdnCd: {
                     content: identifier,
-                    number: "1"
+                    number: NUMBER1
                 }
             };
         }
@@ -468,7 +468,7 @@ isolated function getMT103IntermediaryInstitutionFromPacs008Document(
             name: "56A",
             IdnCd: {
                 content: identifier,
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -479,7 +479,7 @@ isolated function getMT103IntermediaryInstitutionFromPacs008Document(
             name: "56C",
             PrtyIdn: {
                 content: identifier,
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -488,7 +488,7 @@ isolated function getMT103IntermediaryInstitutionFromPacs008Document(
             name: "56D",
             PrtyIdn: {
                 content: getEmptyStrIfNull(intrmyAgt.FinInstnId.Othr?.Id),
-                number: "1"
+                number: NUMBER1
             },
             Nm: getNamesArrayFromNameString(getEmptyStrIfNull(intrmyAgt.FinInstnId.Nm)),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>intrmyAgt.FinInstnId.PstlAdr?.AdrLine)
@@ -519,23 +519,23 @@ isolated function getBeneficiaryCustomerFromPacs008Document(
 
         if creditorAccount?.Id != () {
             return <swiftmt:MT59A>{
-                name: "59A",
+                name: MT56A_NAME,
                 IdnCd: {
                     content: anyBIC,
-                    number: "1"
+                    number: NUMBER1
                 },
                 Acc: {
                     content: getEmptyStrIfNull(creditorAccount?.Id),
-                    number: "2"
+                    number: NUMBER2
                 }
             };
         }
 
         return <swiftmt:MT59A>{
-            name: "59A",
+            name: MT56A_NAME,
             IdnCd: {
                 content: anyBIC,
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -548,16 +548,16 @@ isolated function getBeneficiaryCustomerFromPacs008Document(
                 : "/NOTPROVIDED";
 
             return <swiftmt:MT59F>{
-                name: "59F",
+                name: MT56F_NAME,
                 Acc: {
                     content: partyIdentifier,
-                    number: "1"
+                    number: NUMBER1
                 },
                 CdTyp: [],
                 Nm: [
                     {
                         content: getEmptyStrIfNull(creditor.Nm),
-                        number: "2"
+                        number: NUMBER2
                     }
                 ],
                 AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditor.PstlAdr?.AdrLine),

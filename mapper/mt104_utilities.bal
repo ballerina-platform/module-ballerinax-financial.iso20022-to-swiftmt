@@ -36,7 +36,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
             name: "50C",
             IdnCd: {
                 content: instructingParty.Id?.OrgId?.AnyBIC.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     } else if !(otherIds is ()) && otherIds.length() > 0 {
@@ -44,7 +44,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
             name: "50L",
             PrtyIdn: {
                 content: otherIds[0].Id.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -70,7 +70,7 @@ returns swiftmt:MT50A?|swiftmt:MT50K? {
             name: "50A",
             IdnCd: {
                 content: creditor.Id?.OrgId?.AnyBIC.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     } else if creditor.Nm != () || (!(AdrLine is ()) && AdrLine.length() > 0) {
@@ -98,10 +98,10 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
 
     if creditorsBank.FinInstnId?.BICFI != () {
         return <swiftmt:MT52A>{
-            name: "52A",
+            name: MT52A_NAME,
             IdnCd: {
                 content: creditorsBank.FinInstnId?.BICFI.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -110,7 +110,7 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
             name: "52C",
             PrtyIdn: {
                 content: creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -138,18 +138,18 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
     }
     if dbtrAgt.FinInstnId?.BICFI != () {
         return <swiftmt:MT57A>{
-            name: "57A",
+            name: MT57A_NAME,
             IdnCd: {
                 content: dbtrAgt.FinInstnId.BICFI.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     } else if dbtrAgt.FinInstnId?.ClrSysMmbId?.MmbId != () {
         return <swiftmt:MT57C>{
-            name: "57C",
+            name: MT57C_NAME,
             PrtyIdn: {
                 content: dbtrAgt.FinInstnId.ClrSysMmbId?.MmbId.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     } else if dbtrAgt.FinInstnId?.Othr?.Id != () {
@@ -157,7 +157,7 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
             name: "57D",
             PrtyIdn: {
                 content: dbtrAgt.FinInstnId.Othr?.Id.toString(),
-                number: "1"
+                number: NUMBER1
             },
             Nm: getNamesArrayFromNameString(dbtrAgt.FinInstnId.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>dbtrAgt.FinInstnId.PstlAdr?.AdrLine)
@@ -180,10 +180,10 @@ returns swiftmt:MT59?|swiftmt:MT59A? {
     }
     if debtor.Id?.OrgId?.AnyBIC != () {
         return <swiftmt:MT59A>{
-            name: "59A",
+            name: MT56A_NAME,
             IdnCd: {
                 content: debtor.Id?.OrgId?.AnyBIC.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -215,7 +215,7 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
             name: "53A",
             IdnCd: {
                 content: sendersCorrespondent.FinInstnId.BICFI.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -224,7 +224,7 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
             name: "53B",
             Lctn: {
                 content: sendersCorrespondent.FinInstnId.PstlAdr?.TwnNm.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -270,7 +270,7 @@ function getMT72Narrative(pacsIsoRecord:DirectDebitTransactionInformation31 docu
         name: "72",
         Cd: {
             content: narrative,
-            number: "1"
+            number: NUMBER1
         }
     };
 }
@@ -317,7 +317,7 @@ isolated function getMT77BRegulatoryReporting(pacsIsoRecord:RegulatoryReporting3
         name: "77B",
         Nrtv: {
             content: narrative,
-            number: "1"
+            number: NUMBER1
         }
     };
 }
@@ -343,7 +343,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
             name: "50C",
             IdnCd: {
                 content: finInstId.BICFI.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -352,7 +352,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
             name: "50L",
             PrtyIdn: {
                 content: finInstId.Othr?.Id.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -378,7 +378,7 @@ returns swiftmt:MT50A?|swiftmt:MT50K? {
             name: "50A",
             IdnCd: {
                 content: creditor.Id?.OrgId?.AnyBIC.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     } else if creditor.Nm != () || (!(AdrLine is ()) && AdrLine.length() > 0) {
@@ -410,10 +410,10 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
     }
     if finInstId.BICFI != () {
         return <swiftmt:MT52A>{
-            name: "52A",
+            name: MT52A_NAME,
             IdnCd: {
                 content: finInstId.BICFI.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     } else if finInstId.ClrSysMmbId?.MmbId != () {
@@ -421,7 +421,7 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
             name: "52C",
             PrtyIdn: {
                 content: finInstId.ClrSysMmbId?.MmbId.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     } else if finInstId.Othr?.Id != () {
@@ -429,7 +429,7 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
             name: "52D",
             PrtyIdn: {
                 content: finInstId.Othr?.Id.toString(),
-                number: "1"
+                number: NUMBER1
             },
             Nm: getNamesArrayFromNameString(finInstId.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>finInstId.PstlAdr?.AdrLine)
@@ -457,18 +457,18 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
     }
     if finInstId.BICFI != () {
         return <swiftmt:MT57A>{
-            name: "57A",
+            name: MT57A_NAME,
             IdnCd: {
                 content: finInstId.BICFI.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     } else if finInstId.ClrSysMmbId?.MmbId != () {
         return <swiftmt:MT57C>{
-            name: "57C",
+            name: MT57C_NAME,
             PrtyIdn: {
                 content: finInstId.ClrSysMmbId?.MmbId.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     } else if finInstId.Othr?.Id != () {
@@ -476,7 +476,7 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
             name: "57D",
             PrtyIdn: {
                 content: finInstId.Othr?.Id.toString(),
-                number: "1"
+                number: NUMBER1
             },
             Nm: getNamesArrayFromNameString(finInstId.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>finInstId.PstlAdr?.AdrLine)
@@ -500,10 +500,10 @@ returns swiftmt:MT59?|swiftmt:MT59A? {
 
     if debtor.Id?.OrgId?.AnyBIC != () {
         return <swiftmt:MT59A>{
-            name: "59A",
+            name: MT56A_NAME,
             IdnCd: {
                 content: debtor.Id?.OrgId?.AnyBIC.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -540,7 +540,7 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
             name: "53A",
             IdnCd: {
                 content: finInstId.BICFI.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -550,7 +550,7 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
             name: "53B",
             Lctn: {
                 content: finInstId.PstlAdr?.TwnNm.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }

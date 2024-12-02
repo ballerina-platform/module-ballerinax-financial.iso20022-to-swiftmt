@@ -34,7 +34,7 @@ isolated function getMT107InstructionPartyFromPacs003Document(
             name: "50C",
             IdnCd: {
                 content: instructingParty.FinInstnId.BICFI.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     } else if instructingParty.FinInstnId.Othr?.Id is string {
@@ -42,7 +42,7 @@ isolated function getMT107InstructionPartyFromPacs003Document(
             name: "50L",
             PrtyIdn: {
                 content: instructingParty.FinInstnId.Othr?.Id.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -63,7 +63,7 @@ isolated function getMT107CreditorFromPacs003Document(
             name: "50A",
             IdnCd: {
                 content: creditor.Id?.OrgId?.AnyBIC.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     } else if creditor.Nm is string || creditor.PstlAdr?.AdrLine is string[] {
@@ -71,7 +71,7 @@ isolated function getMT107CreditorFromPacs003Document(
             name: "50K",
             Acc: {
                 content: (<pacsIsoRecord:GenericOrganisationIdentification3>getFirstElementFromArray(creditor.Id?.PrvtId?.Othr))?.Id.toString(),
-                number: "1"
+                number: NUMBER1
             },
             Nm: getNamesArrayFromNameString(creditor.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditor.PstlAdr?.AdrLine)
@@ -94,18 +94,18 @@ isolated function getMT107CreditorsBankFromPacs003Document(
 
     if creditorsBank.FinInstnId?.BICFI is string {
         return <swiftmt:MT52A>{
-            name: "52A",
+            name: MT52A_NAME,
             IdnCd: {
                 content: creditorsBank.FinInstnId.BICFI.toString(),
-                number: "1"
+                number: NUMBER1
             },
             PrtyIdnTyp: {
                 content: creditorsBank.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd.toString(),
-                number: "1"
+                number: NUMBER1
             },
             PrtyIdn: {
                 content: creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -114,7 +114,7 @@ isolated function getMT107CreditorsBankFromPacs003Document(
             name: "52C",
             PrtyIdn: {
                 content: creditorsBank.FinInstnId.ClrSysMmbId?.MmbId.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
@@ -123,11 +123,11 @@ isolated function getMT107CreditorsBankFromPacs003Document(
             name: "52D",
             PrtyIdn: {
                 content: creditorsBank.FinInstnId?.Othr?.Id.toString(),
-                number: "1"
+                number: NUMBER1
             },
             PrtyIdnTyp: {
                 content: creditorsBank.FinInstnId?.Othr?.SchmeNm?.Cd.toString(),
-                number: "1"
+                number: NUMBER1
             },
             Nm: getNamesArrayFromNameString(creditorsBank.FinInstnId.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditorsBank.FinInstnId.PstlAdr?.AdrLine)
@@ -156,15 +156,15 @@ isolated function getMT107SendersCorrespondentFromPacs003Document(
             name: "53A",
             IdnCd: {
                 content: sendersCorrespondent.FinInstnId.BICFI.toString(),
-                number: "1"
+                number: NUMBER1
             },
             PrtyIdnTyp: sendersCorrespondent.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd is string ? {
                     content: sendersCorrespondent.FinInstnId.ClrSysMmbId?.ClrSysId?.Cd.toString(),
-                    number: "1"
+                    number: NUMBER1
                 } : (),
             PrtyIdn: sendersCorrespondent.FinInstnId?.ClrSysMmbId?.MmbId is string ? {
                     content: sendersCorrespondent.FinInstnId.ClrSysMmbId?.MmbId.toString(),
-                    number: "1"
+                    number: NUMBER1
                 } : ()
         };
     }
@@ -173,15 +173,15 @@ isolated function getMT107SendersCorrespondentFromPacs003Document(
             name: "53B",
             PrtyIdn: sendersCorrespondent.FinInstnId?.ClrSysMmbId?.MmbId is string ? {
                     content: sendersCorrespondent.FinInstnId.ClrSysMmbId?.MmbId.toString(),
-                    number: "1"
+                    number: NUMBER1
                 } : (),
             PrtyIdnTyp: sendersCorrespondent.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd is string ? {
                     content: sendersCorrespondent.FinInstnId.ClrSysMmbId?.ClrSysId?.Cd.toString(),
-                    number: "1"
+                    number: NUMBER1
                 } : (),
             Lctn: {
                 content: sendersCorrespondent.FinInstnId.Nm.toString(),
-                number: "1"
+                number: NUMBER1
             }
         };
     }
