@@ -311,7 +311,6 @@ function testTransformPacs003DocumenttoMT104() returns error? {
 ""}BE</Ctry><Cd>ORDERRES</Cd><Inf>MEILAAN 1, 9000 GENT</Inf></Dtls></RgltryRptg><RmtInf><Ustrd/></RmtInf></DrctDbtTxInf></FIToFICstmrDrctDbt></Document>`;
 
     pacsIsoRecord:Pacs003Document pacs003Message = check xmldata:parseAsType(documentXML);
-
     swiftmt:MT104Message|error mt104Message = transformPacs003DocumentToMT104(pacs003Message);
 
     if (mt104Message is swiftmt:MT104Message) {
@@ -339,7 +338,6 @@ function testTransformPacs003DocumenttoMT107() returns error? {
 ""}BE</Ctry><Cd>ORDERRES</Cd><Inf>MEILAAN 1, 9000 GENT</Inf></Dtls></RgltryRptg><RmtInf><Ustrd/></RmtInf></DrctDbtTxInf></FIToFICstmrDrctDbt></Document>`;
 
     pacsIsoRecord:Pacs003Document pacs003Message = check xmldata:parseAsType(documentXML);
-
     swiftmt:MT107Message|error mt107Message = transformPacs003DocumentToMT107(pacs003Message);
 
     if (mt107Message is swiftmt:MT107Message) {
@@ -415,7 +413,6 @@ function testTransformCamt056DocumenttoMT192() returns error? {
     </Document>`;
 
     camtIsoRecord:Camt056Document camt056Message = check xmldata:parseAsType(documentXML);
-
     swiftmt:MTn92Message|error mt192Message = transformCamt056ToMT192(camt056Message);
 
     if (mt192Message is swiftmt:MTn92Message) {
@@ -502,7 +499,6 @@ function testTransformCamt055DocumenttoMT192() returns error? {
     </Document>`;
 
     camtIsoRecord:Camt055Document camt055Message = check xmldata:parseAsType(documentXML);
-
     swiftmt:MTn92Message|error mt192Message = transformCamt055ToMT192(camt055Message);
 
     if (mt192Message is swiftmt:MTn92Message) {
@@ -554,7 +550,6 @@ function testTransformCamt031DocumenttoMT196() returns error? {
     </Document>`;
 
     camtIsoRecord:Camt031Document camt031Message = check xmldata:parseAsType(documentXML);
-
     swiftmt:MTn96Message|error mt196Message = transformCamt031ToMT196(camt031Message);
 
     if (mt196Message is swiftmt:MTn96Message) {
@@ -649,7 +644,6 @@ function testTransformCamt028DocumenttoMT196() returns error? {
     </Document>`;
 
     camtIsoRecord:Camt028Document camt028Message = check xmldata:parseAsType(documentXML);
-
     swiftmt:MTn96Message|error mt196Message = transformCamt028ToMT196(camt028Message);
 
     if (mt196Message is swiftmt:MTn96Message) {
@@ -718,7 +712,6 @@ function testTransformCamt026DocumenttoMT195() returns error? {
     </Document>`;
 
     camtIsoRecord:Camt026Document camt026Message = check xmldata:parseAsType(documentXML);
-
     swiftmt:MTn95Message|error mt195Message = transformCamt026ToMT195(camt026Message);
 
     if (mt195Message is swiftmt:MTn95Message) {
@@ -727,4 +720,3 @@ function testTransformCamt026DocumenttoMT195() returns error? {
         test:assertFail("Error occurred while transforming Camt026 to MT195");
     }
 }
-
