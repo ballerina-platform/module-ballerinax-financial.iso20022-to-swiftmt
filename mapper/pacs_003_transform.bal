@@ -181,6 +181,9 @@ isolated function createMT104TransactionsFromPacs003(
     return transactions;
 }
 
+# Tranform the given ISO 20022 Pacs.003 document to its corresponding SWIFT MT107 format.
+# + document - The Pacs003Document as an input
+# + return - The transformed SWIFT MT107 message or an error if the transformation fails
 function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document) returns swiftmt:MT107Message|error => let
     swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT107InstructionPartyFromPacs003Document(document),
     swiftmt:MT50A?|swiftmt:MT50K? creditor = getMT107CreditorFromPacs003Document(document),
@@ -285,6 +288,12 @@ function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document)
         block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrDrctDbt.SplmtryData)
     };
 
+# Create the MT107 transactions from the Pacs003 document's direct debit transaction information.
+# + drctDbtTxInf - Array of DirectDebitTransactionInformation31 from Pacs003 document
+# + instructingParty - The instructing party information
+# + creditor - The creditor information
+# + creditorsBank - The creditor's bank information
+# + return - Array of MT107 transactions or an error
 isolated function createMT107TransactionsFromPacs003(
         pacsIsoRecord:DirectDebitTransactionInformation31[] drctDbtTxInf,
         swiftmt:MT50C?|swiftmt:MT50L? instructingParty,
