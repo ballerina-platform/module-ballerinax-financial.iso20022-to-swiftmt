@@ -28,58 +28,58 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document)
     swiftmt:MT53A?|swiftmt:MT53B? sendersCorrespondent = getMT104SendersCorrespondentFromPain008Document(document),
     swiftmt:MT104Transaction[] transactions = check createMT104Transactions(document.CstmrDrctDbtInitn.PmtInf, instructingParty, creditor, creditorsBank)
     in {
-        block1: check createMtBlock1FromSupplementaryData(document.CstmrDrctDbtInitn.SplmtryData),
-        block2: check createMtBlock2("104", document.CstmrDrctDbtInitn.SplmtryData, document.CstmrDrctDbtInitn.GrpHdr.CreDtTm),
-        block3: check createMtBlock3(document.CstmrDrctDbtInitn.SplmtryData, document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId.UETR, ""),
+        block1: check generateMtBlock1FromSupplementaryData(document.CstmrDrctDbtInitn.SplmtryData), // TODO - Add correct mapping
+        block2: check generateMtBlock2(MESSAGETYPE_104, document.CstmrDrctDbtInitn.GrpHdr.CreDtTm), // TODO - Add correct mapping
+        block3: check generateMtBlock3(document.CstmrDrctDbtInitn.SplmtryData, document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId.UETR, EMPTY_STRING), // TODO - Add correct mapping
         block4: {
             MT19: {
-                name: "19",
+                name: MT19_NAME,
                 Amnt: {
                     content: document.CstmrDrctDbtInitn.GrpHdr.CtrlSum.toString(),
-                    number: "1"
+                    number: NUMBER1
                 }
             },
             MT20: {
-                name: "20",
+                name: MT20_NAME,
                 msgId: {
                     content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId.InstrId),
-                    number: "1"
+                    number: NUMBER1
                 }
             },
             MT21R: {
-                name: "21R",
+                name: MT21R_NAME,
                 Ref: {
-                    content: "",
-                    number: "1"
+                    content: EMPTY_STRING,
+                    number: NUMBER1
                 }
             },
             MT23E: {
-                name: "23E",
+                name: MT23E_NAME,
                 InstrnCd: {
                     content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.PmtInf[0].PmtTpInf?.CtgyPurp?.Cd),
-                    number: "1"
+                    number: NUMBER1
                 }
             },
             MT21E: {
-                name: "21E",
+                name: MT21E_NAME,
                 Ref: {
                     content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.GrpHdr.MsgId),
-                    number: "1"
+                    number: NUMBER1
                 }
             },
             MT30: {
-                name: "30",
-                Dt: check convertISODateStringToSwiftMtDate(document.CstmrDrctDbtInitn.PmtInf[0].ReqdColltnDt, "1")
+                name: MT30_NAME,
+                Dt: check convertISODateStringToSwiftMtDate(document.CstmrDrctDbtInitn.PmtInf[0].ReqdColltnDt, NUMBER1)
             },
             MT51A: {
-                name: "51A",
+                name: MT51A_NAME,
                 IdnCd: {
                     content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.GrpHdr.FwdgAgt?.FinInstnId?.BICFI),
-                    number: "1"
+                    number: NUMBER1
                 },
                 PrtyIdn: {
                     content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.GrpHdr.FwdgAgt?.FinInstnId?.LEI),
-                    number: "2"
+                    number: NUMBER2
                 }
             },
             MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
@@ -90,41 +90,41 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document)
             MT52C: creditorsBank is swiftmt:MT52C ? creditorsBank : (),
             MT52D: creditorsBank is swiftmt:MT52D ? creditorsBank : (),
             MT26T: {
-                name: "26T",
-                Typ: {content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].Purp?.Cd), number: "1"}
+                name: MT26T_NAME,
+                Typ: {content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].Purp?.Cd), number: NUMBER1}
             },
             MT77B: {
-                name: "77B",
-                Nrtv: {content: "", number: ""}
+                name: MT77B_NAME,
+                Nrtv: {content: EMPTY_STRING, number: EMPTY_STRING}
             },
             MT71A: {
-                name: "71A",
+                name: MT71A_NAME,
                 Cd: getDetailsOfChargesFromChargeBearerType1Code(document.CstmrDrctDbtInitn.PmtInf[0].ChrgBr)
             },
             MT72: {
-                name: "72",
-                Cd: {content: "", number: "1"}
+                name: MT72_NAME,
+                Cd: {content: EMPTY_STRING, number: NUMBER1}
             },
             MT32B: {
-                name: "32B",
-                Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: "1"},
-                Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: "2"}
+                name: MT32B_NAME,
+                Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: NUMBER1},
+                Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: NUMBER2}
             },
             MT71F: {
-                name: "71F",
-                Ccy: {content: "", number: "1"},
-                Amnt: {content: "", number: "2"}
+                name: MT71F_NAME,
+                Ccy: {content: EMPTY_STRING, number: NUMBER1},
+                Amnt: {content: EMPTY_STRING, number: NUMBER2}
             },
             MT71G: {
-                name: "71G",
-                Ccy: {content: "", number: "1"},
-                Amnt: {content: "", number: "2"}
+                name: MT71G_NAME,
+                Ccy: {content: EMPTY_STRING, number: NUMBER1},
+                Amnt: {content: EMPTY_STRING, number: NUMBER2}
             },
             MT53A: sendersCorrespondent is swiftmt:MT53A ? sendersCorrespondent : (),
             MT53B: sendersCorrespondent is swiftmt:MT53B ? sendersCorrespondent : (),
             Transaction: transactions
         },
-        block5: check createMtBlock5FromSupplementaryData(document.CstmrDrctDbtInitn.SplmtryData)
+        block5: check generateMtBlock5FromSupplementaryData(document.CstmrDrctDbtInitn.SplmtryData)
     };
 
 # Create the MT104 transactions from the Pain008 document
@@ -143,39 +143,23 @@ isolated function createMT104Transactions(
     swiftmt:MT104Transaction[] transactions = [];
     foreach painIsoRecord:PaymentInstruction45 mxTransaction in mxTransactions {
         swiftmt:MT21 MT21 = {
-            name: "21",
+            name: MT21_NAME,
             Ref: {
                 content: getEmptyStrIfNull(mxTransaction.PmtInfId),
-                number: "1"
+                number: NUMBER1
             }
         };
 
         swiftmt:MT23E MT23E = {
-            name: "23E",
+            name: MT23E_NAME,
             InstrnCd: {content: getEmptyStrIfNull(mxTransaction.PmtTpInf?.CtgyPurp?.Cd), number: "1"}
         };
 
         swiftmt:MT21C MT21C = {
-            name: "21C",
+            name: MT21_NAME,
             Ref: {
                 content: getEmptyStrIfNull(mxTransaction.DrctDbtTxInf[0].DrctDbtTx?.MndtRltdInf?.MndtId),
-                number: "1"
-            }
-        };
-
-        swiftmt:MT21D MT21D = {
-            name: "21D",
-            Ref: {
-                content: "",
-                number: "1"
-            }
-        };
-
-        swiftmt:MT21E MT21E = {
-            name: "21E",
-            Ref: {
-                content: "",
-                number: "1"
+                number: NUMBER1
             }
         };
 
@@ -204,55 +188,26 @@ isolated function createMT104Transactions(
         swiftmt:MT59? MT59 = debtor is swiftmt:MT59 ? debtor : ();
         swiftmt:MT59A? MT59A = debtor is swiftmt:MT59A ? debtor : ();
 
-        swiftmt:MT70 MT70 = {
-            name: "70",
-            Nrtv: {content: "", number: "1"}
-        };
-
         swiftmt:MT26T MT26T = {
-            name: "26T",
+            name: MT26T_NAME,
             Typ: {content: getEmptyStrIfNull(mxTransaction.DrctDbtTxInf[0].Purp?.Cd), number: "1"}
         };
 
-        swiftmt:MT77B MT77B = {
-            name: "77B",
-            Nrtv: {content: "", number: "1"}
-        };
-
         swiftmt:MT33B MT33B = {
-            name: "33B",
+            name: MT33B_NAME,
             Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: "1"},
             Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: "2"}
         };
 
         swiftmt:MT71A MT71A = {
-            name: "71A",
+            name: MT71A_NAME,
             Cd: getDetailsOfChargesFromChargeBearerType1Code(mxTransaction.ChrgBr)
-        };
-
-        swiftmt:MT71F MT71F = {
-            name: "71F",
-            Ccy: {content: "", number: "1"},
-            Amnt: {content: "", number: "2"}
-        };
-
-        swiftmt:MT71G MT71G = {
-            name: "71G",
-            Ccy: {content: "", number: "1"},
-            Amnt: {content: "", number: "2"}
-        };
-
-        swiftmt:MT36 MT36 = {
-            name: "36",
-            Rt: {content: "", number: "1"}
         };
 
         transactions.push({
             MT21,
             MT23E,
             MT21C,
-            MT21D,
-            MT21E,
             MT32B,
             MT50C,
             MT50L,
@@ -266,14 +221,9 @@ isolated function createMT104Transactions(
             MT57D,
             MT59,
             MT59A,
-            MT70,
             MT26T,
-            MT77B,
             MT33B,
-            MT71A,
-            MT71F,
-            MT71G,
-            MT36
+            MT71A
         });
 
     }

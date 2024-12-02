@@ -21,12 +21,13 @@ import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
 import ballerinax/financial.iso20022.payments_clearing_and_settlement as pacsIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
+// TODO: Add the necessary functions to map the MX messages to the MT messages.
 # Create the block 1 of the MT message from the supplementary data of the MX message.
 # Currently, this function extracts logical terminal and sequence information from supplementary data.
 #
 # + supplementaryData - The supplementary data of the MX message
 # + return - The block 1 of the MT message or an error if the block 1 cannot be created
-isolated function createMtBlock1FromSupplementaryData(painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block1?|error {
+isolated function generateMtBlock1FromSupplementaryData(painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block1?|error {
     if supplementaryData is painIsoRecord:SupplementaryData1[] {
         string? logicalTerminal = ();
         string? sessionNumber = ();
@@ -56,13 +57,14 @@ isolated function createMtBlock1FromSupplementaryData(painIsoRecord:Supplementar
     return ();
 }
 
+// TODO Add the necessary functions to map the MX messages to the MT messages.
 # Create the block 2 of the MT message from the supplementary data of the MX message
 # Currently, this function extracts the message type from the supplementary data if it is not provided directly.
 #
 # + mtMessageId - The message type of the MT message
 # + supplementaryData - The supplementary data of the MX message
 # + return - The block 2 of the MT message or an error if the block 2 cannot be created
-isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block2|error {
+isolated function generateMtBlock2FromSupplementaryData(string? mtMessageId, painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block2|error {
     string messageType = "";
 
     if (mtMessageId != ()) {
@@ -87,6 +89,7 @@ isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, painI
     return result;
 }
 
+// TODO Add the necessary functions to map the MX messages to the MT messages.
 # Create the block 2 of the MT message from the supplementary data of the MX message
 # Currently, this function extracts the message type from the supplementary data if it is not provided directly.
 #
@@ -94,19 +97,8 @@ isolated function createMtBlock2FromSupplementaryData(string? mtMessageId, painI
 # + supplementaryData - The supplementary data of the MX message
 # + isoDateTime - The ISO date time of the MT message
 # + return - The block 2 of the MT message or an error if the block 2 cannot be created
-isolated function createMtBlock2(string? mtMessageId, painIsoRecord:SupplementaryData1[]? supplementaryData, painIsoRecord:ISODateTime? isoDateTime) returns swiftmt:Block2|error {
-    string messageType = "";
-
-    if (mtMessageId != ()) {
-        messageType = mtMessageId.toString();
-    } else if (supplementaryData != ()) {
-        foreach var data in supplementaryData {
-            if (data.Envlp.hasKey("MessageType")) {
-                messageType = data.Envlp["MessageType"].toString();
-                break;
-            }
-        }
-    }
+isolated function generateMtBlock2(string? mtMessageId, painIsoRecord:ISODateTime? isoDateTime) returns swiftmt:Block2|error {
+    string messageType = mtMessageId.toString();
 
     if (messageType == "") {
         return error("Failed to identify the message type");
@@ -123,6 +115,7 @@ isolated function createMtBlock2(string? mtMessageId, painIsoRecord:Supplementar
     return result;
 }
 
+// TODO Add the necessary functions to map the MX messages to the MT messages.
 # Create the block 3 of the MT message from the supplementary data of the MX message
 # Currently, this function is empty, but if we decide to add any logic to create the block 3 from the supplementary data,
 #
@@ -130,7 +123,7 @@ isolated function createMtBlock2(string? mtMessageId, painIsoRecord:Supplementar
 # + uetr - The unique end-to-end transaction reference
 # + validationFlag - The validation flag
 # + return - The block 3 of the MT message or an error if the block 3 cannot be created
-isolated function createMtBlock3(painIsoRecord:SupplementaryData1[]? supplementaryData, painIsoRecord:UUIDv4Identifier? uetr, string validationFlag) returns swiftmt:Block3?|error {
+isolated function generateMtBlock3(painIsoRecord:SupplementaryData1[]? supplementaryData, painIsoRecord:UUIDv4Identifier? uetr, string validationFlag) returns swiftmt:Block3?|error {
 
     if uetr == () {
         return ();
@@ -147,15 +140,19 @@ isolated function createMtBlock3(painIsoRecord:SupplementaryData1[]? supplementa
     return result;
 }
 
+// TODO Add the necessary functions to map the MX messages to the MT messages.
 # Create the block 5 of the MT message from the supplementary data of the MX message
 # Currently, this function is empty, but if we decide to add any logic to create the block 5 from the supplementary data,
 #
 # + supplementaryData - The supplementary data of the MX message
 # + return - The block 5 of the MT message or an error if the block 5 cannot be created
-isolated function createMtBlock5FromSupplementaryData(painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block5?|error {
+isolated function generateMtBlock5FromSupplementaryData(painIsoRecord:SupplementaryData1[]? supplementaryData) returns swiftmt:Block5?|error {
     return ();
 }
 
+# Convert the MX payment amount 
+# + paymentTypeInformation - The payment type information from the MX message
+# + return - The MT103 message or an error if the conversion fails
 isolated function getActiveOrHistoricCurrencyAndAmountCcy(painIsoRecord:ActiveOrHistoricCurrencyAndAmount? ccyAndAmount) returns string {
     if (ccyAndAmount == ()) {
         return "";
@@ -164,6 +161,9 @@ isolated function getActiveOrHistoricCurrencyAndAmountCcy(painIsoRecord:ActiveOr
     return ccyAndAmount.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy.toString();
 }
 
+# Convert the MX payment amount
+# + paymentTypeInformation - The payment type information from the MX message
+# + return - The MT103 message or an error if the conversion fails
 isolated function getActiveOrHistoricCurrencyAndAmountValue(painIsoRecord:ActiveOrHistoricCurrencyAndAmount? ccyAndAmount) returns string {
     if (ccyAndAmount == ()) {
         return "";
@@ -644,23 +644,15 @@ isolated function extractNarrativeFromCancellationReason(camtIsoRecord:CustomerP
 # + InstgAgt - The instructing agent details.
 # + InstdAgt - The instructed agent details.
 # + return - Returns the constructed Block 1 of the MT message or null if it cannot be created.
-isolated function createBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstgAgt, camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstdAgt) returns swiftmt:Block1?|error {
+isolated function generateBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstgAgt, camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstdAgt) returns swiftmt:Block1?|error {
     if (InstgAgt == () && InstdAgt == ()) || InstgAgt?.FinInstnId?.BICFI.toString().length() < 8 || InstdAgt?.FinInstnId?.BICFI.toString().length() < 8 {
         return ();
     }
     string? instgAgtLogicalTerminal = InstgAgt?.FinInstnId?.BICFI.toString().substring(0, 8);
     string? instdAgtLogicalTerminal = InstdAgt?.FinInstnId?.BICFI.toString().substring(0, 8);
     string logicalTerminal = instgAgtLogicalTerminal ?: instdAgtLogicalTerminal ?: "DEFAULTLT";
-    string applicationId = "F";
-    string serviceId = "01";
-    string sessionNumber = "0000";
-    string sequenceNumber = "000000";
     return {
-        applicationId: applicationId,
-        serviceId: serviceId,
-        logicalTerminal: logicalTerminal,
-        sessionNumber: sessionNumber,
-        sequenceNumber: sequenceNumber
+        logicalTerminal: logicalTerminal
     };
 }
 
@@ -668,23 +660,15 @@ isolated function createBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAndFin
 #
 # + Assgnmt - The assignment details containing Assgne and Assgnr fields.
 # + return - Returns the constructed Block 1 of the MT message or null if it cannot be created.
-isolated function createBlock1FromAssgnmt(camtIsoRecord:CaseAssignment6? Assgnmt) returns swiftmt:Block1?|error {
+isolated function generateBlock1FromAssgnmt(camtIsoRecord:CaseAssignment6? Assgnmt) returns swiftmt:Block1?|error {
     if (Assgnmt == ()) {
         return ();
     }
     string? assgneBIC = Assgnmt?.Assgne?.Agt?.FinInstnId?.BICFI;
     string? assgnrBIC = Assgnmt?.Assgnr?.Agt?.FinInstnId?.BICFI;
     string logicalTerminal = assgnrBIC ?: assgneBIC ?: "DEFAULTLT";
-    string applicationId = "F";
-    string serviceId = "01";
-    string sessionNumber = "0000";
-    string sequenceNumber = "000000";
     return {
-        applicationId: applicationId,
-        serviceId: serviceId,
-        logicalTerminal: logicalTerminal.substring(0, 8),
-        sessionNumber: sessionNumber,
-        sequenceNumber: sequenceNumber
+        logicalTerminal: logicalTerminal.substring(0, 8)
     };
 }
 

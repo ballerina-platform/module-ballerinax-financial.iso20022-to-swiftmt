@@ -27,13 +27,12 @@ isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document
     camtIsoRecord:PaymentTransaction155 txInf0 = txInf[0]
     in {
 
-        block1: check createBlock1FromAssgnmt(document.FIToFIPmtCxlReq.Assgnmt),
-        block2: check createMtBlock2(
-                "192",
-                document.FIToFIPmtCxlReq.SplmtryData,
+        block1: check generateBlock1FromAssgnmt(document.FIToFIPmtCxlReq.Assgnmt),
+        block2: check generateMtBlock2(
+                MESSAGETYPE_192,
                 document.FIToFIPmtCxlReq.Assgnmt.CreDtTm
         ),
-        block3: check createMtBlock3(
+        block3: check generateMtBlock3(
                 document.FIToFIPmtCxlReq.SplmtryData,
                 (),
                 ""
@@ -41,10 +40,10 @@ isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document
         block4: {
             MT20: check getMT20(document.FIToFIPmtCxlReq.Case?.Id),
             MT21: {
-                name: "21",
+                name: MT21_NAME,
                 Ref: {
                     content: getOriginalInstructionOrUETR(document.FIToFIPmtCxlReq.Undrlyg),
-                    number: "1"
+                    number: NUMBER1
                 }
             },
             MT11S: check getMT11S(
@@ -52,17 +51,14 @@ isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document
                     document.FIToFIPmtCxlReq.Undrlyg[0].OrgnlGrpInfAndCxl?.OrgnlCreDtTm
                     ),
             MT79: {
-                name: "79",
+                name: MT79_NAME,
                 Nrtv: getNarrativeFromCancellationReason(document.FIToFIPmtCxlReq.Undrlyg)
             },
             MessageCopy: {
-                MT32A: check getMT32A(
-                                txInf0.OrgnlIntrBkSttlmAmt,
-                        txInf0.OrgnlIntrBkSttlmDt
-                        )
+                MT32A: check getMT32A(txInf0.OrgnlIntrBkSttlmAmt, txInf0.OrgnlIntrBkSttlmDt)
             }
         },
-        block5: check createMtBlock5FromSupplementaryData(
+        block5: check generateMtBlock5FromSupplementaryData(
                 document.FIToFIPmtCxlReq.SplmtryData
         )
     };

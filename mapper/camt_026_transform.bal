@@ -24,27 +24,27 @@ import ballerinax/financial.swift.mt as swiftmt;
 isolated function transformCamt026ToMT195(camtIsoRecord:Camt026Document document) returns swiftmt:MTn95Message|error => let
     camtIsoRecord:SupplementaryData1[]? splmtryData = document.UblToApply.SplmtryData
     in {
-        block1: check createBlock1FromAssgnmt(document.UblToApply.Assgnmt),
-        block2: check createMtBlock2("195", document.UblToApply.SplmtryData, document.UblToApply.Assgnmt.CreDtTm),
-        block3: check createMtBlock3(document.UblToApply.SplmtryData, (), ""),
+        block1: check generateBlock1FromAssgnmt(document.UblToApply.Assgnmt),
+        block2: check generateMtBlock2(MESSAGETYPE_195, document.UblToApply.Assgnmt.CreDtTm),
+        block3: check generateMtBlock3(document.UblToApply.SplmtryData, (), ""),
         block4: {
             MT20: check getMT20(document.UblToApply.Case?.Id),
             MT21: {
-                name: "21",
+                name: MT21_NAME,
                 Ref: {
                     content: document.UblToApply.Undrlyg.Initn?.OrgnlInstrId.toString(),
-                    number: "1"
+                    number: NUMBER1
                 }
             },
             MT75: {
-                name: "75",
+                name: MT75_NAME,
                 Nrtv: {
                     content: getConcatenatedQueries(document.UblToApply.Justfn.MssngOrIncrrctInf),
-                    number: "1"
+                    number: NUMBER1
                 }
             },
             MT79: {
-                name: "79",
+                name: MT79_NAME,
                 Nrtv: splmtryData is camtIsoRecord:SupplementaryData1[] &&
                             splmtryData.length() > 0 &&
                             splmtryData[0]?.Envlp?.CpOfOrgnlMsg is string
@@ -55,12 +55,12 @@ isolated function transformCamt026ToMT195(camtIsoRecord:Camt026Document document
                         splmtryData.length() > 0 &&
                         splmtryData[0].Envlp?.Nrtv is string
                 ? {
-                    name: "77A",
+                    name: MT77A_NAME,
                     Nrtv: formatNarrative(splmtryData[0].Envlp?.Nrtv)
                 }
                 : (),
             MessageCopy: ()
 
         },
-        block5: check createMtBlock5FromSupplementaryData(document.UblToApply.SplmtryData)
+        block5: check generateMtBlock5FromSupplementaryData(document.UblToApply.SplmtryData)
     };

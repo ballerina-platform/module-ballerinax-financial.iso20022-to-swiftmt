@@ -22,11 +22,11 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + document - The PACS008 document
 # + return - The MT102 message or an error if the transformation fails
 function transformPacs008DocumentToMT102(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT102Message|error => {
-    block1: check createBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
-    block2: check createMtBlock2("102", document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
-    block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, ""),
+    block1: check generateBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
+    block2: check generateMtBlock2(MESSAGETYPE_102, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
+    block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, ""),
     block4: <swiftmt:MT102Block4>check createMT102Block4(document, false),
-    block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
+    block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
 # Transforms a PACS008 document to an MT102STP message
@@ -34,11 +34,11 @@ function transformPacs008DocumentToMT102(pacsIsoRecord:Pacs008Document document)
 # + document - The PACS008 document
 # + return - The MT102STP message or an error if the transformation fails
 function transformPacs008DocumentToMT102STP(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT102STPMessage|error => {
-    block1: check createBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
-    block2: check createMtBlock2("102STP", document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
-    block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "STP"),
+    block1: check generateBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
+    block2: check generateMtBlock2(MESSAGETYPE_102_STP, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
+    block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "STP"),
     block4: <swiftmt:MT102STPBlock4>check createMT102Block4(document, true),
-    block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
+    block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
 # Creates the block 4 of an MT102 message from a PACS008 document
@@ -52,27 +52,27 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
     pacsIsoRecord:CreditTransferTransaction64 firstTransaction = transactions[0];
 
     swiftmt:MT20 MT20 = {
-        name: "20",
+        name: MT20_NAME,
         msgId: {
             content: getEmptyStrIfNull(firstTransaction.PmtId.InstrId),
-            number: "1"
+            number: NUMBER1
         }
     };
 
     swiftmt:MT23 MT23 = {
-        name: "23",
+        name: MT23_NAME,
         Cd: {content: firstTransaction.PmtTpInf?.CtgyPurp?.Cd.toString(), number: ""}
     };
 
     swiftmt:MT51A MT51A = {
-        name: "51A",
+        name: MT51A_NAME,
         IdnCd: {
             content: getEmptyStrIfNull(document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI),
-            number: "1"
+            number: NUMBER1
         },
         PrtyIdn: {
             content: getEmptyStrIfNull(document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt?.FinInstnId?.LEI),
-            number: "2"
+            number: NUMBER2
         }
     };
 
@@ -87,38 +87,30 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
     swiftmt:MT52C? MT52C = orderingInstitution is swiftmt:MT52C ? check orderingInstitution.ensureType(swiftmt:MT52C) : ();
 
     swiftmt:MT26T MT26T = {
-        name: "26T",
+        name: MT26T_NAME,
         Typ: {
             content: getEmptyStrIfNull(firstTransaction.Purp?.Cd),
-            number: "1"
-        }
-    };
-
-    swiftmt:MT77B MT77B = {
-        name: "77B",
-        Nrtv: {
-            content: "",
-            number: "1"
+            number: NUMBER1
         }
     };
 
     swiftmt:MT71A MT71A = {
-        name: "71A",
+        name: MT71A_NAME,
         Cd: getDetailsOfChargesFromChargeBearerType1Code(firstTransaction.ChrgBr)
     };
 
     swiftmt:MT36 MT36 = {
-        name: "36",
+        name: MT36_NAME,
         Rt: {
             content: convertDecimalNumberToSwiftDecimal(firstTransaction.XchgRate),
-            number: "1"
+            number: NUMBER1
         }
     };
 
     swiftmt:MT32A MT32A = check getMT32A(firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmDt);
 
     swiftmt:MT19 MT19 = {
-        name: "19",
+        name: MT19_NAME,
         Amnt: {content: convertDecimalNumberToSwiftDecimal(grpHdr.CtrlSum), number: "1"}
     };
 
@@ -147,7 +139,6 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
             MT50K,
             MT52A,
             MT26T,
-            MT77B,
             MT71A,
             MT36,
             MT32A,
@@ -172,7 +163,6 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
             MT52B,
             MT52C,
             MT26T,
-            MT77B,
             MT71A,
             MT36,
             MT32A,
@@ -207,22 +197,22 @@ returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
     swiftmt:MT102STPTransaction[] transactionsSTP = [];
     foreach pacsIsoRecord:CreditTransferTransaction64 transaxion in mxTransactions {
         swiftmt:MT21 MT21 = {
-            name: "21",
+            name: MT21_NAME,
             Ref: {
                 content: getEmptyStrIfNull(transaxion.PmtId.TxId),
-                number: "1"
+                number: NUMBER1
             }
         };
 
         swiftmt:MT32B MT32B = {
-            name: "32B",
+            name: MT32B_NAME,
             Ccy: {
                 content: getActiveOrHistoricCurrencyAndAmountCcy(transaxion.InstdAmt),
-                number: "1"
+                number: NUMBER1
             },
             Amnt: {
                 content: getActiveOrHistoricCurrencyAndAmountValue(transaxion.InstdAmt),
-                number: "2"
+                number: NUMBER2
             }
         };
 
@@ -246,49 +236,44 @@ returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
         swiftmt:MT70 MT70 = getRemittanceInformation(transaxion.PmtId, transaxion.RmtInf, transaxion.Purp);
 
         swiftmt:MT26T MT26T = {
-            name: "26T",
-            Typ: {content: getEmptyStrIfNull(transaxion.Purp?.Cd), number: "1"}
-        };
-
-        swiftmt:MT77B MT77B = {
-            name: "77B",
-            Nrtv: {content: "", number: "1"}
+            name: MT26T_NAME,
+            Typ: {content: getEmptyStrIfNull(transaxion.Purp?.Cd), number: NUMBER1}
         };
 
         swiftmt:MT33B MT33B = {
-            name: "33B",
+            name: MT33B_NAME,
             Ccy: {
                 content: check getCurrencyCodeFromInterbankOrInstructedAmount(
                         transaxion.InstdAmt, transaxion.IntrBkSttlmAmt
                 ),
-                number: "1"
+                number: NUMBER1
 
             },
             Amnt: {
                 content: check getAmountValueFromInterbankOrInstructedAmount(
                         transaxion.InstdAmt, transaxion.IntrBkSttlmAmt
                 ),
-                number: "2"
+                number: NUMBER2
             }
         };
 
         swiftmt:MT71A MT71A = {
-            name: "71A",
-            Cd: getDetailsOfChargesFromChargeBearerType1Code(transaxion.ChrgBr, "1")
+            name: MT71A_NAME,
+            Cd: getDetailsOfChargesFromChargeBearerType1Code(transaxion.ChrgBr, NUMBER1)
         };
 
         swiftmt:MT71F? MT71F = check convertCharges16toMT71F(transaxion.ChrgsInf, transaxion.ChrgBr);
         swiftmt:MT71G? MT71G = check convertCharges16toMT71G(transaxion.ChrgsInf, transaxion.ChrgBr);
 
         swiftmt:MT36 MT36 = {
-            name: "36",
+            name: MT36_NAME,
             Rt: {content: convertDecimalNumberToSwiftDecimal(transaxion.XchgRate), number: "1"}
         };
 
         if isSTP {
-            transactionsSTP.push({MT21, MT32B, MT50A, MT50F, MT50K, MT52A, MT57A, MT59, MT59A, MT59F, MT70, MT26T, MT77B, MT33B, MT71A, MT71F, MT71G, MT36});
+            transactionsSTP.push({MT21, MT32B, MT50A, MT50F, MT50K, MT52A, MT57A, MT59, MT59A, MT59F, MT70, MT26T, MT33B, MT71A, MT71F, MT71G, MT36});
         } else {
-            transactions.push({MT21, MT32B, MT50A, MT50F, MT50K, MT52A, MT52B, MT52C, MT57A, MT57C, MT59, MT59A, MT59F, MT70, MT26T, MT77B, MT33B, MT71A, MT71F, MT71G, MT36});
+            transactions.push({MT21, MT32B, MT50A, MT50F, MT50K, MT52A, MT52B, MT52C, MT57A, MT57C, MT59, MT59A, MT59F, MT70, MT26T, MT33B, MT71A, MT71F, MT71G, MT36});
         }
     }
 
@@ -311,11 +296,11 @@ enum MT103Type {
 # + document - The PACS008 document
 # + return - The MT103 message or an error if the transformation fails
 function transformPacs008DocumentToMT103(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT103Message|error => {
-    block1: check createBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
-    block2: check createMtBlock2("103", document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
-    block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, ""),
+    block1: check generateBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
+    block2: check generateMtBlock2(MESSAGETYPE_103, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
+    block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, ""),
     block4: <swiftmt:MT103Block4>check createMT103Block4(document, MT103),
-    block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
+    block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
 # Transforms a PACS008 document to an MT103STP message
@@ -323,11 +308,11 @@ function transformPacs008DocumentToMT103(pacsIsoRecord:Pacs008Document document)
 # + document - The PACS008 document
 # + return - The MT103STP message or an error if the transformation fails
 function transformPacs008DocumentToMT103STP(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT103STPMessage|error => {
-    block1: check createBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
-    block2: check createMtBlock2("103STP", document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
-    block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "STP"),
+    block1: check generateBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
+    block2: check generateMtBlock2(MESSAGETYPE_103_STP, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
+    block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "STP"),
     block4: <swiftmt:MT103STPBlock4>check createMT103Block4(document, MT103_STP),
-    block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
+    block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
 # Transforms a PACS008 document to an MT103REMIT message
@@ -335,11 +320,11 @@ function transformPacs008DocumentToMT103STP(pacsIsoRecord:Pacs008Document docume
 # + document - The PACS008 document
 # + return - The MT103REMIT message or an error if the transformation fails
 function transformPacs008DocumentToMT103REMIT(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT103REMITMessage|error => {
-    block1: check createBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
-    block2: check createMtBlock2FromSupplementaryData("103REMIT", document.FIToFICstmrCdtTrf.SplmtryData),
-    block3: check createMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "REMIT"),
+    block1: check generateBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
+    block2: check generateMtBlock2FromSupplementaryData(MESSAGETYPE_103_REMIT, document.FIToFICstmrCdtTrf.SplmtryData),
+    block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "REMIT"),
     block4: <swiftmt:MT103REMITBlock4>check createMT103Block4(document, MT103_REMIT),
-    block5: check createMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
+    block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
 # Creates the block 4 of an MT103 message from a PACS008 document
@@ -359,55 +344,55 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
     swiftmt:MT13C? MT13C = check convertTimeToMT13C(firstTransaction.SttlmTmIndctn, firstTransaction.SttlmTmReq);
 
     swiftmt:MT20 MT20 = {
-        name: "20",
+        name: MT20_NAME,
         msgId: {
             content: getEmptyStrIfNull(firstTransaction.PmtId.InstrId),
-            number: "1"
+            number: NUMBER1
         }
     };
 
     swiftmt:MT23B MT23B = {
-        name: "23B",
+        name: MT23_NAME,
         Typ: {
             content: getBankOperationCodeFromPaymentTypeInformation22(firstTransaction.PmtTpInf),
-            number: "1"
+            number: NUMBER1
         }
     };
 
     swiftmt:MT23E[]? MT23E = mapCategoryPurposeToMT23E(firstTransaction.Purp);
 
     swiftmt:MT26T MT26T = {
-        name: "26T",
+        name: MT26T_NAME,
         Typ: {
             content: getEmptyStrIfNull(firstTransaction.Purp?.Cd),
-            number: "1"
+            number: NUMBER1
         }
     };
 
     swiftmt:MT32A MT32A = check getMT32A(firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmDt);
 
     swiftmt:MT33B MT33B = {
-        name: "33B",
+        name: MT33B_NAME,
         Ccy: {
             content: check getCurrencyCodeFromInterbankOrInstructedAmount(
                     firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmAmt
             ),
-            number: "1"
+            number: NUMBER1
 
         },
         Amnt: {
             content: check getAmountValueFromInterbankOrInstructedAmount(
                     firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmAmt
             ),
-            number: "2"
+            number: NUMBER2
         }
     };
 
     swiftmt:MT36 MT36 = {
-        name: "36",
+        name: MT36_NAME,
         Rt: {
             content: convertDecimalNumberToSwiftDecimal(firstTransaction.XchgRate),
-            number: "1"
+            number: NUMBER1
         }
     };
 
@@ -417,14 +402,14 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
     swiftmt:MT50K? MT50K = orderingCustomer is swiftmt:MT50K ? check orderingCustomer.ensureType(swiftmt:MT50K) : ();
 
     swiftmt:MT51A MT51A = {
-        name: "51A",
+        name: MT51A_NAME,
         IdnCd: {
             content: getEmptyStrIfNull(fiToFiCstmrCdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI),
-            number: "1"
+            number: NUMBER1
         },
         PrtyIdn: {
             content: getEmptyStrIfNull(fiToFiCstmrCdtTrf.GrpHdr.InstdAgt?.FinInstnId?.LEI),
-            number: "2"
+            number: NUMBER2
         }
     };
 
@@ -464,7 +449,7 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
     swiftmt:MT70 MT70 = getRemittanceInformation(firstTransaction.PmtId, firstTransaction.RmtInf, firstTransaction.Purp);
 
     swiftmt:MT71A MT71A = {
-        name: "71A",
+        name: MT71A_NAME,
         Cd: getDetailsOfChargesFromChargeBearerType1Code(firstTransaction.ChrgBr)
     };
     swiftmt:MT71F? MT71F = check convertCharges16toMT71F(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
@@ -472,14 +457,12 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
 
     swiftmt:MT72 MT72 = mapToMT72(firstTransaction.PmtTpInf?.SvcLvl, firstTransaction.PmtTpInf?.CtgyPurp, firstTransaction.PmtTpInf?.LclInstrm);
 
-    swiftmt:MT77B MT77B = getMT77BRegulatoryReporting(firstTransaction.RgltryRptg) ?: {
-        name: "77B",
-        Nrtv: {content: "", number: "1"}
-    };
-
-    swiftmt:MT77T MT77T = {
-        name: "77T",
-        EnvCntnt: {content: "", number: ""}
+    swiftmt:MT77T MT77T = { // TODO: Implement this
+        name: MT77T_NAME,
+        EnvCntnt: {
+            content: "",
+            number: NUMBER1
+        }
     };
 
     match messageType {
@@ -520,8 +503,7 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
                 MT71A,
                 MT71F,
                 MT71G,
-                MT72,
-                MT77B
+                MT72
             };
         }
 
@@ -552,8 +534,7 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
                 MT71A,
                 MT71F,
                 MT71G,
-                MT72,
-                MT77B
+                MT72
             };
         }
 
@@ -594,7 +575,6 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
                 MT71F,
                 MT71G,
                 MT72,
-                MT77B,
                 MT77T
             };
         }

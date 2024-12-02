@@ -22,40 +22,40 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + document - The camt.028 message to be transformed, in `camtIsoRecord:Camt028Document` format.
 # + return - Returns an MT196 message in the `swiftmt:MTn96Message` format if successful, otherwise returns an error.
 isolated function transformCamt028ToMT196(camtIsoRecord:Camt028Document document) returns swiftmt:MTn96Message|error => {
-    block1: check createBlock1FromAssgnmt(document.AddtlPmtInf.Assgnmt),
-    block2: check createMtBlock2("196", document.AddtlPmtInf.SplmtryData, document.AddtlPmtInf.Assgnmt.CreDtTm),
-    block3: check createMtBlock3(document.AddtlPmtInf.SplmtryData, (), ""),
+    block1: check generateBlock1FromAssgnmt(document.AddtlPmtInf.Assgnmt),
+    block2: check generateMtBlock2(MESSAGETYPE_196, document.AddtlPmtInf.Assgnmt.CreDtTm),
+    block3: check generateMtBlock3(document.AddtlPmtInf.SplmtryData, (), ""),
     block4: {
         MT20: check getMT20(document.AddtlPmtInf.Case?.Id),
         MT21: {
-            name: "21",
+            name: MT21_NAME,
             Ref: {
                 content: document.AddtlPmtInf.Undrlyg?.Initn?.OrgnlInstrId ?: "",
-                number: "1"
+                number: NUMBER1
             }
         },
-        MT11S: {
-            name: "11S",
+        MT11S: { // TODO - Implement the correct mapping
+            name: MT11S_NAME,
             MtNum: {
-                content: "028",
-                number: "1"
+                content: "028", // TODO - Implement the correct mapping
+                number: NUMBER1
             },
             Dt: check convertISODateStringToSwiftMtDate(document.AddtlPmtInf.Assgnmt.CreDtTm.toString())
         }
 ,
         MT76: {
-            name: "76",
+            name: MT76_NAME,
             Nrtv: {
                 content: extractNarrativeFromSupplementaryData(document.AddtlPmtInf.SplmtryData),
-                number: "1"
+                number: NUMBER1
             }
         },
         MT79: document.AddtlPmtInf.SplmtryData is camtIsoRecord:SupplementaryData1[] ? {
-                name: "79",
+                name: MT79_NAME,
                 Nrtv: getAdditionalNarrativeInfo(document.AddtlPmtInf.SplmtryData)
             } : (),
         MessageCopy: ()
     },
-    block5: check createMtBlock5FromSupplementaryData(document.AddtlPmtInf.SplmtryData)
+    block5: check generateMtBlock5FromSupplementaryData(document.AddtlPmtInf.SplmtryData)
 
 };

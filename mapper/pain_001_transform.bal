@@ -22,26 +22,26 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + document - The Pain001 document
 # + return - The MT101 message or an error if the transformation fails
 function transformPain001DocumentToMT101(painIsoRecord:Pain001Document document) returns swiftmt:MT101Message|error => let swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT101InstructingPartyFromPain001Document(document), swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? orderingCustomer = getMT101OrderingCustomerFromPain001Document(document), swiftmt:MT52A?|swiftmt:MT52C? accountServicingInstitution = getMT101AccountServicingInstitutionFromPain001Document(document) in {
-        block1: check createMtBlock1FromSupplementaryData(document.CstmrCdtTrfInitn.SplmtryData),
-        block2: check createMtBlock2("101", document.CstmrCdtTrfInitn.SplmtryData, document.CstmrCdtTrfInitn.GrpHdr.CreDtTm),
-        block3: check createMtBlock3(document.CstmrCdtTrfInitn.SplmtryData, document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.UETR, ""),
+        block1: check generateMtBlock1FromSupplementaryData(document.CstmrCdtTrfInitn.SplmtryData),
+        block2: check generateMtBlock2(MESSAGETYPE_101, document.CstmrCdtTrfInitn.GrpHdr.CreDtTm),
+        block3: check generateMtBlock3(document.CstmrCdtTrfInitn.SplmtryData, document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.UETR, ""),
         block4: {
             MT20: {
-                name: "20",
+                name: MT20_NAME,
                 msgId: {
                     content: ((document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId != ()) ? document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId.toString() : ""),
-                    number: "1"
+                    number: NUMBER1
                 }
             },
             MT21R: {
-                name: "21R",
+                name: MT21R_NAME,
                 Ref: {
                     content: document.CstmrCdtTrfInitn.GrpHdr.MsgId,
-                    number: "1"
+                    number: NUMBER1
                 }
             },
-            MT28D: {
-                name: "28D",
+            MT28D: { // TODO - Implement the correct mapping
+                name: MT28D_NAME,
                 MsgIdx: {
                     content: "1",
                     number: "1"
@@ -52,15 +52,8 @@ function transformPain001DocumentToMT101(painIsoRecord:Pain001Document document)
                 }
             },
             MT30: {
-                name: "30",
+                name: MT30_NAME,
                 Dt: check convertISODateStringToSwiftMtDate(document.CstmrCdtTrfInitn.PmtInf[0].ReqdExctnDt.Dt.toString(), "1")
-            },
-            MT25: {
-                name: "25",
-                Auth: {
-                    content: "",
-                    number: "1"
-                }
             },
             MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
             MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
@@ -71,7 +64,7 @@ function transformPain001DocumentToMT101(painIsoRecord:Pain001Document document)
             MT52C: accountServicingInstitution is swiftmt:MT52C ? accountServicingInstitution : (),
             Transaction: check createMT101Transactions(document.CstmrCdtTrfInitn.PmtInf, getMT101InstructingPartyFromPain001Document(document), getMT101OrderingCustomerFromPain001Document(document), getMT101AccountServicingInstitutionFromPain001Document(document))
         },
-        block5: check createMtBlock5FromSupplementaryData(document.CstmrCdtTrfInitn.SplmtryData)
+        block5: check generateMtBlock5FromSupplementaryData(document.CstmrCdtTrfInitn.SplmtryData)
     };
 
 # Create the Transactions of the MT101 message
@@ -87,7 +80,6 @@ isolated function createMT101Transactions(
         swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? orderingCustomer,
         swiftmt:MT52A?|swiftmt:MT52C? accountServicingInstitution
 ) returns swiftmt:MT101Transaction[]|error {
-    // Create the Transactions of the MT101 message
     swiftmt:MT101Transaction[] transactions = [];
     foreach painIsoRecord:PaymentInstruction44 item in mxTransactions {
         painIsoRecord:CreditTransferTransaction61 creditTransferTransaction = item.CdtTrfTxInf[0];
@@ -97,38 +89,30 @@ isolated function createMT101Transactions(
 
         transactions.push({
             MT21: {
-                name: "21",
+                name: MT21_NAME,
                 Ref: {
                     content: getEmptyStrIfNull(creditTransferTransaction.PmtId.EndToEndId),
-                    number: "1"
-                }
-            },
-
-            MT21F: {
-                name: "21F",
-                Ref: {
-                    content: "",
-                    number: "1"
+                    number: NUMBER1
                 }
             },
 
             MT70: {
-                name: "70",
+                name: MT70_NAME,
                 Nrtv: {
-                    "content": getEmptyStrIfNull(creditTransferTransaction.RmtInf?.Ustrd),
-                    "number": "1"
+                    content: getEmptyStrIfNull(creditTransferTransaction.RmtInf?.Ustrd),
+                    number: NUMBER1
                 }
             },
 
             MT32B: {
-                name: "32B",
+                name: MT32B_NAME,
                 Ccy: {
                     content: getActiveOrHistoricCurrencyAndAmountCcy(creditTransferTransaction.Amt.InstdAmt),
-                    number: "1"
+                    number: NUMBER1
                 },
                 Amnt: {
                     content: getActiveOrHistoricCurrencyAndAmountValue(creditTransferTransaction.Amt.InstdAmt),
-                    number: "2"
+                    number: NUMBER2
                 }
             },
 
@@ -155,40 +139,32 @@ isolated function createMT101Transactions(
             MT59F: beneficiary is swiftmt:MT59F ? beneficiary : (),
 
             MT77B: {
-                name: "77B",
+                name: MT77B_NAME,
                 Nrtv: getNarrativeFromRegulatoryCreditTransferTransaction61(creditTransferTransaction.RgltryRptg)
             },
 
             MT33B: {
-                name: "33B",
+                name: MT33B_NAME,
                 Ccy: {
                     content: getActiveOrHistoricCurrencyAndAmountCcy(creditTransferTransaction.Amt.InstdAmt),
-                    number: "1"
+                    number: NUMBER1
                 },
                 Amnt: {
                     content: getActiveOrHistoricCurrencyAndAmountValue(creditTransferTransaction.Amt.InstdAmt),
-                    number: "2"
+                    number: NUMBER2
                 }
             },
 
             MT71A: {
-                name: "71A",
+                name: MT71A_NAME,
                 Cd: getDetailsOfChargesFromChargeBearerType1Code(creditTransferTransaction.ChrgBr)
             },
 
-            MT25A: {
-                name: "25A",
-                Acc: {
-                    content: "",
-                    number: "1"
-                }
-            },
-
             MT36: {
-                name: "36",
+                name: MT36_NAME,
                 Rt: {
                     content: convertDecimalNumberToSwiftDecimal(creditTransferTransaction.XchgRateInf?.XchgRate),
-                    number: "1"
+                    number: NUMBER1
                 }
             }
         });

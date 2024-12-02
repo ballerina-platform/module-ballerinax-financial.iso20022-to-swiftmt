@@ -22,13 +22,12 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + document - The camt.055 message to be transformed, in `camtIsoRecord:Camt055Document` format.
 # + return - Returns an MT192 message in the `swiftmt:MTn92Message` format if successful, otherwise returns an error.
 isolated function transformCamt055ToMT192(camtIsoRecord:Camt055Document document) returns swiftmt:MTn92Message|error => {
-    block1: check createBlock1FromAssgnmt(document.CstmrPmtCxlReq.Assgnmt),
-    block2: check createMtBlock2(
-            "192",
-            document.CstmrPmtCxlReq.SplmtryData,
+    block1: check generateBlock1FromAssgnmt(document.CstmrPmtCxlReq.Assgnmt),
+    block2: check generateMtBlock2(
+            MESSAGETYPE_192,
             document.CstmrPmtCxlReq.Assgnmt.CreDtTm
     ),
-    block3: check createMtBlock3(
+    block3: check generateMtBlock3(
             document.CstmrPmtCxlReq.SplmtryData,
             (),
             ""
@@ -36,10 +35,10 @@ isolated function transformCamt055ToMT192(camtIsoRecord:Camt055Document document
     block4: {
         MT20: check getMT20(document.CstmrPmtCxlReq.Case?.Id),
         MT21: {
-            name: "21",
+            name: MT21_NAME,
             Ref: {
                 content: getOriginalInstructionOrUETRFromCamt055(document.CstmrPmtCxlReq.Undrlyg),
-                number: "1"
+                number: NUMBER1
             }
         },
         MT11S: check getMT11S(
@@ -47,10 +46,10 @@ isolated function transformCamt055ToMT192(camtIsoRecord:Camt055Document document
                 document.CstmrPmtCxlReq.Undrlyg[0].OrgnlGrpInfAndCxl?.OrgnlCreDtTm
         ),
         MT79: {
-            name: "79",
+            name: MT79_NAME,
             Nrtv: extractNarrativeFromCancellationReason(document.CstmrPmtCxlReq)
         },
         MessageCopy: ()
     },
-    block5: check createMtBlock5FromSupplementaryData(document.CstmrPmtCxlReq.SplmtryData)
+    block5: check generateMtBlock5FromSupplementaryData(document.CstmrPmtCxlReq.SplmtryData)
 };
