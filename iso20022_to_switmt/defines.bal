@@ -65,6 +65,7 @@ const string MESSAGETYPE_196 = "196";
 const string MESSAGETYPE_200 = "200";
 const string MESSAGETYPE_201 = "201";
 const string MESSAGETYPE_202 = "202";
+const string MESSAGETYPE_203 = "203";
 const string MESSAGETYPE_204 = "204";
 
 const string NUMBER1 = "1";
@@ -88,7 +89,7 @@ const string MT71A_NAME = "71A";
 const string MT72_NAME = "72";
 const string MT32B_NAME = "32B";
 const string MT71F_NAME = "71F";
-const string MT71G_NAME = MT71G_NAME;
+const string MT71G_NAME = "71G";
 const string MT36_NAME = "36";
 const string MT21D_NAME = "21D";
 const string MT33B_NAME = "33B";
