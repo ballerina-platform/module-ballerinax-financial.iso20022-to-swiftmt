@@ -164,7 +164,7 @@ isolated function createMT104Transactions(
         };
 
         swiftmt:MT32B MT32B = {
-            name: "32B",
+            name: MT32B_NAME,
             Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: NUMBER1},
             Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: NUMBER2}
         };

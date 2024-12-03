@@ -27,7 +27,7 @@ isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document
     camtIsoRecord:PaymentTransaction155 txInf0 = txInf[0]
     in {
 
-        block1: check generateBlock1FromAssgnmt(document.FIToFIPmtCxlReq.Assgnmt),
+        block1: check generateMtBlock1FromAssgnmt(document.FIToFIPmtCxlReq.Assgnmt),
         block2: check generateMtBlock2WithDateTime(
                 MESSAGETYPE_192,
                 document.FIToFIPmtCxlReq.Assgnmt.CreDtTm

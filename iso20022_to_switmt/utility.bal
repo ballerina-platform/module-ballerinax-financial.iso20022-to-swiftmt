@@ -631,7 +631,7 @@ isolated function extractNarrativeFromCancellationReason(camtIsoRecord:CustomerP
 # + InstgAgt - The instructing agent details.
 # + InstdAgt - The instructed agent details.
 # + return - Returns the constructed Block 1 of the MT message or null if it cannot be created.
-isolated function generateBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstgAgt, camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstdAgt) returns swiftmt:Block1? {
+isolated function generateMtBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstgAgt, camtIsoRecord:BranchAndFinancialInstitutionIdentification8? InstdAgt) returns swiftmt:Block1? {
     if (InstgAgt == () && InstdAgt == ()) || InstgAgt?.FinInstnId?.BICFI.toString().length() < 8 || InstdAgt?.FinInstnId?.BICFI.toString().length() < 8 {
         return ();
     }
@@ -647,7 +647,7 @@ isolated function generateBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAndF
 #
 # + Assgnmt - The assignment details containing Assgne and Assgnr fields.
 # + return - Returns the constructed Block 1 of the MT message or null if it cannot be created.
-isolated function generateBlock1FromAssgnmt(camtIsoRecord:CaseAssignment6? Assgnmt) returns swiftmt:Block1?|error {
+isolated function generateMtBlock1FromAssgnmt(camtIsoRecord:CaseAssignment6? Assgnmt) returns swiftmt:Block1?|error {
     if (Assgnmt == ()) {
         return ();
     }
