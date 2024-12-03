@@ -25,7 +25,7 @@ function transformPacs008DocumentToMT102(pacsIsoRecord:Pacs008Document document)
     block1: generateMtBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check generateMtBlock2WithDateTime(MESSAGETYPE_102, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, ""),
-    block4: <swiftmt:MT102Block4>check createMT102Block4(document, false),
+    block4: <swiftmt:MT102Block4>check generateMT102Block4(document, false),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
@@ -37,7 +37,7 @@ function transformPacs008DocumentToMT102STP(pacsIsoRecord:Pacs008Document docume
     block1: generateMtBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check generateMtBlock2WithDateTime(MESSAGETYPE_102_STP, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "STP"),
-    block4: <swiftmt:MT102STPBlock4>check createMT102Block4(document, true),
+    block4: <swiftmt:MT102STPBlock4>check generateMT102Block4(document, true),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
@@ -46,7 +46,7 @@ function transformPacs008DocumentToMT102STP(pacsIsoRecord:Pacs008Document docume
 # + document - The PACS008 document
 # + isSTP - A boolean indicating whether the message is an STP message
 # + return - The block 4 of the MT102 message or an error if the transformation fails
-isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, boolean isSTP) returns swiftmt:MT102Block4|swiftmt:MT102STPBlock4|error {
+isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, boolean isSTP) returns swiftmt:MT102Block4|swiftmt:MT102STPBlock4|error {
     pacsIsoRecord:GroupHeader113 grpHdr = document.FIToFICstmrCdtTrf.GrpHdr;
     pacsIsoRecord:CreditTransferTransaction64[] transactions = document.FIToFICstmrCdtTrf.CdtTrfTxInf;
     pacsIsoRecord:CreditTransferTransaction64 firstTransaction = transactions[0];
@@ -122,7 +122,7 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
     swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? receiversCorrespondent = getMT103ReceiversCorrespondentFromPacs008Document(document, isSTP);
     swiftmt:MT54A? MT54A = receiversCorrespondent is swiftmt:MT54A ? check receiversCorrespondent.ensureType(swiftmt:MT54A) : ();
     swiftmt:MT72 MT72 = mapToMT72(firstTransaction.PmtTpInf?.SvcLvl, firstTransaction.PmtTpInf?.CtgyPurp, firstTransaction.PmtTpInf?.LclInstrm);
-    swiftmt:MT102STPTransaction[]|swiftmt:MT102Transaction[] Transactions = check createMT102Transactions(
+    swiftmt:MT102STPTransaction[]|swiftmt:MT102Transaction[] Transactions = check generateMT102Transactions(
             document.FIToFICstmrCdtTrf.CdtTrfTxInf,
             orderingCustomer,
             orderingInstitution,
@@ -130,7 +130,7 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
             document
     );
 
-    if (isSTP) {
+    if isSTP {
         return <swiftmt:MT102STPBlock4>{
             MT20,
             MT23,
@@ -151,31 +151,31 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
             MT72,
             Transaction: <swiftmt:MT102STPTransaction[]>Transactions
         };
-    } else {
-        return <swiftmt:MT102Block4>{
-            MT20,
-            MT23,
-            MT51A,
-            MT50A,
-            MT50F,
-            MT50K,
-            MT52A,
-            MT52B,
-            MT52C,
-            MT26T,
-            MT71A,
-            MT36,
-            MT32A,
-            MT19,
-            MT71G,
-            MT13C,
-            MT53A,
-            MT53C,
-            MT54A,
-            MT72,
-            Transaction: <swiftmt:MT102Transaction[]>Transactions
-        };
     }
+    return <swiftmt:MT102Block4>{
+        MT20,
+        MT23,
+        MT51A,
+        MT50A,
+        MT50F,
+        MT50K,
+        MT52A,
+        MT52B,
+        MT52C,
+        MT26T,
+        MT71A,
+        MT36,
+        MT32A,
+        MT19,
+        MT71G,
+        MT13C,
+        MT53A,
+        MT53C,
+        MT54A,
+        MT72,
+        Transaction: <swiftmt:MT102Transaction[]>Transactions
+    };
+
 }
 
 # Creates the transactions of an MT102 message from a PACS008 document
@@ -186,7 +186,7 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
 # + isSTP - A boolean indicating whether the message is an STP message
 # + document - The PACS008 document
 # + return - The transactions of the MT102 message or an error if the transformation fails
-isolated function createMT102Transactions(
+isolated function generateMT102Transactions(
         pacsIsoRecord:CreditTransferTransaction64[] mxTransactions,
         swiftmt:MT50A?|swiftmt:MT50F?|swiftmt:MT50K? orderingCustomer,
         swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? orderingInstitution,
@@ -299,7 +299,7 @@ function transformPacs008DocumentToMT103(pacsIsoRecord:Pacs008Document document)
     block1: generateMtBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check generateMtBlock2WithDateTime(MESSAGETYPE_103, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, ""),
-    block4: <swiftmt:MT103Block4>check createMT103Block4(document, MT103),
+    block4: <swiftmt:MT103Block4>check generateMT103Block4(document, MT103),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
@@ -311,7 +311,7 @@ function transformPacs008DocumentToMT103STP(pacsIsoRecord:Pacs008Document docume
     block1: generateMtBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check generateMtBlock2WithDateTime(MESSAGETYPE_103_STP, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "STP"),
-    block4: <swiftmt:MT103STPBlock4>check createMT103Block4(document, MT103_STP),
+    block4: <swiftmt:MT103STPBlock4>check generateMT103Block4(document, MT103_STP),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
@@ -323,7 +323,7 @@ function transformPacs008DocumentToMT103REMIT(pacsIsoRecord:Pacs008Document docu
     block1: generateMtBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check generateMtBlock2(MESSAGETYPE_103_REMIT),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "REMIT"),
-    block4: <swiftmt:MT103REMITBlock4>check createMT103Block4(document, MT103_REMIT),
+    block4: <swiftmt:MT103REMITBlock4>check generateMT103Block4(document, MT103_REMIT),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
@@ -332,7 +332,7 @@ function transformPacs008DocumentToMT103REMIT(pacsIsoRecord:Pacs008Document docu
 # + document - The PACS008 document
 # + messageType - The type of the MT103 message
 # + return - The block 4 of the MT103 message or an error if the transformation fails
-isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT103Type messageType) returns swiftmt:MT103Block4|swiftmt:MT103STPBlock4|swiftmt:MT103REMITBlock4|error {
+isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT103Type messageType) returns swiftmt:MT103Block4|swiftmt:MT103STPBlock4|swiftmt:MT103REMITBlock4|error {
     pacsIsoRecord:FIToFICustomerCreditTransferV12 fiToFiCstmrCdtTrf = document.FIToFICstmrCdtTrf;
     pacsIsoRecord:CreditTransferTransaction64[] transactions = fiToFiCstmrCdtTrf.CdtTrfTxInf;
 

@@ -23,7 +23,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 
 // TODO: Add the necessary functions to map the MX messages to the MT messages.
 // Need to map logical terminal and sequence information from the MX message to the MT message.
-# Create the block 1 of the MT message from the supplementary data of the MX message.
+# generate the block 1 of the MT message from the supplementary data of the MX message.
 # Currently, this function extracts logical terminal and sequence information from supplementary data.
 #
 # + supplementaryData - The supplementary data of the MX message
@@ -60,7 +60,7 @@ isolated function generateMtBlock1FromSupplementaryData(painIsoRecord:Supplement
 
 // TODO Add the necessary functions to map the MX messages to the MT messages.
 // Need to map the MIRLogicalTerminal, MIRSessionNumber, and MIRSequenceNumber from the MX message to the MT message.
-# Create the block 2 of the MT message from the supplementary data of the MX message
+# generate the block 2 of the MT message from the supplementary data of the MX message
 # Currently, this function extracts the message type from the supplementary data if it is not provided directly.
 #
 # + mtMessageId - The message type of the MT message
@@ -81,7 +81,7 @@ isolated function generateMtBlock2(string? mtMessageId) returns swiftmt:Block2|e
 
 // TODO Add the necessary functions to map the MX messages to the MT messages.
 // Need to map the MIRLogicalTerminal, MIRSessionNumber, and MIRSequenceNumber from the MX message to the MT message.
-# Create the block 2 of the MT message from the supplementary data of the MX message
+# generate the block 2 of the MT message from the supplementary data of the MX message
 # Currently, this function extracts the message type from the supplementary data if it is not provided directly.
 #
 # + mtMessageId - The message type of the MT message
@@ -107,8 +107,8 @@ isolated function generateMtBlock2WithDateTime(string? mtMessageId, painIsoRecor
 
 // TODO Add the necessary functions to map the MX messages to the MT messages.
 // Need to map the required fields from the MX message to the MT message.
-# Create the block 3 of the MT message from the supplementary data of the MX message
-# Currently, this function is empty, but if we decide to add any logic to create the block 3 from the supplementary data,
+# generate the block 3 of the MT message from the supplementary data of the MX message
+# Currently, this function is empty, but if we decide to add any logic to generate the block 3 from the supplementary data,
 #
 # + supplementaryData - The supplementary data of the MX message
 # + uetr - The unique end-to-end transaction reference
@@ -132,9 +132,9 @@ isolated function generateMtBlock3(painIsoRecord:SupplementaryData1[]? supplemen
 }
 
 // TODO Add the necessary functions to map the MX messages to the MT messages.
-// If nessary, add the logic to create the block 5 from the supplementary data.
-# Create the block 5 of the MT message from the supplementary data of the MX message
-# Currently, this function is empty, but if we decide to add any logic to create the block 5 from the supplementary data,
+// If nessary, add the logic to generate the block 5 from the supplementary data.
+# generate the block 5 of the MT message from the supplementary data of the MX message
+# Currently, this function is empty, but if we decide to add any logic to generate the block 5 from the supplementary data,
 #
 # + supplementaryData - The supplementary data of the MX message
 # + return - The block 5 of the MT message or an error if the block 5 cannot be created
@@ -358,7 +358,7 @@ isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges, st
     return mt71g;
 }
 
-# Create the MT13C message from the given code and time
+# generate the MT13C message from the given code and time
 # + code - The code
 # + time - The time
 # + return - The MT13C message or an error if the conversion fails

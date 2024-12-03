@@ -17,7 +17,7 @@
 import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
-# Create the MT101 message from the Pain001 document
+# generate the MT101 message from the Pain001 document
 #
 # + document - The Pain001 document
 # + return - The MT101 message or an error if the transformation fails
@@ -62,19 +62,19 @@ function transformPain001DocumentToMT101(painIsoRecord:Pain001Document document)
             MT50H: orderingCustomer is swiftmt:MT50H ? orderingCustomer : (),
             MT52A: accountServicingInstitution is swiftmt:MT52A ? accountServicingInstitution : (),
             MT52C: accountServicingInstitution is swiftmt:MT52C ? accountServicingInstitution : (),
-            Transaction: check createMT101Transactions(document.CstmrCdtTrfInitn.PmtInf, getMT101InstructingPartyFromPain001Document(document), getMT101OrderingCustomerFromPain001Document(document), getMT101AccountServicingInstitutionFromPain001Document(document))
+            Transaction: check generateMT101Transactions(document.CstmrCdtTrfInitn.PmtInf, getMT101InstructingPartyFromPain001Document(document), getMT101OrderingCustomerFromPain001Document(document), getMT101AccountServicingInstitutionFromPain001Document(document))
         },
         block5: check generateMtBlock5FromSupplementaryData(document.CstmrCdtTrfInitn.SplmtryData)
     };
 
-# Create the Transactions of the MT101 message
+# generate the Transactions of the MT101 message
 #
 # + mxTransactions - The MX transactions
 # + instructingParty - The instructing party
 # + orderingCustomer - The ordering customer
 # + accountServicingInstitution - The account servicing institution
 # + return - The MT101 transactions or an error if the transformation fails
-isolated function createMT101Transactions(
+isolated function generateMT101Transactions(
         painIsoRecord:PaymentInstruction44[] mxTransactions,
         swiftmt:MT50C?|swiftmt:MT50L? instructingParty,
         swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? orderingCustomer,

@@ -17,7 +17,7 @@
 import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
-# Create the MT104 message from the Pain008 document
+# generate the MT104 message from the Pain008 document
 #
 # + document - The Pain008 document
 # + return - The MT104 message or an error if the transformation fails
@@ -26,7 +26,7 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document)
     swiftmt:MT50A?|swiftmt:MT50K? creditor = getMT104CreditorFromPain008Document(document),
     swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? creditorsBank = getMT104CreditorsBankFromPain008Document(document),
     swiftmt:MT53A?|swiftmt:MT53B? sendersCorrespondent = getMT104SendersCorrespondentFromPain008Document(document),
-    swiftmt:MT104Transaction[] transactions = check createMT104Transactions(document.CstmrDrctDbtInitn.PmtInf, instructingParty, creditor, creditorsBank)
+    swiftmt:MT104Transaction[] transactions = check generateMT104Transactions(document.CstmrDrctDbtInitn.PmtInf, instructingParty, creditor, creditorsBank)
     in {
         block1: check generateMtBlock1FromSupplementaryData(document.CstmrDrctDbtInitn.SplmtryData), // TODO - Update this to the correct mapping
         block2: check generateMtBlock2WithDateTime(MESSAGETYPE_104, document.CstmrDrctDbtInitn.GrpHdr.CreDtTm), // TODO - Update this to the correct mapping
@@ -127,14 +127,14 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document)
         block5: check generateMtBlock5FromSupplementaryData(document.CstmrDrctDbtInitn.SplmtryData)
     };
 
-# Create the MT104 transactions from the Pain008 document
+# generate the MT104 transactions from the Pain008 document
 #
 # + mxTransactions - The Pain008 transactions
 # + instrutingParty - The instructing party
 # + creditor - The creditor
 # + creditorsBank - The creditor's bank
 # + return - The MT104 transactions
-isolated function createMT104Transactions(
+isolated function generateMT104Transactions(
         painIsoRecord:PaymentInstruction45[] mxTransactions,
         swiftmt:MT50C?|swiftmt:MT50L? instrutingParty,
         swiftmt:MT50A?|swiftmt:MT50K? creditor,

@@ -26,7 +26,7 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
     swiftmt:MT50A?|swiftmt:MT50K? creditor = getMT104CreditorFromPacs003Document(document),
     swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? creditorsBank = getMT104CreditorsBankFromPacs003Document(document),
     swiftmt:MT53A?|swiftmt:MT53B? sendersCorrespondent = getMT104SendersCorrespondentFromPacs003Document(document),
-    swiftmt:MT104Transaction[] transactions = check createMT104TransactionsFromPacs003(document.FIToFICstmrDrctDbt.DrctDbtTxInf, instructingParty, creditor, creditorsBank)
+    swiftmt:MT104Transaction[] transactions = check generateMT104TransactionsFromPacs003(document.FIToFICstmrDrctDbt.DrctDbtTxInf, instructingParty, creditor, creditorsBank)
     in {
         block1: generateMtBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt),
         block2: check generateMtBlock2WithDateTime(MESSAGETYPE_104, document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
@@ -119,7 +119,7 @@ function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document)
 # + creditor - The creditor information
 # + creditorsBank - The creditor's bank information
 # + return - Array of MT104 transactions or an error
-isolated function createMT104TransactionsFromPacs003(
+isolated function generateMT104TransactionsFromPacs003(
         pacsIsoRecord:DirectDebitTransactionInformation31[] drctDbtTxInf,
         swiftmt:MT50C?|swiftmt:MT50L? instructingParty,
         swiftmt:MT50A?|swiftmt:MT50K? creditor,
@@ -189,7 +189,7 @@ function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document)
     swiftmt:MT50A?|swiftmt:MT50K? creditor = getMT107CreditorFromPacs003Document(document),
     swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? creditorsBank = getMT107CreditorsBankFromPacs003Document(document),
     swiftmt:MT53A?|swiftmt:MT53B? sendersCorrespondent = getMT107SendersCorrespondentFromPacs003Document(document),
-    swiftmt:MT107Transaction[] transactions = check createMT107TransactionsFromPacs003(
+    swiftmt:MT107Transaction[] transactions = check generateMT107TransactionsFromPacs003(
             document.FIToFICstmrDrctDbt.DrctDbtTxInf,
             instructingParty,
             creditor,
@@ -288,13 +288,13 @@ function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document)
         block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrDrctDbt.SplmtryData)
     };
 
-# Create the MT107 transactions from the Pacs003 document's direct debit transaction information.
+# generate the MT107 transactions from the Pacs003 document's direct debit transaction information.
 # + drctDbtTxInf - Array of DirectDebitTransactionInformation31 from Pacs003 document
 # + instructingParty - The instructing party information
 # + creditor - The creditor information
 # + creditorsBank - The creditor's bank information
 # + return - Array of MT107 transactions or an error
-isolated function createMT107TransactionsFromPacs003(
+isolated function generateMT107TransactionsFromPacs003(
         pacsIsoRecord:DirectDebitTransactionInformation31[] drctDbtTxInf,
         swiftmt:MT50C?|swiftmt:MT50L? instructingParty,
         swiftmt:MT50A?|swiftmt:MT50K? creditor,
