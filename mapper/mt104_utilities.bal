@@ -33,7 +33,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
     painIsoRecord:GenericPersonIdentification2[]? otherIds = instructingParty.Id?.PrvtId?.Othr;
     if instructingParty.Id?.OrgId?.AnyBIC != () {
         return <swiftmt:MT50C>{
-            name: "50C",
+            name: MT50C_NAME,
             IdnCd: {
                 content: instructingParty.Id?.OrgId?.AnyBIC.toString(),
                 number: NUMBER1
@@ -41,7 +41,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
         };
     } else if !(otherIds is ()) && otherIds.length() > 0 {
         return <swiftmt:MT50L>{
-            name: "50L",
+            name: MT50L_NAME,
             PrtyIdn: {
                 content: otherIds[0].Id.toString(),
                 number: NUMBER1
@@ -67,7 +67,7 @@ returns swiftmt:MT50A?|swiftmt:MT50K? {
     painIsoRecord:Max70Text[]? AdrLine = creditor.PstlAdr?.AdrLine;
     if creditor.Id?.OrgId?.AnyBIC != () {
         return <swiftmt:MT50A>{
-            name: "50A",
+            name: MT50A_NAME,
             IdnCd: {
                 content: creditor.Id?.OrgId?.AnyBIC.toString(),
                 number: NUMBER1
@@ -75,7 +75,7 @@ returns swiftmt:MT50A?|swiftmt:MT50K? {
         };
     } else if creditor.Nm != () || (!(AdrLine is ()) && AdrLine.length() > 0) {
         return <swiftmt:MT50K>{
-            name: "50K",
+            name: MT50K_NAME,
             Nm: getNamesArrayFromNameString(creditor.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditor.PstlAdr?.AdrLine)
         };
@@ -107,7 +107,7 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
     }
     else if creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId != () {
         return <swiftmt:MT52C>{
-            name: "52C",
+            name: MT52C_NAME,
             PrtyIdn: {
                 content: creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId.toString(),
                 number: NUMBER1
@@ -116,7 +116,7 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
     }
     else if creditorsBank.FinInstnId?.Nm != () || creditorsBank.FinInstnId?.PstlAdr?.AdrLine != () {
         return <swiftmt:MT52D>{
-            name: "52D",
+            name: MT52D_NAME,
             Nm: getNamesArrayFromNameString(creditorsBank.FinInstnId?.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditorsBank.FinInstnId?.PstlAdr?.AdrLine)
         };
@@ -154,7 +154,7 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
         };
     } else if dbtrAgt.FinInstnId?.Othr?.Id != () {
         return <swiftmt:MT57D>{
-            name: "57D",
+            name: MT57D_NAME,
             PrtyIdn: {
                 content: dbtrAgt.FinInstnId.Othr?.Id.toString(),
                 number: NUMBER1
@@ -189,7 +189,7 @@ returns swiftmt:MT59?|swiftmt:MT59A? {
     }
     else if debtor.Nm != () || debtor.PstlAdr?.AdrLine != () {
         return <swiftmt:MT59>{
-            name: "59",
+            name: MT59_NAME,
             Nm: getNamesArrayFromNameString(debtor.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtor.PstlAdr?.AdrLine)
         };
@@ -212,7 +212,7 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
 
     if sendersCorrespondent.FinInstnId?.BICFI != () {
         return <swiftmt:MT53A>{
-            name: "53A",
+            name: MT53A_NAME,
             IdnCd: {
                 content: sendersCorrespondent.FinInstnId.BICFI.toString(),
                 number: NUMBER1
@@ -221,7 +221,7 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
     }
     else if sendersCorrespondent.FinInstnId?.PstlAdr?.TwnNm != () {
         return <swiftmt:MT53B>{
-            name: "53B",
+            name: MT53B_NAME,
             Lctn: {
                 content: sendersCorrespondent.FinInstnId.PstlAdr?.TwnNm.toString(),
                 number: NUMBER1
@@ -267,7 +267,7 @@ function getMT72Narrative(pacsIsoRecord:DirectDebitTransactionInformation31 docu
     string narrative = code + joinStringArray(unstructuredInfo, "\n//");
 
     return {
-        name: "72",
+        name: MT72_NAME,
         Cd: {
             content: narrative,
             number: NUMBER1
@@ -314,7 +314,7 @@ isolated function getMT77BRegulatoryReporting(pacsIsoRecord:RegulatoryReporting3
     }
 
     return {
-        name: "77B",
+        name: MT77B_NAME,
         Nrtv: {
             content: narrative,
             number: NUMBER1
@@ -340,7 +340,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
     }
     if finInstId.BICFI != () {
         return <swiftmt:MT50C>{
-            name: "50C",
+            name: MT50C_NAME,
             IdnCd: {
                 content: finInstId.BICFI.toString(),
                 number: NUMBER1
@@ -349,7 +349,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
     }
     else if finInstId.Othr != () {
         return <swiftmt:MT50L>{
-            name: "50L",
+            name: MT50L_NAME,
             PrtyIdn: {
                 content: finInstId.Othr?.Id.toString(),
                 number: NUMBER1
@@ -375,7 +375,7 @@ returns swiftmt:MT50A?|swiftmt:MT50K? {
     pacsIsoRecord:Max70Text[]? AdrLine = creditor.PstlAdr?.AdrLine;
     if creditor.Id?.OrgId?.AnyBIC != () {
         return <swiftmt:MT50A>{
-            name: "50A",
+            name: MT50A_NAME,
             IdnCd: {
                 content: creditor.Id?.OrgId?.AnyBIC.toString(),
                 number: NUMBER1
@@ -383,7 +383,7 @@ returns swiftmt:MT50A?|swiftmt:MT50K? {
         };
     } else if creditor.Nm != () || (!(AdrLine is ()) && AdrLine.length() > 0) {
         return <swiftmt:MT50K>{
-            name: "50K",
+            name: MT50K_NAME,
             Nm: getNamesArrayFromNameString(creditor.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditor.PstlAdr?.AdrLine)
         };
@@ -418,7 +418,7 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
         };
     } else if finInstId.ClrSysMmbId?.MmbId != () {
         return <swiftmt:MT52C>{
-            name: "52C",
+            name: MT52C_NAME,
             PrtyIdn: {
                 content: finInstId.ClrSysMmbId?.MmbId.toString(),
                 number: NUMBER1
@@ -426,7 +426,7 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
         };
     } else if finInstId.Othr?.Id != () {
         return <swiftmt:MT52D>{
-            name: "52D",
+            name: MT52D_NAME,
             PrtyIdn: {
                 content: finInstId.Othr?.Id.toString(),
                 number: NUMBER1
@@ -473,7 +473,7 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
         };
     } else if finInstId.Othr?.Id != () {
         return <swiftmt:MT57D>{
-            name: "57D",
+            name: MT57D_NAME,
             PrtyIdn: {
                 content: finInstId.Othr?.Id.toString(),
                 number: NUMBER1
@@ -510,7 +510,7 @@ returns swiftmt:MT59?|swiftmt:MT59A? {
 
     else if debtor.Nm != () || debtor.PstlAdr?.AdrLine != () {
         return <swiftmt:MT59>{
-            name: "59",
+            name: MT59_NAME,
             Nm: getNamesArrayFromNameString(debtor.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtor.PstlAdr?.AdrLine)
         };
@@ -537,7 +537,7 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
     }
     if finInstId.BICFI != () {
         return <swiftmt:MT53A>{
-            name: "53A",
+            name: MT53A_NAME,
             IdnCd: {
                 content: finInstId.BICFI.toString(),
                 number: NUMBER1
@@ -547,7 +547,7 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
 
     if finInstId.PstlAdr?.TwnNm != () {
         return <swiftmt:MT53B>{
-            name: "53B",
+            name: MT53B_NAME,
             Lctn: {
                 content: finInstId.PstlAdr?.TwnNm.toString(),
                 number: NUMBER1

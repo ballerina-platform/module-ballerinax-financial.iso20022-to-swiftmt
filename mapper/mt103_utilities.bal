@@ -36,7 +36,7 @@ isolated function getOrderingCustomerFromPacs008Document(
 
         if debtorAccount?.Id != () {
             return <swiftmt:MT50A>{
-                name: "50A",
+                name: MT50A_NAME,
                 IdnCd: {
                     content: partyIdentifier,
                     number: NUMBER1
@@ -49,7 +49,7 @@ isolated function getOrderingCustomerFromPacs008Document(
         }
 
         return <swiftmt:MT50A>{
-            name: "50A",
+            name: MT50A_NAME,
             IdnCd: {
                 content: partyIdentifier,
                 number: NUMBER1
@@ -63,7 +63,7 @@ isolated function getOrderingCustomerFromPacs008Document(
             : "/NOTPROVIDED";
 
         return <swiftmt:MT50F>{
-            name: "50F",
+            name: MT50F_NAME,
             PrtyIdn: {
                 content: partyIdentifier,
                 number: NUMBER1
@@ -88,7 +88,7 @@ isolated function getOrderingCustomerFromPacs008Document(
                 : "/NOTPROVIDED";
 
             return <swiftmt:MT50F>{
-                name: "50F",
+                name: MT50F_NAME,
                 PrtyIdn: {
                     content: partyIdentifier,
                     number: NUMBER1
@@ -104,7 +104,7 @@ isolated function getOrderingCustomerFromPacs008Document(
             };
         } else {
             return <swiftmt:MT50K>{
-                name: "50K",
+                name: MT50K_NAME,
                 Nm: getNamesArrayFromNameString(getEmptyStrIfNull(debtor.Nm)),
                 AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtor.PstlAdr?.AdrLine)
             };
@@ -117,7 +117,7 @@ isolated function getOrderingCustomerFromPacs008Document(
             : "/NOTPROVIDED";
 
         return <swiftmt:MT50F>{
-            name: "50F",
+            name: MT50F_NAME,
             PrtyIdn: {
                 content: partyIdentifier,
                 number: NUMBER1
@@ -183,13 +183,13 @@ isolated function getMT103OrderingInstitutionFromPacs008Document(
 
         if isStructured {
             return <swiftmt:MT52D>{
-                name: "52D",
+                name: MT52D_NAME,
                 Nm: getNamesArrayFromNameString(getEmptyStrIfNull(debtorAgent.FinInstnId.Nm)),
                 AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtorAgent.FinInstnId.PstlAdr?.AdrLine)
             };
         } else {
             return <swiftmt:MT52D>{
-                name: "52D",
+                name: MT52D_NAME,
                 Nm: getNamesArrayFromNameString(getEmptyStrIfNull(debtorAgent.FinInstnId.Nm)),
                 AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtorAgent.FinInstnId.PstlAdr?.AdrLine)
             };
@@ -197,7 +197,7 @@ isolated function getMT103OrderingInstitutionFromPacs008Document(
     }
     if debtorAgent.FinInstnId?.Nm != () {
         return <swiftmt:MT52D>{
-            name: "52D",
+            name: MT52D_NAME,
             Nm: getNamesArrayFromNameString(getEmptyStrIfNull(debtorAgent.FinInstnId.Nm)),
             AdrsLine: []
         };
@@ -230,7 +230,7 @@ isolated function getMT103SendersCorrespondentFromPacs008Document(
             (mt53BIC.substring(0, 6) == fromBIC.substring(0, 6) ||
             mt53BIC.substring(0, 6) == toBIC.substring(0, 6)) {
             return <swiftmt:MT53A>{
-                name: "53A",
+                name: MT53A_NAME,
                 IdnCd: {
                     content: mt53BIC,
                     number: NUMBER1
@@ -240,7 +240,7 @@ isolated function getMT103SendersCorrespondentFromPacs008Document(
     }
     if PrvsInstgAgt1.FinInstnId?.Nm != () && PrvsInstgAgt1.FinInstnId?.PstlAdr == () {
         return <swiftmt:MT53B>{
-            name: "53B",
+            name: MT53B_NAME,
             Lctn: {
                 content: getEmptyStrIfNull(PrvsInstgAgt1.FinInstnId?.Nm),
                 number: NUMBER1
@@ -249,7 +249,7 @@ isolated function getMT103SendersCorrespondentFromPacs008Document(
     }
     if PrvsInstgAgt1.FinInstnId?.PstlAdr != () {
         return <swiftmt:MT53D>{
-            name: "53D",
+            name: MT53D_NAME,
             Nm: getNamesArrayFromNameString(getEmptyStrIfNull(PrvsInstgAgt1.FinInstnId?.Nm)),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>PrvsInstgAgt1.FinInstnId?.PstlAdr?.AdrLine)
         };
@@ -274,7 +274,7 @@ returns swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? {
 
     if InstdRmbrsmntAgt.FinInstnId?.BICFI != () {
         return <swiftmt:MT54A>{
-            name: "54A",
+            name: MT54A_NAME,
             PrtyIdnTyp: {
                 content: getEmptyStrIfNull(InstdRmbrsmntAgtAcct?.Id?.Othr?.SchmeNm?.Cd),
                 number: NUMBER1
@@ -291,7 +291,7 @@ returns swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? {
     }
     if InstdRmbrsmntAgt.FinInstnId?.Nm != () && InstdRmbrsmntAgt.FinInstnId?.PstlAdr == () {
         return <swiftmt:MT54B>{
-            name: "54B",
+            name: MT54B_NAME,
             PrtyIdnTyp: (()),
             PrtyIdn: (()),
             Lctn: {
@@ -302,7 +302,7 @@ returns swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? {
     }
     if InstdRmbrsmntAgt.FinInstnId?.PstlAdr != () {
         return <swiftmt:MT54D>{
-            name: "54D",
+            name: MT54D_NAME,
             PrtyIdnTyp: (()),
             PrtyIdn: (()),
             Nm: getNamesArrayFromNameString(getEmptyStrIfNull(InstdRmbrsmntAgt.FinInstnId?.Nm)),
@@ -330,7 +330,7 @@ returns swiftmt:MT55A?|swiftmt:MT55B?|swiftmt:MT55D? {
     }
     if ThirdRmbrsmntAgt.FinInstnId?.BICFI != () {
         return <swiftmt:MT55A>{
-            name: "55A",
+            name: MT55A_NAME,
             PrtyIdnTyp: {
                 content: getEmptyStrIfNull(ThirdRmbrsmntAgtAcct?.Id?.Othr?.SchmeNm?.Cd),
                 number: NUMBER1
@@ -347,7 +347,7 @@ returns swiftmt:MT55A?|swiftmt:MT55B?|swiftmt:MT55D? {
     }
     if ThirdRmbrsmntAgt.FinInstnId?.Nm != () && ThirdRmbrsmntAgt.FinInstnId?.PstlAdr == () {
         return <swiftmt:MT55B>{
-            name: "55B",
+            name: MT55B_NAME,
             PrtyIdnTyp: (),
             PrtyIdn: (),
             Lctn: {
@@ -358,7 +358,7 @@ returns swiftmt:MT55A?|swiftmt:MT55B?|swiftmt:MT55D? {
     }
     if ThirdRmbrsmntAgt.FinInstnId?.PstlAdr != () {
         return <swiftmt:MT55D>{
-            name: "55D",
+            name: MT55D_NAME,
             PrtyIdnTyp: (),
             PrtyIdn: (),
             Nm: getNamesArrayFromNameString(getEmptyStrIfNull(ThirdRmbrsmntAgt.FinInstnId?.Nm)),
@@ -396,7 +396,7 @@ isolated function getMT103AccountWithInstitutionFromPacs008Document(
     }
     if creditorAgent.FinInstnId?.Nm != () && creditorAgent.FinInstnId?.PstlAdr == () {
         return <swiftmt:MT57B>{
-            name: "57B",
+            name: MT57B_NAME,
             Lctn: {
                 content: getEmptyStrIfNull(creditorAgent.FinInstnId?.Nm),
                 number: NUMBER1
@@ -415,7 +415,7 @@ isolated function getMT103AccountWithInstitutionFromPacs008Document(
 
     if creditorAgent.FinInstnId?.PstlAdr != () {
         return <swiftmt:MT57D>{
-            name: "57D",
+            name: MT57D_NAME,
             Nm: getNamesArrayFromNameString(getEmptyStrIfNull(creditorAgent.FinInstnId?.Nm)),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditorAgent.FinInstnId?.PstlAdr?.AdrLine)
         };
@@ -456,7 +456,7 @@ isolated function getMT103IntermediaryInstitutionFromPacs008Document(
 
         if intrmyAgtAccount?.Id != () {
             return <swiftmt:MT56A>{
-                name: "56A",
+                name: MT56A_NAME,
                 IdnCd: {
                     content: identifier,
                     number: NUMBER1
@@ -465,7 +465,7 @@ isolated function getMT103IntermediaryInstitutionFromPacs008Document(
         }
 
         return <swiftmt:MT56A>{
-            name: "56A",
+            name: MT56A_NAME,
             IdnCd: {
                 content: identifier,
                 number: NUMBER1
@@ -476,7 +476,7 @@ isolated function getMT103IntermediaryInstitutionFromPacs008Document(
         string identifier = getClearingPrefix(clearingChannel) + getEmptyStrIfNull(intrmyAgt.FinInstnId?.ClrSysMmbId?.MmbId);
 
         return <swiftmt:MT56C>{
-            name: "56C",
+            name: MT56C_NAME,
             PrtyIdn: {
                 content: identifier,
                 number: NUMBER1
@@ -485,7 +485,7 @@ isolated function getMT103IntermediaryInstitutionFromPacs008Document(
     }
     if intrmyAgt.FinInstnId?.Othr?.Id != () {
         return <swiftmt:MT56D>{
-            name: "56D",
+            name: MT56D_NAME,
             PrtyIdn: {
                 content: getEmptyStrIfNull(intrmyAgt.FinInstnId.Othr?.Id),
                 number: NUMBER1
@@ -568,7 +568,7 @@ isolated function getBeneficiaryCustomerFromPacs008Document(
             };
         } else {
             return <swiftmt:MT59>{
-                name: "59",
+                name: MT59_NAME,
                 Nm: getNamesArrayFromNameString(getEmptyStrIfNull(creditor.Nm)),
                 AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditor.PstlAdr?.AdrLine)
             };
@@ -576,7 +576,7 @@ isolated function getBeneficiaryCustomerFromPacs008Document(
     }
     if creditor.Nm != () {
         return <swiftmt:MT59>{
-            name: "59",
+            name: MT59_NAME,
             Nm: getNamesArrayFromNameString(getEmptyStrIfNull(creditor.Nm)),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditor.PstlAdr?.AdrLine)
         };
@@ -601,7 +601,7 @@ isolated function mapCategoryPurposeToMT23E(
         string code = categoryPurpose.Cd.toString();
         if code == "CHQB" || code == "HOLD" || code == "PHOB" || code == "TELB" {
             instructionCodes.push({
-                name: "23E",
+                name: MT59_NAME,
                 InstrnCd: {
                     content: code,
                     number: instructionCodes.length().toString()
@@ -613,7 +613,7 @@ isolated function mapCategoryPurposeToMT23E(
         string proprietary = categoryPurpose.Prtry.toString();
         if proprietary.includes("CHQB") {
             instructionCodes.push({
-                name: "23E",
+                name: MT59_NAME,
                 InstrnCd: {
                     content: "CHQB",
                     number: instructionCodes.length().toString()
@@ -622,7 +622,7 @@ isolated function mapCategoryPurposeToMT23E(
         }
         if proprietary.includes("HOLD") {
             instructionCodes.push({
-                name: "23E",
+                name: MT59_NAME,
                 InstrnCd: {
                     content: "HOLD",
                     number: instructionCodes.length().toString()
@@ -631,7 +631,7 @@ isolated function mapCategoryPurposeToMT23E(
         }
         if proprietary.includes("PHOB") {
             instructionCodes.push({
-                name: "23E",
+                name: MT59_NAME,
                 InstrnCd: {
                     content: "PHOB",
                     number: instructionCodes.length().toString()
@@ -640,7 +640,7 @@ isolated function mapCategoryPurposeToMT23E(
         }
         if proprietary.includes("TELB") {
             instructionCodes.push({
-                name: "23E",
+                name: MT59_NAME,
                 InstrnCd: {
                     content: "TELB",
                     number: instructionCodes.length().toString()

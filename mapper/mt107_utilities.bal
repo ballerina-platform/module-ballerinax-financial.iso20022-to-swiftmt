@@ -31,7 +31,7 @@ isolated function getMT107InstructionPartyFromPacs003Document(
 
     if instructingParty.FinInstnId.BICFI is string {
         return <swiftmt:MT50C>{
-            name: "50C",
+            name: MT50C_NAME,
             IdnCd: {
                 content: instructingParty.FinInstnId.BICFI.toString(),
                 number: NUMBER1
@@ -39,7 +39,7 @@ isolated function getMT107InstructionPartyFromPacs003Document(
         };
     } else if instructingParty.FinInstnId.Othr?.Id is string {
         return <swiftmt:MT50L>{
-            name: "50L",
+            name: MT50L_NAME,
             PrtyIdn: {
                 content: instructingParty.FinInstnId.Othr?.Id.toString(),
                 number: NUMBER1
@@ -60,7 +60,7 @@ isolated function getMT107CreditorFromPacs003Document(
 
     if creditor.Id?.OrgId?.AnyBIC is string {
         return <swiftmt:MT50A>{
-            name: "50A",
+            name: MT50A_NAME,
             IdnCd: {
                 content: creditor.Id?.OrgId?.AnyBIC.toString(),
                 number: NUMBER1
@@ -68,7 +68,7 @@ isolated function getMT107CreditorFromPacs003Document(
         };
     } else if creditor.Nm is string || creditor.PstlAdr?.AdrLine is string[] {
         return <swiftmt:MT50K>{
-            name: "50K",
+            name: MT50K_NAME,
             Acc: {
                 content: (<pacsIsoRecord:GenericOrganisationIdentification3>getFirstElementFromArray(creditor.Id?.PrvtId?.Othr))?.Id.toString(),
                 number: NUMBER1
@@ -111,7 +111,7 @@ isolated function getMT107CreditorsBankFromPacs003Document(
     }
     else if creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId is string {
         return <swiftmt:MT52C>{
-            name: "52C",
+            name: MT52C_NAME,
             PrtyIdn: {
                 content: creditorsBank.FinInstnId.ClrSysMmbId?.MmbId.toString(),
                 number: NUMBER1
@@ -120,7 +120,7 @@ isolated function getMT107CreditorsBankFromPacs003Document(
     }
     else if creditorsBank.FinInstnId?.Nm is string {
         return <swiftmt:MT52D>{
-            name: "52D",
+            name: MT52D_NAME,
             PrtyIdn: {
                 content: creditorsBank.FinInstnId?.Othr?.Id.toString(),
                 number: NUMBER1
@@ -153,7 +153,7 @@ isolated function getMT107SendersCorrespondentFromPacs003Document(
 
     if sendersCorrespondent.FinInstnId?.BICFI is string {
         return <swiftmt:MT53A>{
-            name: "53A",
+            name: MT53A_NAME,
             IdnCd: {
                 content: sendersCorrespondent.FinInstnId.BICFI.toString(),
                 number: NUMBER1
@@ -170,7 +170,7 @@ isolated function getMT107SendersCorrespondentFromPacs003Document(
     }
     else if sendersCorrespondent.FinInstnId?.Nm is string {
         return <swiftmt:MT53B>{
-            name: "53B",
+            name: MT53B_NAME,
             PrtyIdn: sendersCorrespondent.FinInstnId?.ClrSysMmbId?.MmbId is string ? {
                     content: sendersCorrespondent.FinInstnId.ClrSysMmbId?.MmbId.toString(),
                     number: NUMBER1

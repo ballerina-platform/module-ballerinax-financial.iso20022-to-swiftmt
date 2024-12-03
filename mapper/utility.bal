@@ -257,7 +257,7 @@ isolated function convertCharges16toMT71a(painIsoRecord:Charges16[]? charges) re
         match charge.Tp?.Cd {
             "CRED" => {
                 swiftmt:MT71F mt71f = {
-                    name: "71F",
+                    name: MT71F_NAME,
                     Ccy: {content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
                     Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER1}
                 };
@@ -267,7 +267,7 @@ isolated function convertCharges16toMT71a(painIsoRecord:Charges16[]? charges) re
 
             "DEBT" => {
                 swiftmt:MT71G mt71g = {
-                    name: "71G",
+                    name: MT71G_NAME,
                     Ccy: {content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
                     Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER1}
                 };
@@ -299,7 +299,7 @@ isolated function convertCharges16toMT71F(painIsoRecord:Charges16[]? charges, st
     }
 
     return {
-        name: "71F",
+        name: MT71F_NAME,
         Ccy: {content: "NOTPROVIDED", number: NUMBER1},
         Amnt: {content: "0", number: NUMBER1}
     };
@@ -344,7 +344,7 @@ isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges, st
     }
 
     swiftmt:MT71G mt71g = {
-        name: "71G",
+        name: MT71G_NAME,
         Ccy: {content: mtCurrency ?: "NOTPROVIDED", number: NUMBER1},
         Amnt: {content: mtAmount, number: NUMBER1}
     };
@@ -370,11 +370,11 @@ isolated function createMT13C(string code, painIsoRecord:ISOTime?|painIsoRecord:
     string convertedTime = hour + minute;
 
     return {
-        name: "13C",
+        name: MT13C_NAME,
         Cd: {content: code, number: NUMBER1},
         Tm: {content: convertedTime, number: NUMBER2},
-        Sgn: {content: "+", number: NUMBER3},
-        TmOfst: {content: "0000", number: NUMBER4}
+        Sgn: {content: "+", number: NUMBER3}, // TODO - This is a placeholder. The sign should be determined based on the timezone.
+        TmOfst: {content: "0000", number: NUMBER4} // TODO - This is a placeholder. The timezone offset should be determined based on the timezone.
     };
 }
 
@@ -427,7 +427,7 @@ isolated function getRemittanceInformation(painIsoRecord:PaymentIdentification13
     if (Prps?.Prtry != ()) {
         string? proprietary = Prps?.Prtry;
         if proprietary is string && proprietary.matches(regExp) {
-            name = "26T";
+            name = MT26T_NAME;
             content = proprietary.substring(5, 8);
             return {name, Nrtv: {content, number}};
         }
@@ -780,7 +780,7 @@ isolated function mapToMT72(pacsIsoRecord:ServiceLevel8Choice[]? serviceLevels,
         pacsIsoRecord:CategoryPurpose1Choice? categoryPurpose,
         pacsIsoRecord:LocalInstrument2Choice? localInstrument) returns swiftmt:MT72 {
 
-    string name = "72";
+    string name = MT72_NAME;
     string content = "";
     string number = NUMBER1;
 
@@ -892,7 +892,7 @@ isolated function getMT20(string? caseId) returns swiftmt:MT20|error {
     }
 
     return {
-        name: "20",
+        name: MT20_NAME,
         msgId: {
             content: field20,
             number: NUMBER1
@@ -922,13 +922,13 @@ isolated function getMT11S(
     if orgnlGrpInfo?.OrgnlMsgNmId is string {
         string orgnlMsgNmId = orgnlGrpInfo?.OrgnlMsgNmId.toString();
         if orgnlMsgNmId.matches(pacs008) {
-            mtType = "103";
+            mtType = MESSAGETYPE_103;
         } else if orgnlMsgNmId.matches(pacs003) {
-            mtType = "104";
+            mtType = MESSAGETYPE_104;
         } else if orgnlMsgNmId.matches(pacs009) {
-            mtType = "202";
+            mtType = MESSAGETYPE_202;
         } else if orgnlMsgNmId.matches(pacs010) {
-            mtType = "204";
+            mtType = MESSAGETYPE_203;
         } else if orgnlMsgNmId.matches(mt10x) || orgnlMsgNmId.matches(mt20x) {
             mtType = orgnlMsgNmId.substring(2, 3);
         }
@@ -940,7 +940,7 @@ isolated function getMT11S(
     }
 
     return {
-        name: "11S",
+        name: MT11S_NAME,
         MtNum: {
             content: mtType,
             number: NUMBER1
@@ -967,7 +967,7 @@ isolated function getMT32A(
         string amount = orgnlIntrBkSttlmAmt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString();
 
         return {
-            name: "32A",
+            name: MT32A_NAME,
             Dt: {content: date, number: NUMBER2},
             Ccy: {content: currency, number: NUMBER1},
             Amnt: {content: amount, number: NUMBER3}

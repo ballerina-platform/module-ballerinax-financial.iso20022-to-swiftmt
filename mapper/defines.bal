@@ -62,6 +62,10 @@ const string MESSAGETYPE_107 = "107";
 const string MESSAGETYPE_192 = "192";
 const string MESSAGETYPE_195 = "195";
 const string MESSAGETYPE_196 = "196";
+const string MESSAGETYPE_200 = "200";
+const string MESSAGETYPE_201 = "201";
+const string MESSAGETYPE_202 = "202";
+const string MESSAGETYPE_204 = "204";
 
 const string NUMBER1 = "1";
 const string NUMBER2 = "2";
@@ -84,7 +88,7 @@ const string MT71A_NAME = "71A";
 const string MT72_NAME = "72";
 const string MT32B_NAME = "32B";
 const string MT71F_NAME = "71F";
-const string MT71G_NAME = "71G";
+const string MT71G_NAME = MT71G_NAME;
 const string MT36_NAME = "36";
 const string MT21D_NAME = "21D";
 const string MT33B_NAME = "33B";
@@ -117,7 +121,21 @@ const string MT59_NAME = "59";
 const string MT52B_NAME = "52B";
 const string MT56F_NAME = "56F";
 const string MT53A_NAME = "53A";
+const string MT53B_NAME = "53B";
 const string MT53C_NAME = "53C";
+const string MT53D_NAME = "53D";
+const string MT50A_NAME = "50A";
+const string MT50K_NAME = "50K";
+const string MT52D_NAME = "52D";
+const string MT54A_NAME = "54A";
+const string MT54B_NAME = "54B";
+const string MT54D_NAME = "54D";
+const string MT55A_NAME = "55A";
+const string MT55B_NAME = "55B";
+const string MT55D_NAME = "55D";
+const string MT57B_NAME = "57B";
+const string MT13C_NAME = "13C";
+const string MT32A_NAME = "32A";
 
 # This record is used to store any type of MT message record and the type name
 #
