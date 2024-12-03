@@ -40,7 +40,7 @@ function transformPain001DocumentToMT101(painIsoRecord:Pain001Document document)
                     number: NUMBER1
                 }
             },
-            MT28D: { // TODO - Implement the correct mapping
+            MT28D: { // TODO - Implement the correct mapping since this is a mandatory field
                 name: MT28D_NAME,
                 MsgIdx: {
                     content: NUMBER1,

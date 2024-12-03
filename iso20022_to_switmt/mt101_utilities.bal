@@ -83,7 +83,7 @@ returns swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? {
         };
     }
 
-    // TODO - Need to implement MT50G and MT50H
+    // TODO - Need to implement MT50G and MT50H mappings and return the correct record
 
     return ();
 

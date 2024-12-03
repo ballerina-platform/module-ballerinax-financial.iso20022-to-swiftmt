@@ -61,7 +61,7 @@ isolated function createMT102Block4(pacsIsoRecord:Pacs008Document document, bool
 
     swiftmt:MT23 MT23 = {
         name: MT23_NAME,
-        Cd: {content: firstTransaction.PmtTpInf?.CtgyPurp?.Cd.toString(), number: ""}
+        Cd: {content: firstTransaction.PmtTpInf?.CtgyPurp?.Cd.toString(), number: NUMBER1}
     };
 
     swiftmt:MT51A MT51A = {

@@ -22,6 +22,7 @@ import ballerinax/financial.iso20022.payments_clearing_and_settlement as pacsIso
 import ballerinax/financial.swift.mt as swiftmt;
 
 // TODO: Add the necessary functions to map the MX messages to the MT messages.
+// Need to map logical terminal and sequence information from the MX message to the MT message.
 # Create the block 1 of the MT message from the supplementary data of the MX message.
 # Currently, this function extracts logical terminal and sequence information from supplementary data.
 #
@@ -58,6 +59,7 @@ isolated function generateMtBlock1FromSupplementaryData(painIsoRecord:Supplement
 }
 
 // TODO Add the necessary functions to map the MX messages to the MT messages.
+// Need to map the MIRLogicalTerminal, MIRSessionNumber, and MIRSequenceNumber from the MX message to the MT message.
 # Create the block 2 of the MT message from the supplementary data of the MX message
 # Currently, this function extracts the message type from the supplementary data if it is not provided directly.
 #
@@ -78,6 +80,7 @@ isolated function generateMtBlock2(string? mtMessageId) returns swiftmt:Block2|e
 }
 
 // TODO Add the necessary functions to map the MX messages to the MT messages.
+// Need to map the MIRLogicalTerminal, MIRSessionNumber, and MIRSequenceNumber from the MX message to the MT message.
 # Create the block 2 of the MT message from the supplementary data of the MX message
 # Currently, this function extracts the message type from the supplementary data if it is not provided directly.
 #
@@ -103,6 +106,7 @@ isolated function generateMtBlock2WithDateTime(string? mtMessageId, painIsoRecor
 }
 
 // TODO Add the necessary functions to map the MX messages to the MT messages.
+// Need to map the required fields from the MX message to the MT message.
 # Create the block 3 of the MT message from the supplementary data of the MX message
 # Currently, this function is empty, but if we decide to add any logic to create the block 3 from the supplementary data,
 #
@@ -128,6 +132,7 @@ isolated function generateMtBlock3(painIsoRecord:SupplementaryData1[]? supplemen
 }
 
 // TODO Add the necessary functions to map the MX messages to the MT messages.
+// If nessary, add the logic to create the block 5 from the supplementary data.
 # Create the block 5 of the MT message from the supplementary data of the MX message
 # Currently, this function is empty, but if we decide to add any logic to create the block 5 from the supplementary data,
 #
@@ -327,7 +332,8 @@ isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges, st
         string currentCurrency = charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy;
         if mtCurrency is () {
             mtCurrency = currentCurrency;
-        } else if mtCurrency != currentCurrency {
+        }
+        if mtCurrency != currentCurrency {
             return error("All charges must have the same currency (Error Code: T20045).");
         }
 
@@ -390,15 +396,20 @@ isolated function convertTimeToMT13C(
 
     if SttlmTmIndctn?.DbtDtTm is painIsoRecord:ISODateTime {
         return check createMT13C("/SNDTIME/", SttlmTmIndctn?.DbtDtTm);
-    } else if SttlmTmIndctn?.CdtDtTm is painIsoRecord:ISODateTime {
+    }
+    if SttlmTmIndctn?.CdtDtTm is painIsoRecord:ISODateTime {
         return check createMT13C("/RNCTIME/", SttlmTmIndctn?.CdtDtTm);
-    } else if SttlmTmReq?.CLSTm is painIsoRecord:ISOTime {
+    }
+    if SttlmTmReq?.CLSTm is painIsoRecord:ISOTime {
         return check createMT13C("/CLSTIME/", SttlmTmReq?.CLSTm);
-    } else if SttlmTmReq?.TillTm is painIsoRecord:ISOTime {
+    }
+    if SttlmTmReq?.TillTm is painIsoRecord:ISOTime {
         return check createMT13C("/TILTIME/", SttlmTmReq?.TillTm);
-    } else if SttlmTmReq?.FrTm is painIsoRecord:ISOTime {
+    }
+    if SttlmTmReq?.FrTm is painIsoRecord:ISOTime {
         return check createMT13C("/FROTIME/", SttlmTmReq?.FrTm);
-    } else if SttlmTmReq?.RjctTm is painIsoRecord:ISOTime {
+    }
+    if SttlmTmReq?.RjctTm is painIsoRecord:ISOTime {
         return check createMT13C("/REJTIME/", SttlmTmReq?.RjctTm);
     }
 
@@ -436,7 +447,7 @@ isolated function getRemittanceInformation(painIsoRecord:PaymentIdentification13
     if (PmtId?.EndToEndId != ()) {
         content = getEmptyStrIfNull(PmtId?.EndToEndId);
     }
-    else if (RmtInf?.Ustrd != ()) {
+    if (RmtInf?.Ustrd != ()) {
         string[] unstructured = RmtInf?.Ustrd ?: [];
         content = joinStringArray(unstructured, "\n");
     }
@@ -449,17 +460,17 @@ isolated function getRemittanceInformation(painIsoRecord:PaymentIdentification13
 # + PmtTpInf - The payment type information
 # + return - The bank operation code
 isolated function getBankOperationCodeFromPaymentTypeInformation22(painIsoRecord:PaymentTypeInformation28? PmtTpInf) returns string {
-    if (PmtTpInf == ()) {
+    if PmtTpInf == () {
         return "";
     }
 
     painIsoRecord:ServiceLevel8Choice[]? svcLvl = PmtTpInf.SvcLvl;
 
-    if (svcLvl == ()) {
+    if svcLvl == () {
         return "";
     }
 
-    if (svcLvl.length() > 0) {
+    if svcLvl.length() > 0 {
         painIsoRecord:ServiceLevel8Choice svcLvl0 = svcLvl[0];
 
         if (svcLvl0.Cd != ()) {
@@ -517,7 +528,7 @@ isolated function getMtCountryAndTownFromMxCountryAndTown(string country, string
 
     string countryAndTown = country + "/" + town;
 
-    if (countryAndTown != "") {
+    if countryAndTown != "" {
         result.push({
             content: countryAndTown,
             number: NUMBER1
@@ -576,10 +587,10 @@ isolated function joinStringArray(string[] strings, string separator) returns st
 # + array - The array to process.
 # + return - The first element of the array or null if the array is empty.
 isolated function getFirstElementFromArray(any[]? array) returns any? {
-    if (array == ()) {
+    if array == () {
         return ();
     }
-    if (array.length() > 0) {
+    if array.length() > 0 {
         return array[0];
     }
     return ();
@@ -590,10 +601,10 @@ isolated function getFirstElementFromArray(any[]? array) returns any? {
 # + array - The array to process.
 # + return - The last element of the array or null if the array is empty.
 function getLastElementFromArray(any[]? array) returns any? {
-    if (array == ()) {
+    if array == () {
         return ();
     }
-    if (array.length() > 0) {
+    if array.length() > 0 {
         return array[array.length() - 1];
     }
     return ();
@@ -648,7 +659,7 @@ isolated function generateMtBlock1FromInstgAgtAndInstdAgt(camtIsoRecord:BranchAn
 # + Assgnmt - The assignment details containing Assgne and Assgnr fields.
 # + return - Returns the constructed Block 1 of the MT message or null if it cannot be created.
 isolated function generateMtBlock1FromAssgnmt(camtIsoRecord:CaseAssignment6? Assgnmt) returns swiftmt:Block1?|error {
-    if (Assgnmt == ()) {
+    if Assgnmt == () {
         return ();
     }
     string? assgneBIC = Assgnmt?.Assgne?.Agt?.FinInstnId?.BICFI;
