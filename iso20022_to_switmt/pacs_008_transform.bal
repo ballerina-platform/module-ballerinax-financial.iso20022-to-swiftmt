@@ -25,7 +25,7 @@ function transformPacs008DocumentToMT102(pacsIsoRecord:Pacs008Document document)
     block1: generateMtBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check generateMtBlock2WithDateTime(MESSAGETYPE_102, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, ""),
-    block4: <swiftmt:MT102Block4>check generateMT102Block4(document, false),
+    block4: <swiftmt:MT102Block4>check generateMT102Block4(document, false).ensureType(swiftmt:MT102Block4),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
@@ -37,7 +37,7 @@ function transformPacs008DocumentToMT102STP(pacsIsoRecord:Pacs008Document docume
     block1: generateMtBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check generateMtBlock2WithDateTime(MESSAGETYPE_102_STP, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "STP"),
-    block4: <swiftmt:MT102STPBlock4>check generateMT102Block4(document, true),
+    block4: check generateMT102Block4(document, true).ensureType(swiftmt:MT102STPBlock4),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
@@ -131,7 +131,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
     );
 
     if isSTP {
-        return <swiftmt:MT102STPBlock4>{
+        return {
             MT20,
             MT23,
             MT50A,
@@ -150,9 +150,9 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
             MT54A,
             MT72,
             Transaction: <swiftmt:MT102STPTransaction[]>Transactions
-        };
+        }.ensureType(swiftmt:MT102STPBlock4);
     }
-    return <swiftmt:MT102Block4>{
+    return {
         MT20,
         MT23,
         MT51A,
@@ -174,7 +174,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
         MT54A,
         MT72,
         Transaction: <swiftmt:MT102Transaction[]>Transactions
-    };
+    }.ensureType(swiftmt:MT102Block4);
 
 }
 
@@ -299,7 +299,7 @@ function transformPacs008DocumentToMT103(pacsIsoRecord:Pacs008Document document)
     block1: generateMtBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check generateMtBlock2WithDateTime(MESSAGETYPE_103, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, ""),
-    block4: <swiftmt:MT103Block4>check generateMT103Block4(document, MT103),
+    block4: check generateMT103Block4(document, MT103).ensureType(swiftmt:MT103Block4),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
@@ -311,7 +311,7 @@ function transformPacs008DocumentToMT103STP(pacsIsoRecord:Pacs008Document docume
     block1: generateMtBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check generateMtBlock2WithDateTime(MESSAGETYPE_103_STP, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "STP"),
-    block4: <swiftmt:MT103STPBlock4>check generateMT103Block4(document, MT103_STP),
+    block4: check generateMT103Block4(document, MT103_STP).ensureType(swiftmt:MT103STPBlock4),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
@@ -323,7 +323,7 @@ function transformPacs008DocumentToMT103REMIT(pacsIsoRecord:Pacs008Document docu
     block1: generateMtBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check generateMtBlock2(MESSAGETYPE_103_REMIT),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "REMIT"),
-    block4: <swiftmt:MT103REMITBlock4>check generateMT103Block4(document, MT103_REMIT),
+    block4: check generateMT103Block4(document, MT103_REMIT).ensureType(swiftmt:MT103REMITBlock4),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
@@ -467,7 +467,7 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
 
     match messageType {
         MT103 => {
-            return <swiftmt:MT103Block4>{
+            return {
                 MT20,
                 MT13C,
                 MT23B,
@@ -504,11 +504,11 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
                 MT71F,
                 MT71G,
                 MT72
-            };
+            }.ensureType(swiftmt:MT103Block4);
         }
 
         MT103_STP => {
-            return <swiftmt:MT103STPBlock4>{
+            return {
                 MT20,
                 MT13C,
                 MT23B,
@@ -535,11 +535,11 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
                 MT71F,
                 MT71G,
                 MT72
-            };
+            }.ensureType(swiftmt:MT103STPBlock4);
         }
 
         MT103_REMIT => {
-            return <swiftmt:MT103REMITBlock4>{
+            return {
                 MT20,
                 MT13C,
                 MT23B,
@@ -576,7 +576,7 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
                 MT71G,
                 MT72,
                 MT77T
-            };
+            }.ensureType(swiftmt:MT103REMITBlock4);
         }
     }
 

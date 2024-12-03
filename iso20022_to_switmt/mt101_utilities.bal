@@ -235,4 +235,5 @@ returns swiftmt:MT59|swiftmt:MT59A?|swiftmt:MT59F? {
         Nm: getNamesArrayFromNameString(cdtr.Nm.toString()),
         AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>cdtr.PstlAdr?.AdrLine)
     };
+
 }
