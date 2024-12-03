@@ -39,7 +39,8 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
                 number: NUMBER1
             }
         };
-    } else if !(otherIds is ()) && otherIds.length() > 0 {
+    }
+    if !(otherIds is ()) && otherIds.length() > 0 {
         return <swiftmt:MT50L>{
             name: MT50L_NAME,
             PrtyIdn: {
@@ -73,7 +74,8 @@ returns swiftmt:MT50A?|swiftmt:MT50K? {
                 number: NUMBER1
             }
         };
-    } else if creditor.Nm != () || (!(AdrLine is ()) && AdrLine.length() > 0) {
+    }
+    if creditor.Nm != () || (!(AdrLine is ()) && AdrLine.length() > 0) {
         return <swiftmt:MT50K>{
             name: MT50K_NAME,
             Nm: getNamesArrayFromNameString(creditor.Nm.toString()),
@@ -105,7 +107,7 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
             }
         };
     }
-    else if creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId != () {
+    if creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId != () {
         return <swiftmt:MT52C>{
             name: MT52C_NAME,
             PrtyIdn: {
@@ -114,7 +116,7 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
             }
         };
     }
-    else if creditorsBank.FinInstnId?.Nm != () || creditorsBank.FinInstnId?.PstlAdr?.AdrLine != () {
+    if creditorsBank.FinInstnId?.Nm != () || creditorsBank.FinInstnId?.PstlAdr?.AdrLine != () {
         return <swiftmt:MT52D>{
             name: MT52D_NAME,
             Nm: getNamesArrayFromNameString(creditorsBank.FinInstnId?.Nm.toString()),
@@ -144,7 +146,8 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
                 number: NUMBER1
             }
         };
-    } else if dbtrAgt.FinInstnId?.ClrSysMmbId?.MmbId != () {
+    }
+    if dbtrAgt.FinInstnId?.ClrSysMmbId?.MmbId != () {
         return <swiftmt:MT57C>{
             name: MT57C_NAME,
             PrtyIdn: {
@@ -152,7 +155,8 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
                 number: NUMBER1
             }
         };
-    } else if dbtrAgt.FinInstnId?.Othr?.Id != () {
+    }
+    if dbtrAgt.FinInstnId?.Othr?.Id != () {
         return <swiftmt:MT57D>{
             name: MT57D_NAME,
             PrtyIdn: {
@@ -187,7 +191,7 @@ returns swiftmt:MT59?|swiftmt:MT59A? {
             }
         };
     }
-    else if debtor.Nm != () || debtor.PstlAdr?.AdrLine != () {
+    if debtor.Nm != () || debtor.PstlAdr?.AdrLine != () {
         return <swiftmt:MT59>{
             name: MT59_NAME,
             Nm: getNamesArrayFromNameString(debtor.Nm.toString()),
@@ -219,7 +223,7 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
             }
         };
     }
-    else if sendersCorrespondent.FinInstnId?.PstlAdr?.TwnNm != () {
+    if sendersCorrespondent.FinInstnId?.PstlAdr?.TwnNm != () {
         return <swiftmt:MT53B>{
             name: MT53B_NAME,
             Lctn: {
@@ -240,9 +244,11 @@ function getMT71AChargesCode(string chargeBearer) returns string {
     string mappedCode = "";
     if chargeBearer == "CRED" {
         mappedCode = "BEN";
-    } else if chargeBearer == "DEBT" {
+    }
+    if chargeBearer == "DEBT" {
         mappedCode = "OUR";
-    } else if chargeBearer == "SHAR" {
+    }
+    if chargeBearer == "SHAR" {
         mappedCode = "SHA";
     }
     return mappedCode;
@@ -347,7 +353,7 @@ returns swiftmt:MT50C?|swiftmt:MT50L? {
             }
         };
     }
-    else if finInstId.Othr != () {
+    if finInstId.Othr != () {
         return <swiftmt:MT50L>{
             name: MT50L_NAME,
             PrtyIdn: {
@@ -381,7 +387,8 @@ returns swiftmt:MT50A?|swiftmt:MT50K? {
                 number: NUMBER1
             }
         };
-    } else if creditor.Nm != () || (!(AdrLine is ()) && AdrLine.length() > 0) {
+    }
+    if creditor.Nm != () || (!(AdrLine is ()) && AdrLine.length() > 0) {
         return <swiftmt:MT50K>{
             name: MT50K_NAME,
             Nm: getNamesArrayFromNameString(creditor.Nm.toString()),
@@ -416,7 +423,8 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
                 number: NUMBER1
             }
         };
-    } else if finInstId.ClrSysMmbId?.MmbId != () {
+    }
+    if finInstId.ClrSysMmbId?.MmbId != () {
         return <swiftmt:MT52C>{
             name: MT52C_NAME,
             PrtyIdn: {
@@ -424,7 +432,8 @@ returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
                 number: NUMBER1
             }
         };
-    } else if finInstId.Othr?.Id != () {
+    }
+    if finInstId.Othr?.Id != () {
         return <swiftmt:MT52D>{
             name: MT52D_NAME,
             PrtyIdn: {
@@ -463,7 +472,8 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
                 number: NUMBER1
             }
         };
-    } else if finInstId.ClrSysMmbId?.MmbId != () {
+    }
+    if finInstId.ClrSysMmbId?.MmbId != () {
         return <swiftmt:MT57C>{
             name: MT57C_NAME,
             PrtyIdn: {
@@ -471,7 +481,8 @@ returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
                 number: NUMBER1
             }
         };
-    } else if finInstId.Othr?.Id != () {
+    }
+    if finInstId.Othr?.Id != () {
         return <swiftmt:MT57D>{
             name: MT57D_NAME,
             PrtyIdn: {
@@ -507,8 +518,7 @@ returns swiftmt:MT59?|swiftmt:MT59A? {
             }
         };
     }
-
-    else if debtor.Nm != () || debtor.PstlAdr?.AdrLine != () {
+    if debtor.Nm != () || debtor.PstlAdr?.AdrLine != () {
         return <swiftmt:MT59>{
             name: MT59_NAME,
             Nm: getNamesArrayFromNameString(debtor.Nm.toString()),
@@ -544,7 +554,6 @@ returns swiftmt:MT53A?|swiftmt:MT53B? {
             }
         };
     }
-
     if finInstId.PstlAdr?.TwnNm != () {
         return <swiftmt:MT53B>{
             name: MT53B_NAME,

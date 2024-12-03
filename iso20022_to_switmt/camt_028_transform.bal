@@ -34,10 +34,10 @@ isolated function transformCamt028ToMT196(camtIsoRecord:Camt028Document document
                 number: NUMBER1
             }
         },
-        MT11S: { // TODO - Implement the correct mapping
+        MT11S: { // TODO - Implement the correct mapping for this field
             name: MT11S_NAME,
             MtNum: {
-                content: "028", // TODO - Implement the correct mapping
+                content: "028", // TODO - Implement the correct mapping for this field
                 number: NUMBER1
             },
             Dt: check convertISODateStringToSwiftMtDate(document.AddtlPmtInf.Assgnmt.CreDtTm.toString())
@@ -54,7 +54,7 @@ isolated function transformCamt028ToMT196(camtIsoRecord:Camt028Document document
                 name: MT79_NAME,
                 Nrtv: getAdditionalNarrativeInfo(document.AddtlPmtInf.SplmtryData)
             } : (),
-        MessageCopy: ()
+        MessageCopy: () // TODO - Need to add the relavent field mapping for this using the official mappings
     },
     block5: check generateMtBlock5FromSupplementaryData(document.AddtlPmtInf.SplmtryData)
 

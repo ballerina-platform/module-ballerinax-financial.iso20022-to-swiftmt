@@ -457,7 +457,7 @@ isolated function createMT103Block4(pacsIsoRecord:Pacs008Document document, MT10
 
     swiftmt:MT72 MT72 = mapToMT72(firstTransaction.PmtTpInf?.SvcLvl, firstTransaction.PmtTpInf?.CtgyPurp, firstTransaction.PmtTpInf?.LclInstrm);
 
-    swiftmt:MT77T MT77T = { // TODO: Implement this
+    swiftmt:MT77T MT77T = { // TODO: Implement this field mapping
         name: MT77T_NAME,
         EnvCntnt: {
             content: "",

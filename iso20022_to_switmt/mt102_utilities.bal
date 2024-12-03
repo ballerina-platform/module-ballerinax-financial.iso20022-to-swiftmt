@@ -60,23 +60,22 @@ returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? {
                     number: NUMBER1
                 }
             };
-        } else {
-            return <swiftmt:MT52B>{
-                name: MT52B_NAME,
-                PrtyIdnTyp: {
-                    content: getEmptyStrIfNull(FinInstnId.Othr?.SchmeNm?.Cd),
-                    number: NUMBER1
-                },
-                PrtyIdn: {
-                    content: getEmptyStrIfNull(FinInstnId.Othr?.Id),
-                    number: NUMBER2
-                },
-                Lctn: {
-                    content: getEmptyStrIfNull(FinInstnId.Othr?.Id),
-                    number: NUMBER1
-                }
-            };
         }
+        return <swiftmt:MT52B>{
+            name: MT52B_NAME,
+            PrtyIdnTyp: {
+                content: getEmptyStrIfNull(FinInstnId.Othr?.SchmeNm?.Cd),
+                number: NUMBER1
+            },
+            PrtyIdn: {
+                content: getEmptyStrIfNull(FinInstnId.Othr?.Id),
+                number: NUMBER2
+            },
+            Lctn: {
+                content: getEmptyStrIfNull(FinInstnId.Othr?.Id),
+                number: NUMBER1
+            }
+        };
     }
 
     if FinInstnId.PstlAdr != () {
@@ -138,7 +137,6 @@ returns swiftmt:MT57A?|swiftmt:MT57C? {
 # + return - The transaction beneficiary customer or an empty record
 isolated function getMT102TransactionBeneficiaryCustomerFromPacs008Document(SwiftMxRecords:CreditTransferTransaction64 mxTransaction)
 returns swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? {
-
     SwiftMxRecords:PartyIdentification272? Cdtr = mxTransaction.Cdtr;
     SwiftMxRecords:CashAccount40? CdtrAcct = mxTransaction.CdtrAcct;
 

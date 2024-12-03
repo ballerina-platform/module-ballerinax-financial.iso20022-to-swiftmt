@@ -102,13 +102,12 @@ isolated function getOrderingCustomerFromPacs008Document(
                     }
                 ]
             };
-        } else {
-            return <swiftmt:MT50K>{
-                name: MT50K_NAME,
-                Nm: getNamesArrayFromNameString(getEmptyStrIfNull(debtor.Nm)),
-                AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtor.PstlAdr?.AdrLine)
-            };
         }
+        return <swiftmt:MT50K>{
+            name: MT50K_NAME,
+            Nm: getNamesArrayFromNameString(getEmptyStrIfNull(debtor.Nm)),
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtor.PstlAdr?.AdrLine)
+        };
     }
 
     if debtor.Nm != () {
@@ -187,13 +186,13 @@ isolated function getMT103OrderingInstitutionFromPacs008Document(
                 Nm: getNamesArrayFromNameString(getEmptyStrIfNull(debtorAgent.FinInstnId.Nm)),
                 AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtorAgent.FinInstnId.PstlAdr?.AdrLine)
             };
-        } else {
-            return <swiftmt:MT52D>{
-                name: MT52D_NAME,
-                Nm: getNamesArrayFromNameString(getEmptyStrIfNull(debtorAgent.FinInstnId.Nm)),
-                AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtorAgent.FinInstnId.PstlAdr?.AdrLine)
-            };
         }
+        return <swiftmt:MT52D>{
+            name: MT52D_NAME,
+            Nm: getNamesArrayFromNameString(getEmptyStrIfNull(debtorAgent.FinInstnId.Nm)),
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>debtorAgent.FinInstnId.PstlAdr?.AdrLine)
+        };
+
     }
     if debtorAgent.FinInstnId?.Nm != () {
         return <swiftmt:MT52D>{
@@ -566,13 +565,13 @@ isolated function getBeneficiaryCustomerFromPacs008Document(
                         getEmptyStrIfNull(creditor.PstlAdr?.TwnNm)
                 )
             };
-        } else {
-            return <swiftmt:MT59>{
-                name: MT59_NAME,
-                Nm: getNamesArrayFromNameString(getEmptyStrIfNull(creditor.Nm)),
-                AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditor.PstlAdr?.AdrLine)
-            };
         }
+        return <swiftmt:MT59>{
+            name: MT59_NAME,
+            Nm: getNamesArrayFromNameString(getEmptyStrIfNull(creditor.Nm)),
+            AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditor.PstlAdr?.AdrLine)
+        };
+
     }
     if creditor.Nm != () {
         return <swiftmt:MT59>{

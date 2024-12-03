@@ -55,7 +55,7 @@ isolated function transformCamt031ToMT196(camtIsoRecord:Camt031Document document
                 name: MT79_NAME,
                 Nrtv: getAdditionalNarrativeInfo(document.RjctInvstgtn.SplmtryData)
             } : (),
-        MessageCopy: ()
+        MessageCopy: () // TODO - Need to add the relavent field mapping for this using the official mappings
     },
     block5: check generateMtBlock5FromSupplementaryData(document.RjctInvstgtn.SplmtryData)
 };

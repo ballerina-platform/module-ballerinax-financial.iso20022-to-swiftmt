@@ -68,7 +68,7 @@ isolated function generateMtBlock1FromSupplementaryData(painIsoRecord:Supplement
 isolated function generateMtBlock2(string? mtMessageId) returns swiftmt:Block2|error {
     string messageType = mtMessageId.toString();
 
-    if (messageType == "") {
+    if messageType == "" {
         return error("Failed to identify the message type");
     }
 
@@ -90,7 +90,7 @@ isolated function generateMtBlock2(string? mtMessageId) returns swiftmt:Block2|e
 isolated function generateMtBlock2WithDateTime(string? mtMessageId, painIsoRecord:ISODateTime? isoDateTime) returns swiftmt:Block2|error {
     string messageType = mtMessageId.toString();
 
-    if (messageType == "") {
+    if messageType == "" {
         return error("Failed to identify the message type");
     }
 
@@ -157,7 +157,7 @@ isolated function getActiveOrHistoricCurrencyAndAmountCcy(painIsoRecord:ActiveOr
 # + ccyAndAmount - The payment type information from the MX message
 # + return - The MT103 message or an error if the conversion fails
 isolated function getActiveOrHistoricCurrencyAndAmountValue(painIsoRecord:ActiveOrHistoricCurrencyAndAmount? ccyAndAmount) returns string {
-    if (ccyAndAmount == ()) {
+    if ccyAndAmount == () {
         return "";
     }
 
@@ -196,7 +196,7 @@ isolated function convertISODateStringToSwiftMtDate(string date, string number =
 # + value - The value
 # + return - The value or an empty string if the value is null
 isolated function getEmptyStrIfNull(anydata? value) returns string {
-    if (value == ()) {
+    if value == () {
         return "";
     }
 
@@ -211,7 +211,7 @@ isolated function getEmptyStrIfNull(anydata? value) returns string {
 isolated function getDetailsOfChargesFromChargeBearerType1Code(painIsoRecord:ChargeBearerType1Code? chargeBearer = (), string number = NUMBER1) returns swiftmt:Cd {
     string chargeBearerType = "";
 
-    if (chargeBearer != ()) {
+    if chargeBearer != () {
         match chargeBearer {
             painIsoRecord:CRED => {
                 chargeBearerType = "BEN";
@@ -240,7 +240,7 @@ isolated function getDetailsOfChargesFromChargeBearerType1Code(painIsoRecord:Cha
 # + number - The decimal number
 # + return - The Swift Mt decimal number string
 isolated function convertDecimalNumberToSwiftDecimal(decimal? number) returns string {
-    if (number == ()) {
+    if number == () {
         return "";
     }
 
@@ -254,7 +254,7 @@ isolated function convertDecimalNumberToSwiftDecimal(decimal? number) returns st
 isolated function convertCharges16toMT71a(painIsoRecord:Charges16[]? charges) returns (swiftmt:MT71F|swiftmt:MT71G)[] {
     (swiftmt:MT71F|swiftmt:MT71G)[] result = [];
 
-    if (charges == ()) {
+    if charges == () {
         return result;
     }
 
@@ -435,7 +435,7 @@ isolated function getRemittanceInformation(painIsoRecord:PaymentIdentification13
     string number = NUMBER1;
 
     string:RegExp regExp = re `:26T:[A-Z0-9]{3}`;
-    if (Prps?.Prtry != ()) {
+    if Prps?.Prtry != () {
         string? proprietary = Prps?.Prtry;
         if proprietary is string && proprietary.matches(regExp) {
             name = MT26T_NAME;
@@ -444,10 +444,10 @@ isolated function getRemittanceInformation(painIsoRecord:PaymentIdentification13
         }
     }
 
-    if (PmtId?.EndToEndId != ()) {
+    if PmtId?.EndToEndId != () {
         content = getEmptyStrIfNull(PmtId?.EndToEndId);
     }
-    if (RmtInf?.Ustrd != ()) {
+    if RmtInf?.Ustrd != () {
         string[] unstructured = RmtInf?.Ustrd ?: [];
         content = joinStringArray(unstructured, "\n");
     }
@@ -472,7 +472,6 @@ isolated function getBankOperationCodeFromPaymentTypeInformation22(painIsoRecord
 
     if svcLvl.length() > 0 {
         painIsoRecord:ServiceLevel8Choice svcLvl0 = svcLvl[0];
-
         if (svcLvl0.Cd != ()) {
             return svcLvl0.Cd.toString();
         }
@@ -488,7 +487,6 @@ isolated function getBankOperationCodeFromPaymentTypeInformation22(painIsoRecord
 # + return - The names array
 isolated function getNamesArrayFromNameString(string nameString) returns swiftmt:Nm[] {
     string[] names = regex:split(nameString, " ");
-
     swiftmt:Nm[] result = [];
 
     foreach int i in 0 ... names.length() - 1 {
@@ -525,7 +523,6 @@ isolated function getMtAddressLinesFromMxAddresses(string[] addresses) returns s
 # + return - The country and town
 isolated function getMtCountryAndTownFromMxCountryAndTown(string country, string town) returns swiftmt:CntyNTw[] {
     swiftmt:CntyNTw[] result = [];
-
     string countryAndTown = country + "/" + town;
 
     if countryAndTown != "" {
@@ -768,7 +765,7 @@ isolated function getAmountValueFromInterbankOrInstructedAmount(
 isolated function extractSwiftMtDateFromMXDate(string mxDate) returns string|error {
     swiftmt:Dt|error convertedDate = check convertISODateStringToSwiftMtDate(mxDate, NUMBER2);
 
-    if (convertedDate is error) {
+    if convertedDate is error {
         return "";
     }
     return convertedDate.content.substring(2, 6);
@@ -815,12 +812,10 @@ isolated function mapToMT72(pacsIsoRecord:ServiceLevel8Choice[]? serviceLevels,
             content += "/SVCLVL/" + code + " ";
         }
     }
-
     if serviceLevel?.Prtry is string {
         string proprietary = serviceLevel?.Prtry.toString();
         content += "/SVCLVL/" + proprietary + " ";
     }
-
     if categoryPurpose?.Cd is string {
         string code = categoryPurpose?.Cd.toString();
 
@@ -828,7 +823,6 @@ isolated function mapToMT72(pacsIsoRecord:ServiceLevel8Choice[]? serviceLevels,
             content += "/CATPURP/" + code + " ";
         }
     }
-
     if categoryPurpose?.Prtry is string {
         string proprietary = categoryPurpose?.Prtry.toString();
 
@@ -836,12 +830,10 @@ isolated function mapToMT72(pacsIsoRecord:ServiceLevel8Choice[]? serviceLevels,
             content += "/CATPURP/" + proprietary + " ";
         }
     }
-
     if localInstrument?.Cd is string {
         string code = localInstrument?.Cd.toString();
         content += "/LOCINS/" + code + " ";
     }
-
     if localInstrument?.Prtry is string {
         string proprietary = localInstrument?.Prtry.toString();
 
@@ -850,7 +842,6 @@ isolated function mapToMT72(pacsIsoRecord:ServiceLevel8Choice[]? serviceLevels,
             content += "/LOCINS/" + proprietary + " ";
         }
     }
-
     content = content.trim();
     if content == "" {
         return {
@@ -934,13 +925,17 @@ isolated function getMT11S(
         string orgnlMsgNmId = orgnlGrpInfo?.OrgnlMsgNmId.toString();
         if orgnlMsgNmId.matches(pacs008) {
             mtType = MESSAGETYPE_103;
-        } else if orgnlMsgNmId.matches(pacs003) {
+        }
+        if orgnlMsgNmId.matches(pacs003) {
             mtType = MESSAGETYPE_104;
-        } else if orgnlMsgNmId.matches(pacs009) {
+        }
+        if orgnlMsgNmId.matches(pacs009) {
             mtType = MESSAGETYPE_202;
-        } else if orgnlMsgNmId.matches(pacs010) {
+        }
+        if orgnlMsgNmId.matches(pacs010) {
             mtType = MESSAGETYPE_203;
-        } else if orgnlMsgNmId.matches(mt10x) || orgnlMsgNmId.matches(mt20x) {
+        }
+        if orgnlMsgNmId.matches(mt10x) || orgnlMsgNmId.matches(mt20x) {
             mtType = orgnlMsgNmId.substring(2, 3);
         }
     }
@@ -1000,14 +995,12 @@ isolated function getOriginalInstructionOrUETR(camtIsoRecord:UnderlyingTransacti
                 if txInf.OrgnlInstrId is string {
                     field21 = txInf.OrgnlInstrId.toString();
                 }
-                else if txInf.OrgnlUETR is string {
+                if txInf.OrgnlUETR is string {
                     field21 = txInf.OrgnlUETR.toString();
                 }
-
                 if field21.length() > 16 {
                     field21 = field21.substring(0, 15) + "+";
                 }
-
                 if field21.startsWith("/") || field21.endsWith("/") || field21.matches(re `//`) {
                     field21 = "NOTPROVIDED";
                 }
@@ -1035,14 +1028,12 @@ isolated function getOriginalInstructionOrUETRFromCamt055(camtIsoRecord:Underlyi
                         if txInf.OrgnlInstrId is string {
                             field21 = txInf.OrgnlInstrId.toString();
                         }
-                        else if txInf.OrgnlUETR is string {
+                        if txInf.OrgnlUETR is string {
                             field21 = txInf.OrgnlUETR.toString();
                         }
-
                         if field21.length() > 16 {
                             field21 = field21.substring(0, 15) + "+";
                         }
-
                         if field21.startsWith("/") || field21.endsWith("/") || field21.matches(re `//`) {
                             field21 = "NOTPROVIDED";
                         }
@@ -1145,12 +1136,11 @@ isolated function getConcatenatedQueries(camtIsoRecord:MissingOrIncorrectData1? 
             string queryContent = "/" + queryNumber.toString() + "/";
             if missing.Tp.Cd is string {
                 queryContent += missing.Tp.Cd.toString();
-            } else if missing.Tp.Prtry is string {
-                queryContent += missing.Tp.Prtry.toString();
-            } else {
-                queryContent += "Unknown Type";
             }
-
+            if missing.Tp.Prtry is string {
+                queryContent += missing.Tp.Prtry.toString();
+            }
+            queryContent += "Unknown Type";
             if missing.AddtlMssngInf is string {
                 queryContent += " " + missing.AddtlMssngInf.toString();
             }
@@ -1168,11 +1158,11 @@ isolated function getConcatenatedQueries(camtIsoRecord:MissingOrIncorrectData1? 
 
             if incorrect.Tp.Cd is string {
                 queryContent += incorrect.Tp.Cd.toString();
-            } else if incorrect.Tp.Prtry is string {
-                queryContent += incorrect.Tp.Prtry.toString();
-            } else {
-                queryContent += "Unknown Type";
             }
+            if incorrect.Tp.Prtry is string {
+                queryContent += incorrect.Tp.Prtry.toString();
+            }
+            queryContent += "Unknown Type";
 
             if incorrect.AddtlIncrrctInf is string {
                 queryContent += " " + incorrect.AddtlIncrrctInf.toString();
@@ -1224,17 +1214,23 @@ isolated function getAdditionalNarrativeInfo(camtIsoRecord:SupplementaryData1[]?
 isolated function getRejectionReasonNarrative(camtIsoRecord:InvestigationRejection1Code rejectionCode) returns string {
     if rejectionCode == camtIsoRecord:NFND {
         return "Investigation rejected: Not found.";
-    } else if (rejectionCode == camtIsoRecord:NAUT) {
+    }
+    if (rejectionCode == camtIsoRecord:NAUT) {
         return "Investigation rejected: Not authorized.";
-    } else if (rejectionCode == camtIsoRecord:UKNW) {
+    }
+    if (rejectionCode == camtIsoRecord:UKNW) {
         return "Investigation rejected: Unknown.";
-    } else if (rejectionCode == camtIsoRecord:PCOR) {
+    }
+    if (rejectionCode == camtIsoRecord:PCOR) {
         return "Investigation rejected: Pending correction.";
-    } else if (rejectionCode == camtIsoRecord:WMSG) {
+    }
+    if (rejectionCode == camtIsoRecord:WMSG) {
         return "Investigation rejected: Wrong message.";
-    } else if (rejectionCode == camtIsoRecord:RNCR) {
+    }
+    if (rejectionCode == camtIsoRecord:RNCR) {
         return "Investigation rejected: Reason not clear.";
-    } else if (rejectionCode == camtIsoRecord:MROI) {
+    }
+    if (rejectionCode == camtIsoRecord:MROI) {
         return "Investigation rejected: Message received out of scope.";
     }
 }

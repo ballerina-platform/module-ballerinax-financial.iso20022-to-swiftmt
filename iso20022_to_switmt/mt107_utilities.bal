@@ -37,7 +37,8 @@ isolated function getMT107InstructionPartyFromPacs003Document(
                 number: NUMBER1
             }
         };
-    } else if instructingParty.FinInstnId.Othr?.Id is string {
+    }
+    if instructingParty.FinInstnId.Othr?.Id is string {
         return <swiftmt:MT50L>{
             name: MT50L_NAME,
             PrtyIdn: {
@@ -66,7 +67,8 @@ isolated function getMT107CreditorFromPacs003Document(
                 number: NUMBER1
             }
         };
-    } else if creditor.Nm is string || creditor.PstlAdr?.AdrLine is string[] {
+    }
+    if creditor.Nm is string || creditor.PstlAdr?.AdrLine is string[] {
         return <swiftmt:MT50K>{
             name: MT50K_NAME,
             Acc: {
@@ -75,12 +77,10 @@ isolated function getMT107CreditorFromPacs003Document(
             },
             Nm: getNamesArrayFromNameString(creditor.Nm.toString()),
             AdrsLine: getMtAddressLinesFromMxAddresses(<string[]>creditor.PstlAdr?.AdrLine)
-        }
-;
+        };
     }
 
     return ();
-
 }
 
 # Extracts the creditor's bank information from a Pacs003Document.
@@ -109,7 +109,7 @@ isolated function getMT107CreditorsBankFromPacs003Document(
             }
         };
     }
-    else if creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId is string {
+    if creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId is string {
         return <swiftmt:MT52C>{
             name: MT52C_NAME,
             PrtyIdn: {
@@ -118,7 +118,7 @@ isolated function getMT107CreditorsBankFromPacs003Document(
             }
         };
     }
-    else if creditorsBank.FinInstnId?.Nm is string {
+    if creditorsBank.FinInstnId?.Nm is string {
         return <swiftmt:MT52D>{
             name: MT52D_NAME,
             PrtyIdn: {
@@ -168,7 +168,7 @@ isolated function getMT107SendersCorrespondentFromPacs003Document(
                 } : ()
         };
     }
-    else if sendersCorrespondent.FinInstnId?.Nm is string {
+    if sendersCorrespondent.FinInstnId?.Nm is string {
         return <swiftmt:MT53B>{
             name: MT53B_NAME,
             PrtyIdn: sendersCorrespondent.FinInstnId?.ClrSysMmbId?.MmbId is string ? {

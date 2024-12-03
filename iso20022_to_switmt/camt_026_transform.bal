@@ -59,7 +59,7 @@ isolated function transformCamt026ToMT195(camtIsoRecord:Camt026Document document
                     Nrtv: formatNarrative(splmtryData[0].Envlp?.Nrtv)
                 }
                 : (),
-            MessageCopy: ()
+            MessageCopy: () // TODO - Need to add the relavent field mapping for this using the official mappings
 
         },
         block5: check generateMtBlock5FromSupplementaryData(document.UblToApply.SplmtryData)
