@@ -83,7 +83,6 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
 
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? orderingInstitution = getMT102OrderingInstitutionFromPacs008Document(document, isSTP);
     swiftmt:MT52A? MT52A = orderingInstitution is swiftmt:MT52A ? check orderingInstitution.ensureType(swiftmt:MT52A) : ();
-    swiftmt:MT52B? MT52B = orderingInstitution is swiftmt:MT52B ? check orderingInstitution.ensureType(swiftmt:MT52B) : ();
     swiftmt:MT52C? MT52C = orderingInstitution is swiftmt:MT52C ? check orderingInstitution.ensureType(swiftmt:MT52C) : ();
 
     swiftmt:MT26T? MT26T = {
@@ -131,7 +130,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
     );
 
     if isSTP {
-        return {
+        return <swiftmt:MT102STPBlock4>{
             MT20,
             MT23,
             MT50A,
@@ -150,9 +149,9 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
             MT54A,
             MT72,
             Transaction: <swiftmt:MT102STPTransaction[]>Transactions
-        }.ensureType(swiftmt:MT102STPBlock4);
+        };
     }
-    return {
+    return <swiftmt:MT102Block4>{
         MT20,
         MT23,
         MT51A,
@@ -175,7 +174,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
         MT52B: (),
         MT72,
         Transaction: <swiftmt:MT102Transaction[]>Transactions
-    }.ensureType(swiftmt:MT102Block4);
+    };
 
 }
 
@@ -468,7 +467,7 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
 
     match messageType {
         MT103 => {
-            return {
+            return <swiftmt:MT103Block4>{
                 MT20,
                 MT13C,
                 MT23B,
@@ -505,11 +504,11 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
                 MT71F,
                 MT71G,
                 MT72
-            }.ensureType(swiftmt:MT103Block4);
+            };
         }
 
         MT103_STP => {
-            return {
+            return <swiftmt:MT103STPBlock4>{
                 MT20,
                 MT13C,
                 MT23B,
@@ -536,11 +535,11 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
                 MT71F,
                 MT71G,
                 MT72
-            }.ensureType(swiftmt:MT103STPBlock4);
+            };
         }
 
         MT103_REMIT => {
-            return {
+            return <swiftmt:MT103REMITBlock4>{
                 MT20,
                 MT13C,
                 MT23B,
@@ -577,7 +576,7 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
                 MT71G,
                 MT72,
                 MT77T
-            }.ensureType(swiftmt:MT103REMITBlock4);
+            };
         }
     }
 

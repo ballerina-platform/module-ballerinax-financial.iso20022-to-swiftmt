@@ -73,7 +73,8 @@ isolated function generateMtBlock2(string? mtMessageId) returns swiftmt:Block2|e
     }
 
     swiftmt:Block2 result = {
-        messageType: messageType
+        messageType: messageType,
+        'type: "output"
     };
 
     return result;
@@ -98,6 +99,7 @@ isolated function generateMtBlock2WithDateTime(string? mtMessageId, painIsoRecor
 
     swiftmt:Block2 result = {
         messageType: messageType,
+        'type: "output",
         MIRDate: {content: swiftMtDateTime[0] ?: "", number: NUMBER1},
         senderInputTime: {content: swiftMtDateTime[1] ?: "", number: NUMBER1}
     };

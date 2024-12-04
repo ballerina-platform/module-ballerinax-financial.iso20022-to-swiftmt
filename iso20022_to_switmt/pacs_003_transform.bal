@@ -143,7 +143,7 @@ isolated function generateMT104TransactionsFromPacs003(
         swiftmt:MT32B MT32B = {
             name: MT23B_NAME,
             Ccy: {content: tx.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
-            Amnt: {content: tx.IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType.toString(), number: NUMBER2}
+            Amnt: {content: tx.IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType.toString(), number: NUMBER1}
         };
 
         swiftmt:MT50C? MT50C = instructingParty is swiftmt:MT50C ? instructingParty : ();
