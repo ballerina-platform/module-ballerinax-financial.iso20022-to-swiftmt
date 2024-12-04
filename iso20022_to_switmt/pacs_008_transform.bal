@@ -25,7 +25,7 @@ function transformPacs008DocumentToMT102(pacsIsoRecord:Pacs008Document document)
     block1: generateMtBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
     block2: check generateMtBlock2WithDateTime(MESSAGETYPE_102, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, ""),
-    block4: <swiftmt:MT102Block4>check generateMT102Block4(document, false).ensureType(swiftmt:MT102Block4),
+    block4: check generateMT102Block4(document, false).ensureType(swiftmt:MT102Block4),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
 };
 
@@ -64,7 +64,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
         Cd: {content: firstTransaction.PmtTpInf?.CtgyPurp?.Cd.toString(), number: NUMBER1}
     };
 
-    swiftmt:MT51A MT51A = {
+    swiftmt:MT51A? MT51A = {
         name: MT51A_NAME,
         IdnCd: {
             content: getEmptyStrIfNull(document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI),
@@ -86,7 +86,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
     swiftmt:MT52B? MT52B = orderingInstitution is swiftmt:MT52B ? check orderingInstitution.ensureType(swiftmt:MT52B) : ();
     swiftmt:MT52C? MT52C = orderingInstitution is swiftmt:MT52C ? check orderingInstitution.ensureType(swiftmt:MT52C) : ();
 
-    swiftmt:MT26T MT26T = {
+    swiftmt:MT26T? MT26T = {
         name: MT26T_NAME,
         Typ: {
             content: getEmptyStrIfNull(firstTransaction.Purp?.Cd),
@@ -94,12 +94,12 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
         }
     };
 
-    swiftmt:MT71A MT71A = {
+    swiftmt:MT71A? MT71A = {
         name: MT71A_NAME,
         Cd: getDetailsOfChargesFromChargeBearerType1Code(firstTransaction.ChrgBr)
     };
 
-    swiftmt:MT36 MT36 = {
+    swiftmt:MT36? MT36 = {
         name: MT36_NAME,
         Rt: {
             content: convertDecimalNumberToSwiftDecimal(firstTransaction.XchgRate),
@@ -109,7 +109,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
 
     swiftmt:MT32A MT32A = check getMT32A(firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmDt);
 
-    swiftmt:MT19 MT19 = {
+    swiftmt:MT19? MT19 = {
         name: MT19_NAME,
         Amnt: {content: convertDecimalNumberToSwiftDecimal(grpHdr.CtrlSum), number: NUMBER1}
     };
@@ -121,7 +121,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
     swiftmt:MT53C? MT53C = sendersCorrespondent is swiftmt:MT53C ? check sendersCorrespondent.ensureType(swiftmt:MT53C) : ();
     swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? receiversCorrespondent = getMT103ReceiversCorrespondentFromPacs008Document(document, isSTP);
     swiftmt:MT54A? MT54A = receiversCorrespondent is swiftmt:MT54A ? check receiversCorrespondent.ensureType(swiftmt:MT54A) : ();
-    swiftmt:MT72 MT72 = mapToMT72(firstTransaction.PmtTpInf?.SvcLvl, firstTransaction.PmtTpInf?.CtgyPurp, firstTransaction.PmtTpInf?.LclInstrm);
+    swiftmt:MT72? MT72 = mapToMT72(firstTransaction.PmtTpInf?.SvcLvl, firstTransaction.PmtTpInf?.CtgyPurp, firstTransaction.PmtTpInf?.LclInstrm);
     swiftmt:MT102STPTransaction[]|swiftmt:MT102Transaction[] Transactions = check generateMT102Transactions(
             document.FIToFICstmrCdtTrf.CdtTrfTxInf,
             orderingCustomer,
@@ -160,9 +160,9 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
         MT50F,
         MT50K,
         MT52A,
-        MT52B,
         MT52C,
         MT26T,
+        MT77B: (),
         MT71A,
         MT36,
         MT32A,
@@ -172,6 +172,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
         MT53A,
         MT53C,
         MT54A,
+        MT52B: (),
         MT72,
         Transaction: <swiftmt:MT102Transaction[]>Transactions
     }.ensureType(swiftmt:MT102Block4);

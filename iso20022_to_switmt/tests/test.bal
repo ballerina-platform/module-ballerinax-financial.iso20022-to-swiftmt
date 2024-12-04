@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/data.xmldata;
+import ballerina/io;
+import ballerina/log;
 import ballerina/test;
 import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
 import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
@@ -62,6 +64,11 @@ function testTransformPain001DocumentToMT101() returns error? {
     swiftmt:MT101Message|error mt101Message = transformPain001DocumentToMT101(pain001Message);
 
     if (mt101Message is swiftmt:MT101Message) {
+        string|error finMessage = swiftmt:getFinMessage(mt101Message);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt101Message.block2.messageType, "101");
         test:assertEquals(pain001Message.CstmrCdtTrfInitn.GrpHdr.MsgId, mt101Message.block4.MT21R?.Ref?.content, "Message ID mismatch");
     } else {
@@ -103,9 +110,15 @@ function testTransformPacs008DocumentToMT102() returns error? {
     swiftmt:MT102Message|error mt102Message = transformPacs008DocumentToMT102(pacs008Message);
 
     if (mt102Message is swiftmt:MT102Message) {
+        string|error finMessage = swiftmt:getFinMessage(mt102Message);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt102Message.block2.messageType, "102");
         test:assertTrue(mt102Message.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
+        io:println(mt102Message);
         test:assertFail("Error occurred while transforming Pacs008 to MT102");
     }
 }
@@ -144,6 +157,11 @@ function testTransformPacs008DocumentToMT102STP() returns error? {
     swiftmt:MT102STPMessage|error mt102stpMessage = transformPacs008DocumentToMT102STP(pacs008Message);
 
     if (mt102stpMessage is swiftmt:MT102STPMessage) {
+        string|error finMessage = swiftmt:getFinMessage(mt102stpMessage);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt102stpMessage.block2.messageType, "102STP");
         test:assertTrue(mt102stpMessage.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
@@ -185,6 +203,11 @@ function testTransformPacs008DocumentToMT103() returns error? {
     swiftmt:MT103Message|error mt103Message = transformPacs008DocumentToMT103(pacs008Message);
 
     if (mt103Message is swiftmt:MT103Message) {
+        string|error finMessage = swiftmt:getFinMessage(mt103Message);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt103Message.block2.messageType, "103");
         test:assertTrue(mt103Message.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
@@ -226,6 +249,11 @@ function testTransformPacs008DocumentToMT103STP() returns error? {
     swiftmt:MT103STPMessage|error mt103stpMessage = transformPacs008DocumentToMT103STP(pacs008Message);
 
     if (mt103stpMessage is swiftmt:MT103STPMessage) {
+        string|error finMessage = swiftmt:getFinMessage(mt103stpMessage);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt103stpMessage.block2.messageType, "103STP");
         test:assertTrue(mt103stpMessage.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
@@ -267,6 +295,11 @@ function testTransformPacs008DocumentToMT103REMIT() returns error? {
     swiftmt:MT103REMITMessage|error mt103remitMessage = transformPacs008DocumentToMT103REMIT(pacs008Message);
 
     if (mt103remitMessage is swiftmt:MT103REMITMessage) {
+        string|error finMessage = swiftmt:getFinMessage(mt103remitMessage);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt103remitMessage.block2.messageType, "103REMIT");
         test:assertTrue(mt103remitMessage.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
@@ -292,6 +325,11 @@ function testTransformPain008DocumentToMT104() returns error? {
     swiftmt:MT104Message|error mt104Message = transformPain008DocumentToMT104(pain008Message);
 
     if (mt104Message is swiftmt:MT104Message) {
+        string|error finMessage = swiftmt:getFinMessage(mt104Message);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt104Message.block2.messageType, "104");
         test:assertTrue(mt104Message.block4.MT20.msgId.content == "REFERENCE12345", "Message ID is not a string");
     } else {
@@ -320,6 +358,11 @@ function testTransformPacs003DocumenttoMT104() returns error? {
     swiftmt:MT104Message|error mt104Message = transformPacs003DocumentToMT104(pacs003Message);
 
     if (mt104Message is swiftmt:MT104Message) {
+        string|error finMessage = swiftmt:getFinMessage(mt104Message);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt104Message.block2.messageType, "104");
         test:assertTrue(mt104Message.block4.MT20.msgId.content == "REFERENCE12345", "Message ID is not a string");
     } else {
@@ -348,6 +391,11 @@ function testTransformPacs003DocumenttoMT107() returns error? {
     swiftmt:MT107Message|error mt107Message = transformPacs003DocumentToMT107(pacs003Message);
 
     if (mt107Message is swiftmt:MT107Message) {
+        string|error finMessage = swiftmt:getFinMessage(mt107Message);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt107Message.block2.messageType, "107");
         test:assertTrue(mt107Message.block4.MT20.msgId.content == "REFERENCE12345", "Message ID is not a string");
     } else {
@@ -424,6 +472,11 @@ function testTransformCamt056DocumenttoMT192() returns error? {
     swiftmt:MTn92Message|error mt192Message = transformCamt056ToMT192(camt056Message);
 
     if (mt192Message is swiftmt:MTn92Message) {
+        string|error finMessage = swiftmt:getFinMessage(mt192Message);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt192Message.block2.messageType, "192");
         test:assertTrue(mt192Message.block4.MT20.msgId.content == "CaseID12345", "Message ID is not a string");
 
@@ -512,6 +565,11 @@ function testTransformCamt055DocumenttoMT192() returns error? {
     swiftmt:MTn92Message|error mt192Message = transformCamt055ToMT192(camt055Message);
 
     if (mt192Message is swiftmt:MTn92Message) {
+        string|error finMessage = swiftmt:getFinMessage(mt192Message);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt192Message.block2.messageType, "192");
         test:assertTrue(mt192Message.block4.MT20.msgId.content == "CaseID67890", "Message ID is not a string");
     } else {
@@ -564,6 +622,11 @@ function testTransformCamt031DocumenttoMT196() returns error? {
     swiftmt:MTn96Message|error mt196Message = transformCamt031ToMT196(camt031Message);
 
     if (mt196Message is swiftmt:MTn96Message) {
+        string|error finMessage = swiftmt:getFinMessage(mt196Message);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt196Message.block2.messageType, "196");
         test:assertTrue(mt196Message.block4.MT20.msgId.content == "CaseID789", "Message ID is not a string");
     } else {
@@ -659,6 +722,11 @@ function testTransformCamt028DocumenttoMT196() returns error? {
     swiftmt:MTn96Message|error mt196Message = transformCamt028ToMT196(camt028Message);
 
     if (mt196Message is swiftmt:MTn96Message) {
+        string|error finMessage = swiftmt:getFinMessage(mt196Message);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt196Message.block2.messageType, "196");
         test:assertTrue(mt196Message.block4.MT20.msgId.content == "Case123", "Message ID is not a string");
     } else {
@@ -728,6 +796,11 @@ function testTransformCamt026DocumenttoMT195() returns error? {
     swiftmt:MTn95Message|error mt195Message = transformCamt026ToMT195(camt026Message);
 
     if (mt195Message is swiftmt:MTn95Message) {
+        string|error finMessage = swiftmt:getFinMessage(mt195Message);
+        if finMessage is error {
+            log:printError(finMessage.toString());
+            test:assertFail("Error occurred while getting the FIN message");
+        }
         test:assertEquals(mt195Message.block2.messageType, "195");
         test:assertTrue(mt195Message.block4.MT20.msgId.content == "Case987", "Message ID is not a string");
     } else {
