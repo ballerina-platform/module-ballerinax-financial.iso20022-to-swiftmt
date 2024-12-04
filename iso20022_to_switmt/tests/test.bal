@@ -162,7 +162,7 @@ function testTransformPacs008DocumentToMT102STP() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt102stpMessage.block2.messageType, "102STP");
+        test:assertEquals(mt102stpMessage.block2.messageType, "102");
         test:assertTrue(mt102stpMessage.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
         log:printError(mt102stpMessage.toString());
@@ -256,7 +256,7 @@ function testTransformPacs008DocumentToMT103STP() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt103stpMessage.block2.messageType, "103STP");
+        test:assertEquals(mt103stpMessage.block2.messageType, "103");
         test:assertTrue(mt103stpMessage.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
         log:printError(mt103stpMessage.toString());
@@ -303,7 +303,7 @@ function testTransformPacs008DocumentToMT103REMIT() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt103remitMessage.block2.messageType, "103REMIT");
+        test:assertEquals(mt103remitMessage.block2.messageType, "103");
         test:assertTrue(mt103remitMessage.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
         log:printError(mt103remitMessage.toString());

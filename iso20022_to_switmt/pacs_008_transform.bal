@@ -35,7 +35,7 @@ function transformPacs008DocumentToMT102(pacsIsoRecord:Pacs008Document document)
 # + return - The MT102STP message or an error if the transformation fails
 function transformPacs008DocumentToMT102STP(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT102STPMessage|error => {
     block1: generateMtBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
-    block2: check generateMtBlock2WithDateTime(MESSAGETYPE_102_STP, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
+    block2: check generateMtBlock2WithDateTime(MESSAGETYPE_102, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "STP"),
     block4: check generateMT102Block4(document, true).ensureType(swiftmt:MT102STPBlock4),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
@@ -122,6 +122,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
     swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? receiversCorrespondent = getMT103ReceiversCorrespondentFromPacs008Document(document, isSTP);
     swiftmt:MT54A? MT54A = receiversCorrespondent is swiftmt:MT54A ? check receiversCorrespondent.ensureType(swiftmt:MT54A) : ();
     swiftmt:MT72? MT72 = mapToMT72(firstTransaction.PmtTpInf?.SvcLvl, firstTransaction.PmtTpInf?.CtgyPurp, firstTransaction.PmtTpInf?.LclInstrm);
+
     swiftmt:MT102STPTransaction[]|swiftmt:MT102Transaction[] Transactions = check generateMT102Transactions(
             document.FIToFICstmrCdtTrf.CdtTrfTxInf,
             orderingCustomer,
@@ -130,8 +131,10 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
             document
     );
 
+    // TODO - MT77B feild mapping for MT102
+
     if isSTP {
-        return {
+        swiftmt:MT102STPBlock4 MT102STPBlock4 = {
             MT20,
             MT23,
             MT50A,
@@ -139,10 +142,9 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
             MT50K,
             MT52A,
             MT26T,
-            MT71A,
-            MT36,
             MT32A,
             MT19,
+            MT71A,
             MT71G,
             MT13C,
             MT53A,
@@ -150,9 +152,10 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
             MT54A,
             MT72,
             Transaction: <swiftmt:MT102STPTransaction[]>Transactions
-        }.ensureType(swiftmt:MT102STPBlock4);
+        };
+        return MT102STPBlock4;
     }
-    return {
+    swiftmt:MT102Block4 MT102Block4 = {
         MT20,
         MT23,
         MT51A,
@@ -164,6 +167,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
         MT26T,
         MT71A,
         MT36,
+        Transaction: <swiftmt:MT102Transaction[]>Transactions,
         MT32A,
         MT19,
         MT71G,
@@ -172,10 +176,10 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
         MT53C,
         MT54A,
         MT52B,
-        MT72,
-        Transaction: <swiftmt:MT102Transaction[]>Transactions
-    }.ensureType(swiftmt:MT102Block4);
+        MT72
+    };
 
+    return MT102Block4;
 }
 
 # Creates the transactions of an MT102 message from a PACS008 document
@@ -309,7 +313,7 @@ function transformPacs008DocumentToMT103(pacsIsoRecord:Pacs008Document document)
 # + return - The MT103STP message or an error if the transformation fails
 function transformPacs008DocumentToMT103STP(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT103STPMessage|error => {
     block1: generateMtBlock1FromInstgAgtAndInstdAgt(document.FIToFICstmrCdtTrf.GrpHdr.InstgAgt, document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
-    block2: check generateMtBlock2WithDateTime(MESSAGETYPE_103_STP, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
+    block2: check generateMtBlock2WithDateTime(MESSAGETYPE_103, document.FIToFICstmrCdtTrf.GrpHdr.CreDtTm),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "STP"),
     block4: check generateMT103Block4(document, MT103_STP).ensureType(swiftmt:MT103STPBlock4),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
@@ -321,7 +325,7 @@ function transformPacs008DocumentToMT103STP(pacsIsoRecord:Pacs008Document docume
 # + return - The MT103REMIT message or an error if the transformation fails
 function transformPacs008DocumentToMT103REMIT(pacsIsoRecord:Pacs008Document document) returns swiftmt:MT103REMITMessage|error => {
     block1: generateMtBlock1FromInstgAgtAndInstdAgt((), document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt),
-    block2: check generateMtBlock2(MESSAGETYPE_103_REMIT),
+    block2: check generateMtBlock2(MESSAGETYPE_103),
     block3: check generateMtBlock3(document.FIToFICstmrCdtTrf.SplmtryData, document.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR, "REMIT"),
     block4: check generateMT103Block4(document, MT103_REMIT).ensureType(swiftmt:MT103REMITBlock4),
     block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrCdtTrf.SplmtryData)
@@ -455,7 +459,7 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
     swiftmt:MT71F? MT71F = check convertCharges16toMT71F(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
     swiftmt:MT71G? MT71G = check convertCharges16toMT71G(firstTransaction.ChrgsInf, firstTransaction.ChrgBr);
 
-    swiftmt:MT72 MT72 = mapToMT72(firstTransaction.PmtTpInf?.SvcLvl, firstTransaction.PmtTpInf?.CtgyPurp, firstTransaction.PmtTpInf?.LclInstrm);
+    swiftmt:MT72? MT72 = mapToMT72(firstTransaction.PmtTpInf?.SvcLvl, firstTransaction.PmtTpInf?.CtgyPurp, firstTransaction.PmtTpInf?.LclInstrm);
 
     swiftmt:MT77T MT77T = { // TODO: Implement this field mapping
         name: MT77T_NAME,
@@ -467,7 +471,7 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
 
     match messageType {
         MT103 => {
-            return {
+            swiftmt:MT103Block4 MT103Block4 = {
                 MT20,
                 MT13C,
                 MT23B,
@@ -504,11 +508,13 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
                 MT71F,
                 MT71G,
                 MT72
-            }.ensureType(swiftmt:MT103Block4);
+            };
+
+            return MT103Block4;
         }
 
         MT103_STP => {
-            return {
+            swiftmt:MT103STPBlock4 MT103STPBlock4 = {
                 MT20,
                 MT13C,
                 MT23B,
@@ -535,11 +541,13 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
                 MT71F,
                 MT71G,
                 MT72
-            }.ensureType(swiftmt:MT103STPBlock4);
+            };
+
+            return MT103STPBlock4;
         }
 
         MT103_REMIT => {
-            return {
+            swiftmt:MT103REMITBlock4 MT103REMITBlock4 = {
                 MT20,
                 MT13C,
                 MT23B,
@@ -576,7 +584,9 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
                 MT71G,
                 MT72,
                 MT77T
-            }.ensureType(swiftmt:MT103REMITBlock4);
+            };
+
+            return MT103REMITBlock4;
         }
     }
 
