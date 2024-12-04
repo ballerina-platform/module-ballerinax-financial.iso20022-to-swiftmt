@@ -83,6 +83,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
 
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C? orderingInstitution = getMT102OrderingInstitutionFromPacs008Document(document, isSTP);
     swiftmt:MT52A? MT52A = orderingInstitution is swiftmt:MT52A ? check orderingInstitution.ensureType(swiftmt:MT52A) : ();
+    swiftmt:MT52B? MT52B = orderingInstitution is swiftmt:MT52B ? check orderingInstitution.ensureType(swiftmt:MT52B) : ();
     swiftmt:MT52C? MT52C = orderingInstitution is swiftmt:MT52C ? check orderingInstitution.ensureType(swiftmt:MT52C) : ();
 
     swiftmt:MT26T? MT26T = {
@@ -161,7 +162,6 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
         MT52A,
         MT52C,
         MT26T,
-        MT77B: (),
         MT71A,
         MT36,
         MT32A,
@@ -171,7 +171,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
         MT53A,
         MT53C,
         MT54A,
-        MT52B: (),
+        MT52B,
         MT72,
         Transaction: <swiftmt:MT102Transaction[]>Transactions
     }.ensureType(swiftmt:MT102Block4);
