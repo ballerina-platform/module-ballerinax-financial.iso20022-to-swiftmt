@@ -130,7 +130,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
     );
 
     if isSTP {
-        return <swiftmt:MT102STPBlock4>{
+        return {
             MT20,
             MT23,
             MT50A,
@@ -149,9 +149,9 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
             MT54A,
             MT72,
             Transaction: <swiftmt:MT102STPTransaction[]>Transactions
-        };
+        }.ensureType(swiftmt:MT102STPBlock4);
     }
-    return <swiftmt:MT102Block4>{
+    return {
         MT20,
         MT23,
         MT51A,
@@ -174,7 +174,7 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Document document, bo
         MT52B: (),
         MT72,
         Transaction: <swiftmt:MT102Transaction[]>Transactions
-    };
+    }.ensureType(swiftmt:MT102Block4);
 
 }
 
@@ -467,7 +467,7 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
 
     match messageType {
         MT103 => {
-            return <swiftmt:MT103Block4>{
+            return {
                 MT20,
                 MT13C,
                 MT23B,
@@ -504,11 +504,11 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
                 MT71F,
                 MT71G,
                 MT72
-            };
+            }.ensureType(swiftmt:MT103Block4);
         }
 
         MT103_STP => {
-            return <swiftmt:MT103STPBlock4>{
+            return {
                 MT20,
                 MT13C,
                 MT23B,
@@ -535,11 +535,11 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
                 MT71F,
                 MT71G,
                 MT72
-            };
+            }.ensureType(swiftmt:MT103STPBlock4);
         }
 
         MT103_REMIT => {
-            return <swiftmt:MT103REMITBlock4>{
+            return {
                 MT20,
                 MT13C,
                 MT23B,
@@ -576,7 +576,7 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Document document, MT
                 MT71G,
                 MT72,
                 MT77T
-            };
+            }.ensureType(swiftmt:MT103REMITBlock4);
         }
     }
 
