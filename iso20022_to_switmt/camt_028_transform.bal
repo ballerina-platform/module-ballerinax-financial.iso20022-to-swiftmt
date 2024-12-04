@@ -56,6 +56,7 @@ isolated function transformCamt028ToMT196(camtIsoRecord:Camt028Document document
             } : (),
         MessageCopy: () // TODO - Need to add the relavent field mapping for this using the official mappings
     },
-    block5: check generateMtBlock5FromSupplementaryData(document.AddtlPmtInf.SplmtryData)
+    block5: check generateMtBlock5FromSupplementaryData(document.AddtlPmtInf.SplmtryData),
+    unparsedTexts: ()
 
 };

@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/data.xmldata;
-import ballerina/io;
 import ballerina/log;
 import ballerina/test;
 import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
@@ -118,7 +117,6 @@ function testTransformPacs008DocumentToMT102() returns error? {
         test:assertEquals(mt102Message.block2.messageType, "102");
         test:assertTrue(mt102Message.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
-        io:println(mt102Message);
         test:assertFail("Error occurred while transforming Pacs008 to MT102");
     }
 }

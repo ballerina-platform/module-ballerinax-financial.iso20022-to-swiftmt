@@ -60,5 +60,6 @@ isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document
         },
         block5: check generateMtBlock5FromSupplementaryData(
                 document.FIToFIPmtCxlReq.SplmtryData
-        )
+        ),
+        unparsedTexts: ()
     };
