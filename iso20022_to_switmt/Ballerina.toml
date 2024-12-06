@@ -1,0 +1,8 @@
+[package]
+org = "ballerinax"
+name = "financial.ISO20022ToSwiftMT"
+version = "0.9.0"
+distribution = "2201.10.0"
+
+[build-options]
+observabilityIncluded = true
