@@ -20,37 +20,34 @@ import ballerinax/financial.swift.mt as swiftmt;
 # This function transforms a camt.055 ISO 20022 message into an MT192 SWIFT format message.
 #
 # + document - The camt.055 message to be transformed, in `camtIsoRecord:Camt055Document` format.
+# + messageType - The message type to which the ISO 20022 is being transformed.
 # + return - Returns an MT192 message in the `swiftmt:MTn92Message` format if successful, otherwise returns an error.
-isolated function transformCamt055ToMT192(camtIsoRecord:Camt055Document document) returns swiftmt:MTn92Message|error => {
-    block1: check generateMtBlock1FromAssgnmt(document.CstmrPmtCxlReq.Assgnmt),
-    block2: check generateMtBlock2WithDateTime(
-            MESSAGETYPE_192,
-            document.CstmrPmtCxlReq.Assgnmt.CreDtTm
-    ),
-    block3: check generateMtBlock3(
-            document.CstmrPmtCxlReq.SplmtryData,
-            (),
-            ""
-    ),
-    block4: {
-        MT20: check getMT20(document.CstmrPmtCxlReq.Case?.Id),
-        MT21: {
-            name: MT21_NAME,
-            Ref: {
-                content: getOriginalInstructionOrUETRFromCamt055(document.CstmrPmtCxlReq.Undrlyg),
-                number: NUMBER1
-            }
+isolated function transformCamt055ToMtn92(camtIsoRecord:Camt055Document document, string messageType) returns swiftmt:MTn92Message|error => let
+    camtIsoRecord:UnderlyingTransaction33 undrlygTransaction = document.CstmrPmtCxlReq.Undrlyg[0] in {
+        block1: {
+            logicalTerminal: getSenderOrReceiver(document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI)
         },
-        MT11S: check getMT11S(
-                document.CstmrPmtCxlReq.Undrlyg[0].OrgnlGrpInfAndCxl,
-                document.CstmrPmtCxlReq.Undrlyg[0].OrgnlGrpInfAndCxl?.OrgnlCreDtTm
-        ),
-        MT79: {
-            name: MT79_NAME,
-            Nrtv: extractNarrativeFromCancellationReason(document.CstmrPmtCxlReq)
+        block2: {
+            'type: "output",
+            messageType: messageType,
+            MIRLogicalTerminal: getSenderOrReceiver(document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(document.CstmrPmtCxlReq.Assgnmt.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(document.CstmrPmtCxlReq.Assgnmt.CreDtTm.substring(0, 10))}
         },
-        MessageCopy: () // TODO - Need to add the relavent field mapping for this using the official mappings
-    },
-    block5: check generateMtBlock5FromSupplementaryData(document.CstmrPmtCxlReq.SplmtryData),
-    unparsedTexts: ()
-};
+        block4: {
+            MT20: {
+                name: MT20_NAME,
+                msgId: {content: getMandatoryField(undrlygTransaction.OrgnlGrpInfAndCxl?.Case?.Id), number: NUMBER1}
+            },
+            MT21: {
+                name: MT21_NAME,
+                Ref: {content: getMandatoryField((check getOrginalPaymentInfo(undrlygTransaction.OrgnlPmtInfAndCxl)).OrgnlPmtInfId), number: NUMBER1}
+            },
+            MT11S: {
+                name: MT11S_NAME,
+                Dt: {content: convertToSWIFTStandardDate(undrlygTransaction.OrgnlGrpInfAndCxl?.OrgnlCreDtTm), number: NUMBER2},
+                MtNum: {content: getOrignalMessageName(undrlygTransaction.OrgnlGrpInfAndCxl?.OrgnlMsgNmId), number: NUMBER1}
+            },
+            MT79: getField79((check getOrginalPaymentInfo(undrlygTransaction.OrgnlPmtInfAndCxl)).CxlRsnInf)
+        }
+    };

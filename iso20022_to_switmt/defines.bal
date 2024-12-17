@@ -14,129 +14,156 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const string PAIN001 = "pain.001";
-const string PACS008 = "pacs.008";
-const string PAIN008 = "pain.008";
-const string PACS003 = "pacs.003";
-const string CAMT050 = "camt.050";
-const string PACS009 = "pacs.009";
-const string PACS010 = "pacs.010";
-const string CAMT057 = "camt.057";
-const string CAMT054 = "camt.054";
-const string CAMT060 = "camt.060";
-const string CAMT053 = "camt.053";
-const string CAMT052 = "camt.052";
+import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
+import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
+import ballerinax/financial.iso20022.payments_clearing_and_settlement as pacsIsoRecord;
 
-const string MT101 = "MT101";
-const string MT102 = "MT102";
-const string MT102_STP = "MT102_STP";
-const string MT103 = "MT103";
-const string MT103_STP = "MT103_STP";
-const string MT103_REMIT = "MT103_REMIT";
-const string MT104 = "MT104";
-const string MT107 = "MT107";
-const string MT192 = "MT192";
-const string MT195 = "MT195";
-const string MT196 = "MT196";
+const PAIN001 = "pain.001";
+const PACS008 = "pacs.008";
+const PAIN008 = "pain.008";
+const PACS003 = "pacs.003";
+const CAMT050 = "camt.050";
+const PACS009 = "pacs.009";
+const PACS010 = "pacs.010";
+const CAMT057 = "camt.057";
+const CAMT054 = "camt.054";
+const CAMT060 = "camt.060";
+const CAMT053 = "camt.053";
+const CAMT052 = "camt.052";
 
-const string MT200 = "MT200";
-const string MT201 = "MT201";
-const string MT202 = "MT202";
-const string MT202_COV = "MT202_COV";
-const string MT203 = "MT203";
-const string MT204 = "MT204";
-const string MT205 = "MT205";
-const string MT205_COV = "MT205_COV";
-const string MT210 = "MT210";
-const string MT292 = "MT292";
-const string MT295 = "MT295";
+const MT101 = "MT101";
+const MT102 = "MT102";
+const MT102_STP = "MT102_STP";
+const MT103 = "MT103";
+const MT103_STP = "MT103_STP";
+const MT103_REMIT = "MT103_REMIT";
+const MT104 = "MT104";
+const MT107 = "MT107";
+const MT192 = "MT192";
+const MT195 = "MT195";
+const MT196 = "MT196";
 
-const string MESSAGETYPE_101 = "101";
-const string MESSAGETYPE_102 = "102";
-const string MESSAGETYPE_103 = "103";
-const string MESSAGETYPE_103_STP = "103STP";
-const string MESSAGETYPE_103_REMIT = "103REMIT";
-const string MESSAGETYPE_104 = "104";
-const string MESSAGETYPE_102_STP = "102STP";
-const string MESSAGETYPE_107 = "107";
-const string MESSAGETYPE_192 = "192";
-const string MESSAGETYPE_195 = "195";
-const string MESSAGETYPE_196 = "196";
-const string MESSAGETYPE_200 = "200";
-const string MESSAGETYPE_201 = "201";
-const string MESSAGETYPE_202 = "202";
-const string MESSAGETYPE_203 = "203";
-const string MESSAGETYPE_204 = "204";
+const MT200 = "MT200";
+const MT201 = "MT201";
+const MT202 = "MT202";
+const MT202_COV = "MT202_COV";
+const MT203 = "MT203";
+const MT204 = "MT204";
+const MT205 = "MT205";
+const MT205_COV = "MT205_COV";
+const MT210 = "MT210";
+const MT292 = "MT292";
+const MT295 = "MT295";
 
-const string NUMBER1 = "1";
-const string NUMBER2 = "2";
-const string NUMBER3 = "3";
-const string NUMBER4 = "4";
+const MESSAGETYPE_101 = "101";
+const MESSAGETYPE_102 = "102";
+const MESSAGETYPE_103 = "103";
+const MESSAGETYPE_103_STP = "103STP";
+const MESSAGETYPE_103_REMIT = "103REMIT";
+const MESSAGETYPE_104 = "104";
+const MESSAGETYPE_102_STP = "102STP";
+const MESSAGETYPE_107 = "107";
+const MESSAGETYPE_192 = "192";
+const MESSAGETYPE_195 = "195";
+const MESSAGETYPE_196 = "196";
+const MESSAGETYPE_200 = "200";
+const MESSAGETYPE_201 = "201";
+const MESSAGETYPE_202 = "202";
+const MESSAGETYPE_203 = "203";
+const MESSAGETYPE_204 = "204";
 
-const string EMPTY_STRING = "";
+const NUMBER1 = "1";
+const NUMBER2 = "2";
+const NUMBER3 = "3";
+const NUMBER4 = "4";
 
-const string MT19_NAME = "19";
-const string MT20_NAME = "20";
-const string MT21_NAME = "21";
-const string MT21R_NAME = "21R";
-const string MT23E_NAME = "23E";
-const string MT21E_NAME = "21E";
-const string MT30_NAME = "30";
-const string MT51A_NAME = "51A";
-const string MT26T_NAME = "26T";
-const string MT77B_NAME = "77B";
-const string MT71A_NAME = "71A";
-const string MT72_NAME = "72";
-const string MT32B_NAME = "32B";
-const string MT71F_NAME = "71F";
-const string MT71G_NAME = "71G";
-const string MT36_NAME = "36";
-const string MT21D_NAME = "21D";
-const string MT33B_NAME = "33B";
-const string MT28D_NAME = "28D";
-const string MT70_NAME = "70";
-const string MT25A_NAME = "25A";
-const string MT23_NAME = "23";
-const string MT77T_NAME = "77T";
-const string MT23B_NAME = "23B";
-const string MT79_NAME = "79";
-const string MT11S_NAME = "11S";
-const string MT76_NAME = "76";
-const string MT75_NAME = "75";
-const string MT77A_NAME = "77A";
-const string MT50C_NAME = "50C";
-const string MT50L_NAME = "50L";
-const string MT50F_NAME = "50F";
-const string MT50G_NAME = "50G";
-const string MT52A_NAME = "50A";
-const string MT52C_NAME = "50C";
-const string MT56A_NAME = "56A";
-const string MT56D_NAME = "56D";
-const string MT56C_NAME = "56C";
-const string MT57A_NAME = "57A";
-const string MT57C_NAME = "57C";
-const string MT57D_NAME = "57D";
-const string MT59A_NAME = "59A";
-const string MT59F_NAME = "59F";
-const string MT59_NAME = "59";
-const string MT52B_NAME = "52B";
-const string MT56F_NAME = "56F";
-const string MT53A_NAME = "53A";
-const string MT53B_NAME = "53B";
-const string MT53C_NAME = "53C";
-const string MT53D_NAME = "53D";
-const string MT50A_NAME = "50A";
-const string MT50K_NAME = "50K";
-const string MT52D_NAME = "52D";
-const string MT54A_NAME = "54A";
-const string MT54B_NAME = "54B";
-const string MT54D_NAME = "54D";
-const string MT55A_NAME = "55A";
-const string MT55B_NAME = "55B";
-const string MT55D_NAME = "55D";
-const string MT57B_NAME = "57B";
-const string MT13C_NAME = "13C";
-const string MT32A_NAME = "32A";
+const EMPTY_STRING = "";
+
+const MT19_NAME = "19";
+const MT20_NAME = "20";
+const MT21_NAME = "21";
+const MT21R_NAME = "21R";
+const MT23E_NAME = "23E";
+const MT21E_NAME = "21E";
+const MT30_NAME = "30";
+const MT51A_NAME = "51A";
+const MT26T_NAME = "26T";
+const MT77B_NAME = "77B";
+const MT71A_NAME = "71A";
+const MT72_NAME = "72";
+const MT32B_NAME = "32B";
+const MT71F_NAME = "71F";
+const MT71G_NAME = "71G";
+const MT36_NAME = "36";
+const MT21D_NAME = "21D";
+const MT33B_NAME = "33B";
+const MT28D_NAME = "28D";
+const MT70_NAME = "70";
+const MT25A_NAME = "25A";
+const MT23_NAME = "23";
+const MT77T_NAME = "77T";
+const MT23B_NAME = "23B";
+const MT79_NAME = "79";
+const MT11S_NAME = "11S";
+const MT11R_NAME = "11R";
+const MT76_NAME = "76";
+const MT75_NAME = "75";
+const MT77A_NAME = "77A";
+const MT50C_NAME = "50C";
+const MT50L_NAME = "50L";
+const MT50F_NAME = "50F";
+const MT50G_NAME = "50G";
+const MT50H_NAME = "50H";
+const MT52A_NAME = "50A";
+const MT52C_NAME = "50C";
+const MT56A_NAME = "56A";
+const MT56D_NAME = "56D";
+const MT56C_NAME = "56C";
+const MT57A_NAME = "57A";
+const MT57C_NAME = "57C";
+const MT57D_NAME = "57D";
+const MT59A_NAME = "59A";
+const MT59F_NAME = "59F";
+const MT59_NAME = "59";
+const MT50_NAME = "50";
+const MT52B_NAME = "52B";
+const MT56F_NAME = "56F";
+const MT53A_NAME = "53A";
+const MT53B_NAME = "53B";
+const MT53C_NAME = "53C";
+const MT53D_NAME = "53D";
+const MT50A_NAME = "50A";
+const MT50K_NAME = "50K";
+const MT52D_NAME = "52D";
+const MT54A_NAME = "54A";
+const MT54B_NAME = "54B";
+const MT54D_NAME = "54D";
+const MT55A_NAME = "55A";
+const MT55B_NAME = "55B";
+const MT55D_NAME = "55D";
+const MT57B_NAME = "57B";
+const MT13C_NAME = "13C";
+const MT32A_NAME = "32A";
+
+const VALIDATION_FLAG_STP = "STP";
+const VALIDATION_FLAG_COV = "COV";
+const VALIDATION_FLAG_REMIT = "REMIT";
+
+isolated string[] MT_101_INSTRC_CD = [
+    "CHQB",
+    "CMSW",
+    "CMTO",
+    "CMZB",
+    "CORT",
+    "EQUI",
+    "INTC",
+    "NETS",
+    "OTHR",
+    "PHON",
+    "REPA",
+    "RTGS",
+    "URGP"
+];
 
 # This record is used to store any type of MT message record and the type name
 #
@@ -159,3 +186,54 @@ type MxMessage record {|
     // The MX record
     record {} mxData;
 |};
+
+final readonly & map<isolated function> transformFunctionMap =
+    {
+    "101": transformPain001DocumentToMT101,
+    "102": transformPacs008DocumentToMT102,
+    "102STP": transformPacs008DocumentToMT102STP,
+    "103": transformPacs008DocumentToMT103,
+    "103STP": transformPacs008DocumentToMT103STP,
+    "103REMIT": transformPacs008DocumentToMT103REMIT,
+    "104": transformPacs003DocumentToMT104,
+    "107": transformPacs003DocumentToMT107,
+    "192": transformCamt055ToMtn92,
+    "195": transformCamt026ToMT195,
+    "196": transformCamt029ToMtn96,
+    "200": transformPacs009ToMt200,
+    "201": transformPacs009ToMt201,
+    "202": transformPacs009ToMt202,
+    "202COV": transformPacs009ToMt202COV,
+    "203": transformPacs009ToMt203,
+    "204": transformPacs010ToMt204,
+    "205": transformPacs009ToMt205,
+    "205COV": transformPacs009ToMt205COV,
+    "210": transformCamt057ToMt210,
+    "292": transformCamt056ToMtn92,
+    "296": transformCamt029ToMtn96
+};
+
+final readonly & map<typedesc<record {}>> isoMessageTypes = {
+    "pacs.002": pacsIsoRecord:Pacs002Document,
+    "pacs.003": pacsIsoRecord:Pacs003Document,
+    "pacs.008": pacsIsoRecord:Pacs008Document,
+    "pacs.009": pacsIsoRecord:Pacs009Document,
+    "pacs.010": pacsIsoRecord:Pacs010Document,
+    "pain.001": painIsoRecord:Pain001Document,
+    "pain.008": painIsoRecord:Pain008Document,
+    "camt.026": camtIsoRecord:Camt026Document,
+    "camt.027": camtIsoRecord:Camt027Document,
+    "camt.028": camtIsoRecord:Camt028Document,
+    "camt.029": camtIsoRecord:Camt029Document,
+    "camt.031": camtIsoRecord:Camt031Document,
+    "camt.033": camtIsoRecord:Camt033Document,
+    "camt.034": camtIsoRecord:Camt034Document,
+    "camt.050": camtIsoRecord:Camt050Document,
+    "camt.052": camtIsoRecord:Camt052Document,
+    "camt.053": camtIsoRecord:Camt053Document,
+    "camt.054": camtIsoRecord:Camt054Document,
+    "camt.055": camtIsoRecord:Camt055Document,
+    "camt.056": camtIsoRecord:Camt056Document,
+    "camt.057": camtIsoRecord:Camt057Document,
+    "camt.060": camtIsoRecord:Camt060Document
+};

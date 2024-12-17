@@ -60,7 +60,7 @@ function testTransformPain001DocumentToMT101() returns error? {
 ""}CMZB</Cd></InstrForDbtrAgt><RmtInf><Ustrd/></RmtInf></CdtTrfTxInf></PmtInf></CstmrCdtTrfInitn></Document>`;
 
     painIsoRecord:Pain001Document pain001Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MT101Message|error mt101Message = transformPain001DocumentToMT101(pain001Message);
+    swiftmt:MT101Message|error mt101Message = transformPain001DocumentToMT101(pain001Message, MESSAGETYPE_101);
 
     if (mt101Message is swiftmt:MT101Message) {
         string|error finMessage = swiftmt:getFinMessage(mt101Message);
@@ -68,7 +68,7 @@ function testTransformPain001DocumentToMT101() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt101Message.block2.messageType, "101");
+        test:assertEquals(mt101Message.block2.messageType, MESSAGETYPE_101);
         test:assertEquals(pain001Message.CstmrCdtTrfInitn.GrpHdr.MsgId, mt101Message.block4.MT21R?.Ref?.content, "Message ID mismatch");
     } else {
         log:printError(mt101Message.toString());
@@ -107,7 +107,7 @@ function testTransformPacs008DocumentToMT102() returns error? {
 ""}PENSION PAYMENT SEPTEMBER 2003</Ustrd></RmtInf></CdtTrfTxInf></FIToFICstmrCdtTrf></Document>`;
 
     pacsIsoRecord:Pacs008Document pacs008Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MT102Message|error mt102Message = transformPacs008DocumentToMT102(pacs008Message);
+    swiftmt:MT102Message|error mt102Message = transformPacs008DocumentToMT102(pacs008Message, MESSAGETYPE_102);
 
     if (mt102Message is swiftmt:MT102Message) {
         string|error finMessage = swiftmt:getFinMessage(mt102Message);
@@ -115,7 +115,7 @@ function testTransformPacs008DocumentToMT102() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt102Message.block2.messageType, "102");
+        test:assertEquals(mt102Message.block2.messageType, MESSAGETYPE_102);
         test:assertTrue(mt102Message.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
         log:printError(mt102Message.toString());
@@ -154,7 +154,7 @@ function testTransformPacs008DocumentToMT102STP() returns error? {
 ""}PENSION PAYMENT SEPTEMBER 2003</Ustrd></RmtInf></CdtTrfTxInf></FIToFICstmrCdtTrf></Document>`;
 
     pacsIsoRecord:Pacs008Document pacs008Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MT102STPMessage|error mt102stpMessage = transformPacs008DocumentToMT102STP(pacs008Message);
+    swiftmt:MT102STPMessage|error mt102stpMessage = transformPacs008DocumentToMT102STP(pacs008Message, MESSAGETYPE_102_STP);
 
     if (mt102stpMessage is swiftmt:MT102STPMessage) {
         string|error finMessage = swiftmt:getFinMessage(mt102stpMessage);
@@ -162,7 +162,7 @@ function testTransformPacs008DocumentToMT102STP() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt102stpMessage.block2.messageType, "102");
+        test:assertEquals(mt102stpMessage.block2.messageType, MESSAGETYPE_102_STP);
         test:assertTrue(mt102stpMessage.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
         log:printError(mt102stpMessage.toString());
@@ -201,7 +201,7 @@ function testTransformPacs008DocumentToMT103() returns error? {
 ""}PENSION PAYMENT SEPTEMBER 2003</Ustrd></RmtInf></CdtTrfTxInf></FIToFICstmrCdtTrf></Document>`;
 
     pacsIsoRecord:Pacs008Document pacs008Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MT103Message|error mt103Message = transformPacs008DocumentToMT103(pacs008Message);
+    swiftmt:MT103Message|error mt103Message = transformPacs008DocumentToMT103(pacs008Message, MESSAGETYPE_103);
 
     if (mt103Message is swiftmt:MT103Message) {
         string|error finMessage = swiftmt:getFinMessage(mt103Message);
@@ -209,7 +209,7 @@ function testTransformPacs008DocumentToMT103() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt103Message.block2.messageType, "103");
+        test:assertEquals(mt103Message.block2.messageType, MESSAGETYPE_103);
         test:assertTrue(mt103Message.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
         log:printError(mt103Message.toString());
@@ -248,7 +248,7 @@ function testTransformPacs008DocumentToMT103STP() returns error? {
 ""}PENSION PAYMENT SEPTEMBER 2003</Ustrd></RmtInf></CdtTrfTxInf></FIToFICstmrCdtTrf></Document>`;
 
     pacsIsoRecord:Pacs008Document pacs008Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MT103STPMessage|error mt103stpMessage = transformPacs008DocumentToMT103STP(pacs008Message);
+    swiftmt:MT103STPMessage|error mt103stpMessage = transformPacs008DocumentToMT103STP(pacs008Message, MESSAGETYPE_103_STP);
 
     if (mt103stpMessage is swiftmt:MT103STPMessage) {
         string|error finMessage = swiftmt:getFinMessage(mt103stpMessage);
@@ -256,7 +256,7 @@ function testTransformPacs008DocumentToMT103STP() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt103stpMessage.block2.messageType, "103");
+        test:assertEquals(mt103stpMessage.block2.messageType, MESSAGETYPE_103_STP);
         test:assertTrue(mt103stpMessage.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
         log:printError(mt103stpMessage.toString());
@@ -295,7 +295,7 @@ function testTransformPacs008DocumentToMT103REMIT() returns error? {
 ""}PENSION PAYMENT SEPTEMBER 2003</Ustrd></RmtInf></CdtTrfTxInf></FIToFICstmrCdtTrf></Document>`;
 
     pacsIsoRecord:Pacs008Document pacs008Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MT103REMITMessage|error mt103remitMessage = transformPacs008DocumentToMT103REMIT(pacs008Message);
+    swiftmt:MT103REMITMessage|error mt103remitMessage = transformPacs008DocumentToMT103REMIT(pacs008Message, MESSAGETYPE_103_REMIT);
 
     if (mt103remitMessage is swiftmt:MT103REMITMessage) {
         string|error finMessage = swiftmt:getFinMessage(mt103remitMessage);
@@ -303,7 +303,7 @@ function testTransformPacs008DocumentToMT103REMIT() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt103remitMessage.block2.messageType, "103");
+        test:assertEquals(mt103remitMessage.block2.messageType, MESSAGETYPE_103_REMIT);
         test:assertTrue(mt103remitMessage.block4.MT20.msgId.content == "5362/MPB", "Message ID is not a string");
     } else {
         log:printError(mt103remitMessage.toString());
@@ -326,7 +326,7 @@ function testTransformPain008DocumentToMT104() returns error? {
 ""}BE</Ctry><Cd>ORDERRES</Cd><Inf>MEILAAN 1, 9000 GENT</Inf></Dtls></RgltryRptg><RmtInf><Ustrd/></RmtInf></DrctDbtTxInf></PmtInf></CstmrDrctDbtInitn></Document>`;
 
     painIsoRecord:Pain008Document pain008Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MT104Message|error mt104Message = transformPain008DocumentToMT104(pain008Message);
+    swiftmt:MT104Message|error mt104Message = transformPain008DocumentToMT104(pain008Message, MESSAGETYPE_104);
 
     if (mt104Message is swiftmt:MT104Message) {
         string|error finMessage = swiftmt:getFinMessage(mt104Message);
@@ -334,7 +334,7 @@ function testTransformPain008DocumentToMT104() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt104Message.block2.messageType, "104");
+        test:assertEquals(mt104Message.block2.messageType, MESSAGETYPE_104);
         test:assertTrue(mt104Message.block4.MT20.msgId.content == "REFERENCE12345", "Message ID is not a string");
     } else {
         log:printError(mt104Message.toString());
@@ -360,7 +360,7 @@ function testTransformPacs003DocumenttoMT104() returns error? {
 ""}BE</Ctry><Cd>ORDERRES</Cd><Inf>MEILAAN 1, 9000 GENT</Inf></Dtls></RgltryRptg><RmtInf><Ustrd/></RmtInf></DrctDbtTxInf></FIToFICstmrDrctDbt></Document>`;
 
     pacsIsoRecord:Pacs003Document pacs003Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MT104Message|error mt104Message = transformPacs003DocumentToMT104(pacs003Message);
+    swiftmt:MT104Message|error mt104Message = transformPacs003DocumentToMT104(pacs003Message, MESSAGETYPE_104);
 
     if (mt104Message is swiftmt:MT104Message) {
         string|error finMessage = swiftmt:getFinMessage(mt104Message);
@@ -368,7 +368,7 @@ function testTransformPacs003DocumenttoMT104() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt104Message.block2.messageType, "104");
+        test:assertEquals(mt104Message.block2.messageType, MESSAGETYPE_104);
         test:assertTrue(mt104Message.block4.MT20.msgId.content == "REFERENCE12345", "Message ID is not a string");
     } else {
         log:printError(mt104Message.toString());
@@ -394,7 +394,7 @@ function testTransformPacs003DocumenttoMT107() returns error? {
 ""}BE</Ctry><Cd>ORDERRES</Cd><Inf>MEILAAN 1, 9000 GENT</Inf></Dtls></RgltryRptg><RmtInf><Ustrd/></RmtInf></DrctDbtTxInf></FIToFICstmrDrctDbt></Document>`;
 
     pacsIsoRecord:Pacs003Document pacs003Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MT107Message|error mt107Message = transformPacs003DocumentToMT107(pacs003Message);
+    swiftmt:MT107Message|error mt107Message = transformPacs003DocumentToMT107(pacs003Message, MESSAGETYPE_107);
 
     if (mt107Message is swiftmt:MT107Message) {
         string|error finMessage = swiftmt:getFinMessage(mt107Message);
@@ -402,187 +402,11 @@ function testTransformPacs003DocumenttoMT107() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt107Message.block2.messageType, "107");
+        test:assertEquals(mt107Message.block2.messageType, MESSAGETYPE_107);
         test:assertTrue(mt107Message.block4.MT20.msgId.content == "REFERENCE12345", "Message ID is not a string");
     } else {
         log:printError(mt107Message.toString());
         test:assertFail("Error occurred while transforming Pacs003 to MT107");
-    }
-}
-
-@test:Config {}
-function testTransformCamt056DocumenttoMT192() returns error? {
-    xml documentXML = xml `
-    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.056.001.11">
-        <FIToFIPmtCxlReq>
-            <Assgnmt>
-                <Id>CaseAssignmentID12345</Id>
-                <Assgnr>
-                    <Nm>Bank A</Nm>
-                    <PstlAdr>
-                        <Ctry>US</Ctry>
-                        <AdrLine>123 Street Name</AdrLine>
-                    </PstlAdr>
-                </Assgnr>
-                <Assgne>
-                    <Nm>Bank B</Nm>
-                    <PstlAdr>
-                        <Ctry>GB</Ctry>
-                        <AdrLine>456 Avenue Name</AdrLine>
-                    </PstlAdr>
-                </Assgne>
-                <CreDtTm>2024-11-29T12:34:56Z</CreDtTm>
-            </Assgnmt>
-            <Case>
-                <Id>CaseID12345</Id>
-                <Cretr>
-                    <Nm>Bank A</Nm>
-                </Cretr>
-            </Case>
-            <CtrlData>
-                <NbOfTxs>2</NbOfTxs>
-            </CtrlData>
-            <Undrlyg>
-                <OrgnlGrpInfAndCxl>
-                    <OrgnlMsgId>OriginalMessageID12345</OrgnlMsgId>
-                    <OrgnlMsgNmId>camt.053</OrgnlMsgNmId>
-                </OrgnlGrpInfAndCxl>
-                <TxInf>
-                    <CxlId>CancellationID12345</CxlId>
-                    <OrgnlInstrId>OriginalInstructionID12345</OrgnlInstrId>
-                    <OrgnlEndToEndId>EndToEndID12345</OrgnlEndToEndId>
-                    <OrgnlTxId>TransactionID12345</OrgnlTxId>
-                    <OrgnlUETR>550e8400-e29b-41d4-a716-446655440000</OrgnlUETR>
-                    <OrgnlIntrBkSttlmAmt Ccy="USD">
-                        <ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="USD">
-                            <ActiveOrHistoricCurrencyAndAmount_SimpleType>100000.00</ActiveOrHistoricCurrencyAndAmount_SimpleType>
-                        </ActiveOrHistoricCurrencyAndAmount_SimpleType>
-                    </OrgnlIntrBkSttlmAmt>
-                    <OrgnlIntrBkSttlmDt>2024-11-28</OrgnlIntrBkSttlmDt>
-                    <CxlRsnInf>
-                        <Rsn>
-                            <Cd>DCOR</Cd>
-                        </Rsn>
-                    </CxlRsnInf>
-                </TxInf>
-            </Undrlyg>
-            <SplmtryData>
-                <PlcAndNm>AdditionalInformation</PlcAndNm>
-                <Envlp>
-                    <Any>CustomData</Any>
-                </Envlp>
-            </SplmtryData>
-        </FIToFIPmtCxlReq>
-    </Document>`;
-
-    camtIsoRecord:Camt056Document camt056Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MTn92Message|error mt192Message = transformCamt056ToMT192(camt056Message);
-
-    if (mt192Message is swiftmt:MTn92Message) {
-        string|error finMessage = swiftmt:getFinMessage(mt192Message);
-        if finMessage is error {
-            log:printError(finMessage.toString());
-            test:assertFail("Error occurred while getting the FIN message");
-        }
-        test:assertEquals(mt192Message.block2.messageType, "192");
-        test:assertTrue(mt192Message.block4.MT20.msgId.content == "CaseID12345", "Message ID is not a string");
-
-    } else {
-        log:printError(mt192Message.toString());
-        test:assertFail("Error occurred while transforming Camt056 to MT192");
-    }
-}
-
-@test:Config {}
-function testTransformCamt055DocumenttoMT192() returns error? {
-    xml documentXML = xml `
-    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.055.001.12">
-        <CstmrPmtCxlReq>
-            <Assgnmt>
-                <Id>AssignmentID12345</Id>
-                <Assgnr>
-                    <Nm>Bank A</Nm>
-                    <PstlAdr>
-                        <Ctry>US</Ctry>
-                        <AdrLine>123 Main Street</AdrLine>
-                    </PstlAdr>
-                </Assgnr>
-                <Assgne>
-                    <Nm>Bank B</Nm>
-                    <PstlAdr>
-                        <Ctry>GB</Ctry>
-                        <AdrLine>456 High Road</AdrLine>
-                    </PstlAdr>
-                </Assgne>
-                <CreDtTm>2024-11-29T12:00:00Z</CreDtTm>
-            </Assgnmt>
-            <Case>
-                <Id>CaseID67890</Id>
-                <Cretr>
-                    <Nm>Bank A</Nm>
-                </Cretr>
-            </Case>
-            <CtrlData>
-                <NbOfTxs>1</NbOfTxs>
-            </CtrlData>
-            <Undrlyg>
-                <OrgnlGrpInfAndCxl>
-                    <OrgnlMsgId>OriginalMsgID12345</OrgnlMsgId>
-                    <OrgnlMsgNmId>pacs.008</OrgnlMsgNmId>
-                    <NbOfTxs>1</NbOfTxs>
-                    <CtrlSum>1000.00</CtrlSum>
-                </OrgnlGrpInfAndCxl>
-                <OrgnlPmtInfAndCxl>
-                    <OrgnlPmtInfId>OriginalPmtInfoID123</OrgnlPmtInfId>
-                    <NbOfTxs>1</NbOfTxs>
-                    <CtrlSum>1000.00</CtrlSum>
-                    <CxlRsnInf>
-                        <Rsn>
-                            <Cd>DCOR</Cd>
-                        </Rsn>
-                    </CxlRsnInf>
-                    <TxInf>
-                        <CxlId>CancellationID123</CxlId>
-                        <OrgnlInstrId>OriginalInstructionID123</OrgnlInstrId>
-                        <OrgnlEndToEndId>EndToEndID123</OrgnlEndToEndId>
-                        <OrgnlUETR>550e8400-e29b-41d4-a716-446655440000</OrgnlUETR>
-                        <OrgnlInstdAmt Ccy="USD">
-                            <ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="USD">
-                                <ActiveOrHistoricCurrencyAndAmount_SimpleType>100000.00</ActiveOrHistoricCurrencyAndAmount_SimpleType>
-                            </ActiveOrHistoricCurrencyAndAmount_SimpleType>
-                        </OrgnlInstdAmt>
-                        <OrgnlReqdExctnDt>2024-11-28</OrgnlReqdExctnDt>
-                        <CxlRsnInf>
-                            <Rsn>
-                                <Cd>DCOR</Cd>
-                            </Rsn>
-                        </CxlRsnInf>
-                    </TxInf>
-                </OrgnlPmtInfAndCxl>
-            </Undrlyg>
-            <SplmtryData>
-                <PlcAndNm>SupplementaryInformation</PlcAndNm>
-                <Envlp>
-                    <Any>CustomData</Any>
-                </Envlp>
-            </SplmtryData>
-        </CstmrPmtCxlReq>
-    </Document>`;
-
-    camtIsoRecord:Camt055Document camt055Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MTn92Message|error mt192Message = transformCamt055ToMT192(camt055Message);
-
-    if (mt192Message is swiftmt:MTn92Message) {
-        string|error finMessage = swiftmt:getFinMessage(mt192Message);
-        if finMessage is error {
-            log:printError(finMessage.toString());
-            test:assertFail("Error occurred while getting the FIN message");
-        }
-        test:assertEquals(mt192Message.block2.messageType, "192");
-        test:assertTrue(mt192Message.block4.MT20.msgId.content == "CaseID67890", "Message ID is not a string");
-    } else {
-        log:printError(mt192Message.toString());
-        test:assertFail("Error occurred while transforming Camt056 to MT192");
     }
 }
 
@@ -628,7 +452,7 @@ function testTransformCamt031DocumenttoMT196() returns error? {
     </Document>`;
 
     camtIsoRecord:Camt031Document camt031Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MTn96Message|error mt196Message = transformCamt031ToMT196(camt031Message);
+    swiftmt:MTn96Message|error mt196Message = transformCamt031ToMTn96(camt031Message, MESSAGETYPE_196);
 
     if (mt196Message is swiftmt:MTn96Message) {
         string|error finMessage = swiftmt:getFinMessage(mt196Message);
@@ -636,7 +460,7 @@ function testTransformCamt031DocumenttoMT196() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt196Message.block2.messageType, "196");
+        test:assertEquals(mt196Message.block2.messageType, MESSAGETYPE_196);
         test:assertTrue(mt196Message.block4.MT20.msgId.content == "CaseID789", "Message ID is not a string");
     } else {
         log:printError(mt196Message.toString());
@@ -729,7 +553,7 @@ function testTransformCamt028DocumenttoMT196() returns error? {
     </Document>`;
 
     camtIsoRecord:Camt028Document camt028Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MTn96Message|error mt196Message = transformCamt028ToMT196(camt028Message);
+    swiftmt:MTn96Message|error mt196Message = transformCamt028ToMT196(camt028Message, MESSAGETYPE_196);
 
     if (mt196Message is swiftmt:MTn96Message) {
         string|error finMessage = swiftmt:getFinMessage(mt196Message);
@@ -737,7 +561,7 @@ function testTransformCamt028DocumenttoMT196() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt196Message.block2.messageType, "196");
+        test:assertEquals(mt196Message.block2.messageType, MESSAGETYPE_196);
         test:assertTrue(mt196Message.block4.MT20.msgId.content == "Case123", "Message ID is not a string");
     } else {
         log:printError(mt196Message.toString());
@@ -804,7 +628,7 @@ function testTransformCamt026DocumenttoMT195() returns error? {
     </Document>`;
 
     camtIsoRecord:Camt026Document camt026Message = check xmldata:parseAsType(documentXML);
-    swiftmt:MTn95Message|error mt195Message = transformCamt026ToMT195(camt026Message);
+    swiftmt:MTn95Message|error mt195Message = transformCamt026ToMT195(camt026Message, MESSAGETYPE_195);
 
     if (mt195Message is swiftmt:MTn95Message) {
         string|error finMessage = swiftmt:getFinMessage(mt195Message);
@@ -812,7 +636,7 @@ function testTransformCamt026DocumenttoMT195() returns error? {
             log:printError(finMessage.toString());
             test:assertFail("Error occurred while getting the FIN message");
         }
-        test:assertEquals(mt195Message.block2.messageType, "195");
+        test:assertEquals(mt195Message.block2.messageType, MESSAGETYPE_195);
         test:assertTrue(mt195Message.block4.MT20.msgId.content == "Case987", "Message ID is not a string");
     } else {
         log:printError(mt195Message.toString());

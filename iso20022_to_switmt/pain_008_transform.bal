@@ -20,17 +20,26 @@ import ballerinax/financial.swift.mt as swiftmt;
 # generate the MT104 message from the Pain008 document
 #
 # + document - The Pain008 document
+# + messageType - The SWIFT message type
 # + return - The MT104 message or an error if the transformation fails
-function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document) returns swiftmt:MT104Message|error => let
+function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document, string messageType) returns swiftmt:MT104Message|error => let
     swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT104InstructionPartyFromPain008Document(document),
     swiftmt:MT50A?|swiftmt:MT50K? creditor = getMT104CreditorFromPain008Document(document),
     swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? creditorsBank = getMT104CreditorsBankFromPain008Document(document),
     swiftmt:MT53A?|swiftmt:MT53B? sendersCorrespondent = getMT104SendersCorrespondentFromPain008Document(document),
     swiftmt:MT104Transaction[] transactions = check generateMT104Transactions(document.CstmrDrctDbtInitn.PmtInf, instructingParty, creditor, creditorsBank)
     in {
-        block1: check generateMtBlock1FromSupplementaryData(document.CstmrDrctDbtInitn.SplmtryData), // TODO - Update this to the correct mapping
-        block2: check generateMtBlock2WithDateTime(MESSAGETYPE_104, document.CstmrDrctDbtInitn.GrpHdr.CreDtTm), // TODO - Update this to the correct mapping
-        block3: check generateMtBlock3(document.CstmrDrctDbtInitn.SplmtryData, document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId.UETR, EMPTY_STRING), // TODO - Add correct mapping
+        block1: {
+            logicalTerminal: getSenderOrReceiver(())
+        },
+        block2: {
+            'type: "output",
+            messageType: messageType,
+            MIRLogicalTerminal: getSenderOrReceiver(()),
+            senderInputTime: {content: check convertToSwiftTimeFormat(document.CstmrDrctDbtInitn.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(document.CstmrDrctDbtInitn.GrpHdr.CreDtTm.substring(0, 10))}
+        },
+        block3: createMtBlock3(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
             MT19: {
                 name: MT19_NAME,

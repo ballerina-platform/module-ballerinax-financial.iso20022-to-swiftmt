@@ -20,11 +20,20 @@ import ballerinax/financial.swift.mt as swiftmt;
 # generate the MT101 message from the Pain001 document
 #
 # + document - The Pain001 document
+# + messageType - The SWIFT message type
 # + return - The MT101 message or an error if the transformation fails
-function transformPain001DocumentToMT101(painIsoRecord:Pain001Document document) returns swiftmt:MT101Message|error => let swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT101InstructingPartyFromPain001Document(document), swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? orderingCustomer = getMT101OrderingCustomerFromPain001Document(document), swiftmt:MT52A?|swiftmt:MT52C? accountServicingInstitution = getMT101AccountServicingInstitutionFromPain001Document(document) in {
-        block1: check generateMtBlock1FromSupplementaryData(document.CstmrCdtTrfInitn.SplmtryData),
-        block2: check generateMtBlock2WithDateTime(MESSAGETYPE_101, document.CstmrCdtTrfInitn.GrpHdr.CreDtTm),
-        block3: check generateMtBlock3(document.CstmrCdtTrfInitn.SplmtryData, document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.UETR, ""),
+isolated function transformPain001DocumentToMT101(painIsoRecord:Pain001Document document, string messageType) returns swiftmt:MT101Message|error => let swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getField50Or50COr50L(document.CstmrCdtTrfInitn.GrpHdr.InitgPty?.Id?.OrgId?.AnyBIC, (), (), document.CstmrCdtTrfInitn.GrpHdr.InitgPty?.Id?.PrvtId?.Othr) in {
+        block1: {
+            logicalTerminal: getSenderOrReceiver(())
+        },
+        block2: {
+            'type: "output",
+            messageType: messageType,
+            MIRLogicalTerminal: getSenderOrReceiver(()),
+            senderInputTime: {content: check convertToSwiftTimeFormat(document.CstmrCdtTrfInitn.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(document.CstmrCdtTrfInitn.GrpHdr.CreDtTm.substring(0, 10))}
+        },
+        block3: createMtBlock3(document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
             MT20: {
                 name: MT20_NAME,
@@ -57,12 +66,13 @@ function transformPain001DocumentToMT101(painIsoRecord:Pain001Document document)
             },
             MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
             MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
-            MT50F: orderingCustomer is swiftmt:MT50F ? orderingCustomer : (),
-            MT50G: orderingCustomer is swiftmt:MT50G ? orderingCustomer : (),
-            MT50H: orderingCustomer is swiftmt:MT50H ? orderingCustomer : (),
-            MT52A: accountServicingInstitution is swiftmt:MT52A ? accountServicingInstitution : (),
-            MT52C: accountServicingInstitution is swiftmt:MT52C ? accountServicingInstitution : (),
-            Transaction: check generateMT101Transactions(document.CstmrCdtTrfInitn.PmtInf, getMT101InstructingPartyFromPain001Document(document), getMT101OrderingCustomerFromPain001Document(document), getMT101AccountServicingInstitutionFromPain001Document(document))
+            MT50F: (check getMT101OrderingCustomerFromPain001Document(document.CstmrCdtTrfInitn.PmtInf))[4],
+            MT50G: (check getMT101OrderingCustomerFromPain001Document(document.CstmrCdtTrfInitn.PmtInf))[1],
+            MT50H: (check getMT101OrderingCustomerFromPain001Document(document.CstmrCdtTrfInitn.PmtInf))[3],
+            MT51A: getField51A(document.CstmrCdtTrfInitn.GrpHdr.FwdgAgt?.FinInstnId?.BICFI, document.CstmrCdtTrfInitn.GrpHdr.FwdgAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd),
+            MT52A: (check getMT101AccountServicingInstitutionFromPain001Document(document.CstmrCdtTrfInitn.PmtInf))[0],
+            MT52C: (check getMT101AccountServicingInstitutionFromPain001Document(document.CstmrCdtTrfInitn.PmtInf))[2],
+            Transaction: check generateMT101Transactions(document.CstmrCdtTrfInitn.PmtInf, instructingParty)
         },
         block5: check generateMtBlock5FromSupplementaryData(document.CstmrCdtTrfInitn.SplmtryData)
     };
@@ -71,21 +81,16 @@ function transformPain001DocumentToMT101(painIsoRecord:Pain001Document document)
 #
 # + mxTransactions - The MX transactions
 # + instructingParty - The instructing party
-# + orderingCustomer - The ordering customer
-# + accountServicingInstitution - The account servicing institution
 # + return - The MT101 transactions or an error if the transformation fails
 isolated function generateMT101Transactions(
         painIsoRecord:PaymentInstruction44[] mxTransactions,
-        swiftmt:MT50C?|swiftmt:MT50L? instructingParty,
-        swiftmt:MT50F?|swiftmt:MT50G?|swiftmt:MT50H? orderingCustomer,
-        swiftmt:MT52A?|swiftmt:MT52C? accountServicingInstitution
+        swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? instructingParty
 ) returns swiftmt:MT101Transaction[]|error {
     swiftmt:MT101Transaction[] transactions = [];
     foreach painIsoRecord:PaymentInstruction44 item in mxTransactions {
         painIsoRecord:CreditTransferTransaction61 creditTransferTransaction = item.CdtTrfTxInf[0];
-        swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? intermediary = getMT101TransactionIntermediaryFromPain001Document(item);
-        swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? accountWithInstitution = getMT101TransactionAcountWithInstitution(item);
-        swiftmt:MT59|swiftmt:MT59A?|swiftmt:MT59F? beneficiary = getMT101TransactionBeneficiary(item);
+        swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? intermediary = check getField56(creditTransferTransaction.IntrmyAgt1?.FinInstnId?.BICFI, creditTransferTransaction.IntrmyAgt1?.FinInstnId?.Nm, creditTransferTransaction.IntrmyAgt1?.FinInstnId?.PstlAdr?.AdrLine, creditTransferTransaction.IntrmyAgt1?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, creditTransferTransaction.IntrmyAgt1Acct?.Id?.IBAN, creditTransferTransaction.IntrmyAgt1Acct?.Id?.Othr?.Id, true);
+        swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? accountWithInstitution = check getField57(creditTransferTransaction.CdtrAgt?.FinInstnId?.BICFI, creditTransferTransaction.CdtrAgt?.FinInstnId?.Nm, creditTransferTransaction.CdtrAgt?.FinInstnId?.PstlAdr?.AdrLine, creditTransferTransaction.CdtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, creditTransferTransaction.CdtrAgtAcct?.Id?.IBAN, creditTransferTransaction.CdtrAgtAcct?.Id?.Othr?.Id, isOptionCPresent = true);
 
         transactions.push({
             MT21: {
@@ -95,15 +100,6 @@ isolated function generateMT101Transactions(
                     number: NUMBER1
                 }
             },
-
-            MT70: {
-                name: MT70_NAME,
-                Nrtv: {
-                    content: getEmptyStrIfNull(creditTransferTransaction.RmtInf?.Ustrd),
-                    number: NUMBER1
-                }
-            },
-
             MT32B: {
                 name: MT32B_NAME,
                 Ccy: {
@@ -116,15 +112,16 @@ isolated function generateMT101Transactions(
                 }
             },
 
+            MT23E: getfield23EForMt101(creditTransferTransaction.InstrForCdtrAgt, creditTransferTransaction.InstrForDbtrAgt, creditTransferTransaction.PmtTpInf?.SvcLvl, creditTransferTransaction.PmtTpInf?.CtgyPurp),
             MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
             MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
 
-            MT50F: orderingCustomer is swiftmt:MT50F ? orderingCustomer : (),
-            MT50G: orderingCustomer is swiftmt:MT50G ? orderingCustomer : (),
-            MT50H: orderingCustomer is swiftmt:MT50H ? orderingCustomer : (),
+            MT50F: (check getMT101OrderingCustomerFromPain001Document(mxTransactions, item))[4],
+            MT50G: (check getMT101OrderingCustomerFromPain001Document(mxTransactions, item))[1],
+            MT50H: (check getMT101OrderingCustomerFromPain001Document(mxTransactions, item))[3],
 
-            MT52A: accountServicingInstitution is swiftmt:MT52A ? accountServicingInstitution : (),
-            MT52C: accountServicingInstitution is swiftmt:MT52C ? accountServicingInstitution : (),
+            MT52A: (check getMT101AccountServicingInstitutionFromPain001Document(mxTransactions, item))[0],
+            MT52C: (check getMT101AccountServicingInstitutionFromPain001Document(mxTransactions, item))[2],
 
             MT56A: intermediary is swiftmt:MT56A ? intermediary : (),
             MT56C: intermediary is swiftmt:MT56C ? intermediary : (),
@@ -134,39 +131,17 @@ isolated function generateMT101Transactions(
             MT57C: accountWithInstitution is swiftmt:MT57C ? accountWithInstitution : (),
             MT57D: accountWithInstitution is swiftmt:MT57D ? accountWithInstitution : (),
 
-            MT59: beneficiary is swiftmt:MT59 ? beneficiary : (),
-            MT59A: beneficiary is swiftmt:MT59A ? beneficiary : (),
-            MT59F: beneficiary is swiftmt:MT59F ? beneficiary : (),
+            MT59: getField59a(creditTransferTransaction.Cdtr?.Id?.OrgId?.AnyBIC, creditTransferTransaction.Cdtr?.Nm, creditTransferTransaction.Cdtr?.PstlAdr?.AdrLine, creditTransferTransaction.CdtrAcct?.Id?.IBAN, creditTransferTransaction.CdtrAcct?.Id?.Othr?.Id, townName = creditTransferTransaction.Cdtr?.PstlAdr?.TwnNm, countryCode = creditTransferTransaction.Cdtr?.PstlAdr?.Ctry)[0],
+            MT59A: getField59a(creditTransferTransaction.Cdtr?.Id?.OrgId?.AnyBIC, creditTransferTransaction.Cdtr?.Nm, creditTransferTransaction.Cdtr?.PstlAdr?.AdrLine, creditTransferTransaction.CdtrAcct?.Id?.IBAN, creditTransferTransaction.CdtrAcct?.Id?.Othr?.Id, townName = creditTransferTransaction.Cdtr?.PstlAdr?.TwnNm, countryCode = creditTransferTransaction.Cdtr?.PstlAdr?.Ctry)[1],
+            MT59F: getField59a(creditTransferTransaction.Cdtr?.Id?.OrgId?.AnyBIC, creditTransferTransaction.Cdtr?.Nm, creditTransferTransaction.Cdtr?.PstlAdr?.AdrLine, creditTransferTransaction.CdtrAcct?.Id?.IBAN, creditTransferTransaction.CdtrAcct?.Id?.Othr?.Id, townName = creditTransferTransaction.Cdtr?.PstlAdr?.TwnNm, countryCode = creditTransferTransaction.Cdtr?.PstlAdr?.Ctry)[2],
 
-            MT77B: {
-                name: MT77B_NAME,
-                Nrtv: getNarrativeFromRegulatoryCreditTransferTransaction61(creditTransferTransaction.RgltryRptg)
-            },
-
-            MT33B: {
-                name: MT33B_NAME,
-                Ccy: {
-                    content: getActiveOrHistoricCurrencyAndAmountCcy(creditTransferTransaction.Amt.InstdAmt),
-                    number: NUMBER1
-                },
-                Amnt: {
-                    content: getActiveOrHistoricCurrencyAndAmountValue(creditTransferTransaction.Amt.InstdAmt),
-                    number: NUMBER2
-                }
-            },
-
+            MT70: getField70(creditTransferTransaction.RmtInf?.Ustrd),
+            MT77B: getField77B(creditTransferTransaction.RgltryRptg),
             MT71A: {
                 name: MT71A_NAME,
                 Cd: getDetailsOfChargesFromChargeBearerType1Code(creditTransferTransaction.ChrgBr)
             },
-
-            MT36: {
-                name: MT36_NAME,
-                Rt: {
-                    content: convertDecimalNumberToSwiftDecimal(creditTransferTransaction.XchgRateInf?.XchgRate),
-                    number: NUMBER1
-                }
-            }
+            MT36: check getField36(creditTransferTransaction.XchgRateInf?.XchgRate)
         });
     }
 

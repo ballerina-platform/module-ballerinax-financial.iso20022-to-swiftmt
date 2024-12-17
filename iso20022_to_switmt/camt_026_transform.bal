@@ -20,13 +20,22 @@ import ballerinax/financial.swift.mt as swiftmt;
 # Transforms a camt.026 ISO 20022 document to its corresponding SWIFT MT195 format.
 #
 # + document - The camt.026 document to be transformed.
+# + messageType - The SWIFT message type
 # + return - The transformed SWIFT MT195 message or an error.
-isolated function transformCamt026ToMT195(camtIsoRecord:Camt026Document document) returns swiftmt:MTn95Message|error => let
+isolated function transformCamt026ToMT195(camtIsoRecord:Camt026Document document, string messageType) returns swiftmt:MTn95Message|error => let
     camtIsoRecord:SupplementaryData1[]? splmtryData = document.UblToApply.SplmtryData
     in {
-        block1: check generateMtBlock1FromAssgnmt(document.UblToApply.Assgnmt),
-        block2: check generateMtBlock2WithDateTime(MESSAGETYPE_195, document.UblToApply.Assgnmt.CreDtTm),
-        block3: check generateMtBlock3(document.UblToApply.SplmtryData, (), ""),
+        block1: {
+            logicalTerminal: getSenderOrReceiver(document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI)
+        },
+        block2: {
+            'type: "output",
+            messageType: messageType,
+            MIRLogicalTerminal: getSenderOrReceiver(document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(document.UblToApply.Assgnmt.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(document.UblToApply.Assgnmt.CreDtTm.substring(0, 10))}
+        },
+        block3: createMtBlock3(document.UblToApply.Undrlyg.Initn?.OrgnlUETR),
         block4: {
             MT20: check getMT20(document.UblToApply.Case?.Id),
             MT21: {

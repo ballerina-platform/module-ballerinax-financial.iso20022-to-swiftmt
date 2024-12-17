@@ -20,46 +20,33 @@ import ballerinax/financial.swift.mt as swiftmt;
 # This function transforms a camt.056 ISO 20022 message into an MT192 SWIFT format message.
 #
 # + document - The camt.056 message to be transformed, in `camtIsoRecord:Camt056Document` format.
-# + return - Returns an MT192 message in the `swiftmt:MTn92Message` format if successful, otherwise returns an error.
-isolated function transformCamt056ToMT192(camtIsoRecord:Camt056Document document) returns swiftmt:MTn92Message|error => let
-    camtIsoRecord:UnderlyingTransaction34[] undrlyg = document.FIToFIPmtCxlReq.Undrlyg,
-    camtIsoRecord:PaymentTransaction155[] txInf = undrlyg[0].TxInf ?: [],
-    camtIsoRecord:PaymentTransaction155 txInf0 = txInf[0]
-    in {
-
-        block1: check generateMtBlock1FromAssgnmt(document.FIToFIPmtCxlReq.Assgnmt),
-        block2: check generateMtBlock2WithDateTime(
-                MESSAGETYPE_192,
-                document.FIToFIPmtCxlReq.Assgnmt.CreDtTm
-        ),
-        block3: check generateMtBlock3(
-                document.FIToFIPmtCxlReq.SplmtryData,
-                (),
-                ""
-        ),
+# + messageType - The message type to which the ISO 20022 is being transformed.
+# + return - Returns an MTn92 message in the `swiftmt:MTn92Message` format if successful, otherwise returns an error.
+isolated function transformCamt056ToMtn92(camtIsoRecord:Camt056Document document, string messageType) returns swiftmt:MTn92Message|error => let camtIsoRecord:PaymentTransaction155[] transactionInfo = check getTransactionInfo(document.FIToFIPmtCxlReq.Undrlyg[0].TxInf) in {
+        block1: {
+            logicalTerminal: getSenderOrReceiver(document.FIToFIPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI)
+        },
+        block2: {
+            'type: "output",
+            messageType: messageType,
+            MIRLogicalTerminal: getSenderOrReceiver(document.FIToFIPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(document.FIToFIPmtCxlReq.Assgnmt.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(document.FIToFIPmtCxlReq.Assgnmt.CreDtTm.substring(0, 10))}
+        },
         block4: {
-            MT20: check getMT20(document.FIToFIPmtCxlReq.Case?.Id),
+            MT20: {
+                name: MT20_NAME,
+                msgId: {content: getMandatoryField(transactionInfo[0].Case?.Id), number: NUMBER1}
+            },
             MT21: {
                 name: MT21_NAME,
-                Ref: {
-                    content: getOriginalInstructionOrUETR(document.FIToFIPmtCxlReq.Undrlyg),
-                    number: NUMBER1
-                }
+                Ref: {content: getMandatoryField(transactionInfo[0].OrgnlInstrId), number: NUMBER1}
             },
-            MT11S: check getMT11S(
-                            document.FIToFIPmtCxlReq.Undrlyg[0].OrgnlGrpInfAndCxl,
-                    document.FIToFIPmtCxlReq.Undrlyg[0].OrgnlGrpInfAndCxl?.OrgnlCreDtTm
-                    ),
-            MT79: {
-                name: MT79_NAME,
-                Nrtv: getNarrativeFromCancellationReason(document.FIToFIPmtCxlReq.Undrlyg)
+            MT11S: {
+                name: MT11S_NAME,
+                Dt: {content: convertToSWIFTStandardDate(transactionInfo[0].OrgnlGrpInf?.OrgnlCreDtTm), number: NUMBER2},
+                MtNum: {content: getOrignalMessageName(transactionInfo[0].OrgnlGrpInf?.OrgnlMsgNmId), number: NUMBER1}
             },
-            MessageCopy: {
-                MT32A: check getMT32A(txInf0.OrgnlIntrBkSttlmAmt, txInf0.OrgnlIntrBkSttlmDt)
-            }
-        },
-        block5: check generateMtBlock5FromSupplementaryData(
-                document.FIToFIPmtCxlReq.SplmtryData
-        ),
-        unparsedTexts: ()
+            MT79: getField79(transactionInfo[0].CxlRsnInf)
+        }
     };

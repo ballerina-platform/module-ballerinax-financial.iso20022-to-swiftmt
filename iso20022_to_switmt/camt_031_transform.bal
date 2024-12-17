@@ -20,11 +20,19 @@ import ballerinax/financial.swift.mt as swiftmt;
 # This function transforms a camt.031 ISO 20022 message into an MT196 SWIFT format message.
 #
 # + document - The camt.031 message to be transformed, in `camtIsoRecord:Camt031Document` format.
+# + messageType - The SWIFT message type
 # + return - Returns an MT196 message in the `swiftmt:MTn96Message` format if successful, otherwise returns an error.
-isolated function transformCamt031ToMT196(camtIsoRecord:Camt031Document document) returns swiftmt:MTn96Message|error => {
-    block1: check generateMtBlock1FromAssgnmt(document.RjctInvstgtn.Assgnmt),
-    block2: check generateMtBlock2WithDateTime(MESSAGETYPE_196, document.RjctInvstgtn.Assgnmt.CreDtTm),
-    block3: check generateMtBlock3(document.RjctInvstgtn.SplmtryData, (), ""),
+isolated function transformCamt031ToMTn96(camtIsoRecord:Camt031Document document, string messageType) returns swiftmt:MTn96Message|error => {
+    block1: {
+        logicalTerminal: getSenderOrReceiver(document.RjctInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI)
+    },
+    block2: {
+        'type: "output",
+        messageType: messageType,
+        MIRLogicalTerminal: getSenderOrReceiver(document.RjctInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI),
+        senderInputTime: {content: check convertToSwiftTimeFormat(document.RjctInvstgtn.Assgnmt.CreDtTm.substring(11))},
+        MIRDate: {content: convertToSWIFTStandardDate(document.RjctInvstgtn.Assgnmt.CreDtTm.substring(0, 10))}
+    },
     block4:
         {
         MT20: check getMT20(document.RjctInvstgtn.Case?.Id),
@@ -60,4 +68,3 @@ isolated function transformCamt031ToMT196(camtIsoRecord:Camt031Document document
     block5: check generateMtBlock5FromSupplementaryData(document.RjctInvstgtn.SplmtryData),
     unparsedTexts: ()
 };
-
