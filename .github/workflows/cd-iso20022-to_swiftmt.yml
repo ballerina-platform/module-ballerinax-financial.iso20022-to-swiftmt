@@ -1,0 +1,21 @@
+name: cd-iso20022_to_swiftmt
+
+on:
+  workflow_dispatch:
+    inputs:
+      bal_central_environment:
+        description: Ballerina Central Environment
+        type: choice
+        options:
+        - STAGE
+        - DEV
+        - PROD
+        required: true
+
+jobs:
+  build:
+     uses: ./.github/workflows/build-executor.yml
+     secrets: inherit
+     with:
+      working_dir: ./iso20022_to_swiftmt
+      bal_central_environment: ${{ inputs.bal_central_environment }}
