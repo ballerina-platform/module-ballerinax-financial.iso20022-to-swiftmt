@@ -189,17 +189,6 @@ type MxMessage record {|
 
 final readonly & map<isolated function> transformFunctionMap =
     {
-    "101": transformPain001DocumentToMT101,
-    "102": transformPacs008DocumentToMT102,
-    "102STP": transformPacs008DocumentToMT102STP,
-    "103": transformPacs008DocumentToMT103,
-    "103STP": transformPacs008DocumentToMT103STP,
-    "103REMIT": transformPacs008DocumentToMT103REMIT,
-    "104": transformPacs003DocumentToMT104,
-    "107": transformPacs003DocumentToMT107,
-    "192": transformCamt055ToMtn92,
-    "195": transformCamt026ToMT195,
-    "196": transformCamt029ToMtn96,
     "200": transformPacs009ToMt200,
     "201": transformPacs009ToMt201,
     "202": transformPacs009ToMt202,
@@ -210,6 +199,7 @@ final readonly & map<isolated function> transformFunctionMap =
     "205COV": transformPacs009ToMt205COV,
     "210": transformCamt057ToMt210,
     "292": transformCamt056ToMtn92,
+    "295": transformCamt026ToMtn95,
     "296": transformCamt029ToMtn96
 };
 

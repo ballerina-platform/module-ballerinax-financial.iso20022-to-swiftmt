@@ -1487,32 +1487,6 @@ isolated function getMT102OrderingInstitutionFromPacs008Document(pacsIsoRecord:C
     return getField52Alt(crdtTrfTx[0].DbtrAgt?.FinInstnId?.BICFI, crdtTrfTx[0].DbtrAgt?.FinInstnId?.Nm, crdtTrfTx[0].DbtrAgt?.FinInstnId?.PstlAdr?.AdrLine, crdtTrfTx[0].DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, crdtTrfTx[0].DbtrAgtAcct?.Id?.IBAN, crdtTrfTx[0].DbtrAgtAcct?.Id?.Othr?.Id, isOptionCPresent = true);
 }
 
-# Get the ordering customer from the Pacs008 document.
-#
-# + crdtTrfTx - The array of credit transactions
-# + transaxion - The current credit transaction
-# + return - The ordering customer or null record
-isolated function getOrderingCustomerFromPacs008Document(pacsIsoRecord:CreditTransferTransaction64[] crdtTrfTx, pacsIsoRecord:CreditTransferTransaction64? transaxion = ())
-    returns [swiftmt:MT50A?, swiftmt:MT50G?, swiftmt:MT50K?, swiftmt:MT50H?, swiftmt:MT50F?]|error {
-    string? partyIdentifier = ();
-    pacsIsoRecord:GenericPersonIdentification2[]? otherId = crdtTrfTx[0].Dbtr.Id?.PrvtId?.Othr;
-    if otherId is pacsIsoRecord:GenericPersonIdentification2[] {
-        partyIdentifier = otherId[0].Id;
-    }
-    [string?, string?, string?] [iban, bban, identifierCode] = [crdtTrfTx[0].DbtrAcct?.Id?.IBAN, crdtTrfTx[0].DbtrAcct?.Id?.Othr?.Id, crdtTrfTx[0].Dbtr.Id?.OrgId?.AnyBIC];
-    foreach int i in 1 ... crdtTrfTx.length() - 1 {
-        string? partyIdentifier2 = ();
-        pacsIsoRecord:GenericPersonIdentification2[]? otherId2 = crdtTrfTx[i].Dbtr.Id?.PrvtId?.Othr;
-        if otherId2 is pacsIsoRecord:GenericPersonIdentification2[] {
-            partyIdentifier2 = otherId2[i].Id;
-        }
-        if iban != crdtTrfTx[i].DbtrAcct?.Id?.IBAN || bban != crdtTrfTx[i].DbtrAcct?.Id?.Othr?.Id || identifierCode != crdtTrfTx[i].Dbtr.Id?.OrgId?.AnyBIC || partyIdentifier != partyIdentifier2 {
-            return getField50a(transaxion?.Dbtr?.Id?.OrgId?.AnyBIC, transaxion?.Dbtr?.Nm, transaxion?.Dbtr?.PstlAdr?.AdrLine, transaxion?.DbtrAcct?.Id?.IBAN, transaxion?.DbtrAcct?.Id?.Othr?.Id, transaxion?.Dbtr?.Id?.PrvtId?.Othr, false, transaxion?.Dbtr?.PstlAdr?.TwnNm, transaxion?.Dbtr?.PstlAdr?.Ctry);
-        }
-    }
-    return getField50a(crdtTrfTx[0].Dbtr?.Id?.OrgId?.AnyBIC, crdtTrfTx[0].Dbtr?.Nm, crdtTrfTx[0].Dbtr.PstlAdr?.AdrLine, crdtTrfTx[0].DbtrAcct?.Id?.IBAN, crdtTrfTx[0].DbtrAcct?.Id?.Othr?.Id, crdtTrfTx[0].Dbtr.Id?.PrvtId?.Othr, false, crdtTrfTx[0].Dbtr.PstlAdr?.TwnNm, crdtTrfTx[0].Dbtr?.PstlAdr?.Ctry);
-}
-
 # Get the intermediary institution from the Pacs008 document.
 # + clearingChannel - The clearing channel
 # + return - The clearing prefix or an empty string

@@ -22,7 +22,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + document - The camt.026 document to be transformed.
 # + messageType - The SWIFT message type
 # + return - The transformed SWIFT MT195 message or an error.
-isolated function transformCamt026ToMT195(camtIsoRecord:Camt026Document document, string messageType) returns swiftmt:MTn95Message|error => let
+isolated function transformCamt026ToMtn95(camtIsoRecord:Camt026Document document, string messageType) returns swiftmt:MTn95Message|error => let
     camtIsoRecord:SupplementaryData1[]? splmtryData = document.UblToApply.SplmtryData
     in {
         block1: {

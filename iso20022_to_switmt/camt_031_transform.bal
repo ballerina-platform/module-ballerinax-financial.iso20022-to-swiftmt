@@ -22,7 +22,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + document - The camt.031 message to be transformed, in `camtIsoRecord:Camt031Document` format.
 # + messageType - The SWIFT message type
 # + return - Returns an MT196 message in the `swiftmt:MTn96Message` format if successful, otherwise returns an error.
-isolated function transformCamt031ToMTn96(camtIsoRecord:Camt031Document document, string messageType) returns swiftmt:MTn96Message|error => {
+isolated function transformCamt031ToMtn96(camtIsoRecord:Camt031Document document, string messageType) returns swiftmt:MTn96Message|error => {
     block1: {
         logicalTerminal: getSenderOrReceiver(document.RjctInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI)
     },
