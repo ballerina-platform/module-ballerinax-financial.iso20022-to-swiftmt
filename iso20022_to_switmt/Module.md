@@ -29,7 +29,7 @@ The DataMapper Library is a comprehensive toolkit designed to convert ISO 20022 
 
 ## Usage
 
-### Conversion of ISO 20022 to SWIFT MT
+### Conversion of SWIFT fin message to ISO 20022 Xml Standard
 
 ```ballerina
 import ballerina/io;
@@ -60,13 +60,3 @@ public function main() returns error? {
     io:println(mxToMt:toSwiftMtMessage(finMessage));
 }
 ```
-
-## Report issues
-
-To report bugs, request new features, start new discussions, view project boards, etc., go to
-the [Ballerina library parent repository](https://github.com/ballerina-platform/ballerina-library).
-
-## Useful Links
-
-- Chat live with us via our [Discord server](https://discord.gg/ballerinalang).
-- Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
