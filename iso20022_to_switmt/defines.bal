@@ -149,7 +149,7 @@ const VALIDATION_FLAG_STP = "STP";
 const VALIDATION_FLAG_COV = "COV";
 const VALIDATION_FLAG_REMIT = "REMIT";
 
-isolated string[] MT_101_INSTRC_CD = [
+string[] MT_101_INSTRC_CD = [
     "CHQB",
     "CMSW",
     "CMTO",
@@ -163,6 +163,16 @@ isolated string[] MT_101_INSTRC_CD = [
     "REPA",
     "RTGS",
     "URGP"
+];
+
+isolated string[] MT_103_INSTRC_CD = [
+    "CHQB",
+    "CORT",
+    "INTC",
+    "SDVA",
+    "TELB",
+    "PHOB",
+    "HOLD"
 ];
 
 # This record is used to store any type of MT message record and the type name
@@ -189,6 +199,14 @@ type MxMessage record {|
 
 final readonly & map<isolated function> transformFunctionMap =
     {
+    "101": transformPain001DocumentToMT101,
+    "102": transformPacs008DocumentToMT102,
+    "102STP": transformPacs008DocumentToMT102STP,
+    "103": transformPacs008DocumentToMT103,
+    "103STP": transformPacs008DocumentToMT103STP,
+    "103REMIT": transformPacs008DocumentToMT103REMIT,
+    "104": transformPacs003DocumentToMT104,
+    "107": transformPacs003DocumentToMT107,   
     "200": transformPacs009ToMt200,
     "201": transformPacs009ToMt201,
     "202": transformPacs009ToMt202,

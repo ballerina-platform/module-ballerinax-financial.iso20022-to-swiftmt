@@ -19,7 +19,8 @@ import ballerinax/financial.swift.mt as swiftmt;
 
 isolated function transformPacs010ToMt204(pacsIsoRecord:Pacs010Document document, string messageType) returns swiftmt:MT204Message|error => let
     pacsIsoRecord:CreditTransferTransaction66 debitTransfer = document.FIDrctDbt.CdtInstr[0],
-    swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(debitTransfer.CdtrAgt?.FinInstnId?.BICFI, debitTransfer.CdtrAgt?.FinInstnId?.Nm, debitTransfer.CdtrAgt?.FinInstnId?.PstlAdr?.AdrLine, debitTransfer.CdtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, debitTransfer.CdtrAgtAcct?.Id?.IBAN, debitTransfer.CdtrAgtAcct?.Id?.Othr?.Id, true) in {
+    swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(debitTransfer.CdtrAgt?.FinInstnId, debitTransfer.CdtrAgtAcct?.Id, true),
+    swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(debitTransfer.Cdtr?.FinInstnId, debitTransfer.CdtrAcct?.Id) in {
         block1: {
             logicalTerminal: getSenderOrReceiver(document.FIDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI)
         },
@@ -47,8 +48,8 @@ isolated function transformPacs010ToMt204(pacsIsoRecord:Pacs010Document document
             MT57A: field57 is swiftmt:MT57A ? field57 : (),
             MT57B: field57 is swiftmt:MT57B ? field57 : (),
             MT57D: field57 is swiftmt:MT57D ? field57 : (),
-            MT58A: getField58(debitTransfer.Cdtr?.FinInstnId?.BICFI, debitTransfer.Cdtr?.FinInstnId?.Nm, debitTransfer.Cdtr?.FinInstnId?.PstlAdr?.AdrLine, debitTransfer.Cdtr?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, debitTransfer.CdtrAcct?.Id?.IBAN, debitTransfer.CdtrAcct?.Id?.Othr?.Id)[0],
-            MT58D: getField58(debitTransfer.Cdtr?.FinInstnId?.BICFI, debitTransfer.Cdtr?.FinInstnId?.Nm, debitTransfer.Cdtr?.FinInstnId?.PstlAdr?.AdrLine, debitTransfer.Cdtr?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, debitTransfer.CdtrAcct?.Id?.IBAN, debitTransfer.CdtrAcct?.Id?.Othr?.Id)[1],
+            MT58A: field58 is swiftmt:MT58A ? field58 : (),
+            MT58D: field58 is swiftmt:MT58D ? field58 : (),
             Transaction: check getMT204Transaction(debitTransfer.DrctDbtTxInf)
         }
     };
@@ -56,6 +57,7 @@ isolated function transformPacs010ToMt204(pacsIsoRecord:Pacs010Document document
 isolated function getMT204Transaction(pacsIsoRecord:DirectDebitTransactionInformation33[] debitTransaction) returns swiftmt:MT204Transaction[]|error {
     swiftmt:MT204Transaction[] transactionArray = [];
     foreach pacsIsoRecord:DirectDebitTransactionInformation33 transaxion in debitTransaction {
+        swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(transaxion.Dbtr?.FinInstnId, transaxion.DbtrAcct?.Id, isOptionBPresent = true);
         transactionArray.push({
             MT20: {
                 name: MT20_NAME,
@@ -76,9 +78,9 @@ isolated function getMT204Transaction(pacsIsoRecord:DirectDebitTransactionInform
                     number: NUMBER2
                 }
             },
-            MT53A: getField53(transaxion.Dbtr?.FinInstnId?.BICFI, transaxion.Dbtr?.FinInstnId?.Nm, transaxion.Dbtr?.FinInstnId?.PstlAdr?.AdrLine, transaxion.Dbtr?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, transaxion.DbtrAcct?.Id?.IBAN, transaxion.DbtrAcct?.Id?.Othr?.Id)[0],
-            MT53B: getField53(transaxion.Dbtr?.FinInstnId?.BICFI, transaxion.Dbtr?.FinInstnId?.Nm, transaxion.Dbtr?.FinInstnId?.PstlAdr?.AdrLine, transaxion.Dbtr?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, transaxion.DbtrAcct?.Id?.IBAN, transaxion.DbtrAcct?.Id?.Othr?.Id)[1],
-            MT53D: getField53(transaxion.Dbtr?.FinInstnId?.BICFI, transaxion.Dbtr?.FinInstnId?.Nm, transaxion.Dbtr?.FinInstnId?.PstlAdr?.AdrLine, transaxion.Dbtr?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, transaxion.DbtrAcct?.Id?.IBAN, transaxion.DbtrAcct?.Id?.Othr?.Id)[3]
+            MT53A: field53 is swiftmt:MT53A ? field53 : (),
+            MT53B: field53 is swiftmt:MT53B ? field53 : (),
+            MT53D: field53 is swiftmt:MT53D ? field53 : ()
         });
     }
     return transactionArray;

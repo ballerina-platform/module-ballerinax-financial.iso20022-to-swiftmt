@@ -19,9 +19,10 @@ import ballerinax/financial.swift.mt as swiftmt;
 
 isolated function transformCamt057ToMt210(camtIsoRecord:Camt057Document document, string messageType) returns swiftmt:MT210Message|error => let
     camtIsoRecord:NotificationItem9 notificationItem = document.NtfctnToRcv.Ntfctn.Itm[0],
-    swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? field50 = getField50Or50COr50L(notificationItem.Dbtr?.Pty?.Id?.OrgId?.AnyBIC, notificationItem.Dbtr?.Pty?.Nm, notificationItem.Dbtr?.Pty?.PstlAdr?.AdrLine, notificationItem.Dbtr?.Pty?.Id?.PrvtId?.Othr),
-    swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getField52(notificationItem.DbtrAgt?.FinInstnId?.BICFI, notificationItem.DbtrAgt?.FinInstnId?.Nm, notificationItem.DbtrAgt?.FinInstnId?.PstlAdr?.AdrLine, notificationItem.DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd),
-    swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(notificationItem.IntrmyAgt?.FinInstnId?.BICFI, notificationItem.IntrmyAgt?.FinInstnId?.Nm, notificationItem.IntrmyAgt?.FinInstnId?.PstlAdr?.AdrLine, notificationItem.IntrmyAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd)
+    swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? field50 = getField50Or50COr50L(notificationItem.Dbtr?.Pty),
+    swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getField52(notificationItem.DbtrAgt?.FinInstnId),
+    swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(notificationItem.IntrmyAgt?.FinInstnId),
+    swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getField50a(notificationItem.Dbtr?.Pty)
     in {
         block2: {
             'type: "output",
@@ -55,6 +56,6 @@ isolated function transformCamt057ToMt210(camtIsoRecord:Camt057Document document
             MT56D: field56 is swiftmt:MT56D ? field56 : (),
             MT50: field50 is swiftmt:MT50 ? field50 : (),
             MT50C: field50 is swiftmt:MT50C ? field50 : (),
-            MT50F: (check getField50a(notificationItem.Dbtr?.Pty?.Id?.OrgId?.AnyBIC, notificationItem.Dbtr?.Pty?.Nm, notificationItem.Dbtr?.Pty?.PstlAdr?.AdrLine, (), (), notificationItem.Dbtr?.Pty?.Id?.PrvtId?.Othr, townName = notificationItem.Dbtr?.Pty?.PstlAdr?.TwnNm, countryCode = notificationItem.Dbtr?.Pty?.PstlAdr?.Ctry))[4]
+            MT50F: field50a is swiftmt:MT50F ? field50a : ()
         }
     };

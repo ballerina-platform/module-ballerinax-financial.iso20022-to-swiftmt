@@ -17,11 +17,12 @@
 import ballerina/data.xmldata;
 
 public isolated function toSwiftMtMessage(xml xmlContent, string messageType) returns record {}|error {
-    string? isoMessageType = (check (xmlContent/**/<Document>).ensureType(xml:Element)).getAttributes()["{" + xml:XMLNS_NAMESPACE_URI + "}xmlns"];
+    xml:Element document = check xmlContent.get(0).ensureType();
+    string? isoMessageType = (document).getAttributes()["{" + xml:XMLNS_NAMESPACE_URI + "}xmlns"];
     if isoMessageType is () {
         return error("Invalid xml: Cannot be converted to SWIFT MT message.");
     }
-    typedesc<record {}>? recordType = isoMessageTypes[isoMessageType.substring(0, 8)];
+    typedesc<record {}>? recordType = isoMessageTypes[isoMessageType.substring(31, 39)];
     if recordType is () {
         return error("ISO 20022 message type not supported.");
     }
@@ -29,6 +30,5 @@ public isolated function toSwiftMtMessage(xml xmlContent, string messageType) re
     if transformFunction is () {
         return error("ISO 20022 xml to SWIFT MT message is not supported.");
     }
-    record {} inputRecord = check xmldata:parseAsType(xmlContent);
-    return function:call(transformFunction, [inputRecord, messageType.substring(0, 3)]).ensureType();
+    return function:call(transformFunction, check xmldata:parseAsType(xmlContent, t = recordType), messageType.substring(0, 3)).ensureType();
 }

@@ -68,7 +68,7 @@ isolated function convertToString(decimal? content) returns string|error {
 }
 
 isolated function convertToSWIFTStandardDate(string? date) returns string {
-    if date is string && date.length() > 10 {
+    if date is string && date.length() > 9 {
         return date.substring(2, 4) + date.substring(5, 7) + date.substring(8, 10);
     }
     return "";
@@ -87,11 +87,32 @@ isolated function getAddressLine(pacsIsoRecord:Max70Text[]? address1, int num = 
             }
             count += 1;
         }
+    }
+    if isOptionF && (countryCode is string || townName is string) {
+        address.push({content: countryCode.toString() + "/" + townName.toString(), number: count.toString()});
+    }
+    return address;
+}
+
+isolated function getOptionalAddressLine(pacsIsoRecord:Max70Text[]? address1, int num = 4, boolean isOptionF = false,
+        string? townName = (), string? countryCode = ()) returns swiftmt:AdrsLine[]? {
+    swiftmt:AdrsLine[] address = [];
+    int count = num;
+    if address1 is pacsIsoRecord:Max70Text[] {
+        foreach string adrsLine in address1 {
+            address.push({content: adrsLine, number: count.toString()});
+            if isOptionF {
+                count += 2;
+                continue;
+            }
+            count += 1;
+        }
         if isOptionF && countryCode is string && townName is string {
             address.push({content: countryCode + "/" + townName, number: count.toString()});
         }
+        return address;
     }
-    return address;
+    return ();
 }
 
 # Maps ServiceLevel, CategoryPurpose, and LocalInstrument fields to MT72.
@@ -282,13 +303,16 @@ isolated function getField72(pacsIsoRecord:InstructionForCreditorAgent3[]? instr
     };
 }
 
-isolated function getRepeatingField72(pacsIsoRecord:CreditTransferTransaction62[] creditTransactionArray, pacsIsoRecord:CreditTransferTransaction62? transaxion = ()) returns swiftmt:MT72? {
+isolated function getRepeatingField72(pacsIsoRecord:CreditTransferTransaction62[] creditTransactionArray, pacsIsoRecord:CreditTransferTransaction62? transaxion = (), boolean isTransaction = false) returns swiftmt:MT72? {
     swiftmt:MT72? instruction1 = getField72(creditTransactionArray[0].InstrForCdtrAgt, creditTransactionArray[0].InstrForNxtAgt);
     foreach int i in 1 ... creditTransactionArray.length() - 1 {
         swiftmt:MT72? instruction2 = getField72(creditTransactionArray[i].InstrForCdtrAgt, creditTransactionArray[i].InstrForNxtAgt);
         if instruction1?.Cd?.content != instruction2?.Cd?.content {
             return getField72(transaxion?.InstrForCdtrAgt, transaxion?.InstrForNxtAgt);
         }
+    }
+    if isTransaction {
+        return ();
     }
     return instruction1;
 }
@@ -306,17 +330,30 @@ isolated function getField21(string? endToEndId = (), string? txId = (), string?
     return "";
 }
 
-isolated function getPartyIdentifierOrAccount(string? partyIdentifier, string account, string num = NUMBER2) returns swiftmt:PrtyIdn? {
+isolated function getPartyIdentifierOrAccount(string? partyIdentifier, string account, string num = NUMBER2, boolean isOptionF = false) returns swiftmt:PrtyIdn? {
     if partyIdentifier is string {
         return {content: partyIdentifier, number: num};
     }
     if !account.equalsIgnoreCaseAscii("") {
-        return {content: "/" + account, number: num};
+        if isOptionF {
+            return {content: "/" + account, number: num};
+        }
+        return {content: account, number: num};
     }
     return ();
 }
 
-isolated function getField56(string? identifierCode, string? name, pacsIsoRecord:Max70Text[]? address, string? partyIdentifier, string? iban = (), string? bban = (), boolean isOptionCPresent = false) returns swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D?|error {
+isolated function getPartyIdentifierForField50a(pacsIsoRecord:GenericPersonIdentification2 otherId, string? countryCode) returns swiftmt:PrtyIdn {
+    if otherId.Issr is string {
+        return {content:otherId.SchmeNm?.Cd.toString() + "/" + countryCode.toString() + "/" + otherId.Issr.toString() + "/" + otherId.Id.toString(), number: NUMBER1};
+    }
+    return {content: otherId.SchmeNm?.Cd.toString() + "/" + countryCode.toString() + "/" + otherId.Id.toString(), number: NUMBER1};
+} 
+
+isolated function getField56(pacsIsoRecord:FinancialInstitutionIdentification23? institution, pacsIsoRecord:AccountIdentification4Choice? account = (), boolean isOptionCPresent = false) returns swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D?|error {
+    [string?, string?, pacsIsoRecord:Max70Text[]?, string?, string?, string?] [identifierCode, name, 
+        address, partyIdentifier, iban, bban] = [institution?.BICFI, institution?.Nm, institution?.PstlAdr?.AdrLine, 
+        institution?.ClrSysMmbId?.ClrSysId?.Cd, account?.IBAN, account?.Othr?.Id];
     if identifierCode is string {
         swiftmt:MT56A fieldMt56A = {
             name: MT56A_NAME,
@@ -388,7 +425,10 @@ isolated function getField56Alt(string? identifierCode, string? name, pacsIsoRec
     return [];
 }
 
-isolated function getField57(string? identifierCode, string? name, pacsIsoRecord:Max70Text[]? address, string? partyIdentifier, string? iban = (), string? bban = (), boolean isOptionBPresent = false, boolean isOptionCPresent = false) returns swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D?|error {
+isolated function getField57(pacsIsoRecord:FinancialInstitutionIdentification23? institution, pacsIsoRecord:AccountIdentification4Choice? account, boolean isOptionBPresent = false, boolean isOptionCPresent = false) returns swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D?|error {
+    [string?, string?, pacsIsoRecord:Max70Text[]?, string?, string?, string?] [identifierCode, name, 
+        address, partyIdentifier, iban, bban] = [institution?.BICFI, institution?.Nm, institution?.PstlAdr?.AdrLine, 
+        institution?.ClrSysMmbId?.ClrSysId?.Cd, account?.IBAN, account?.Othr?.Id];
     if identifierCode is string {
         swiftmt:MT57A fieldMt57A = {
             name: MT57A_NAME,
@@ -500,7 +540,10 @@ isolated function getField25(string? iban, string? bban) returns swiftmt:MT25A? 
     return ();
 }
 
-isolated function getField52(string? identifierCode, string? name, pacsIsoRecord:Max70Text[]? address, string? partyIdentifier, string? iban = (), string? bban = (), boolean isOptionBPresent = false, boolean isOptionCPresent = false) returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D?|error {
+isolated function getField52(pacsIsoRecord:FinancialInstitutionIdentification23? institution, pacsIsoRecord:AccountIdentification4Choice? account = (), boolean isOptionBPresent = false, boolean isOptionCPresent = false) returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D?|error {
+    [string?, string?, pacsIsoRecord:Max70Text[]?, string?, string?, string?] [identifierCode, name, 
+        address, partyIdentifier, iban, bban] = [institution?.BICFI, institution?.Nm, institution?.PstlAdr?.AdrLine, 
+        institution?.ClrSysMmbId?.ClrSysId?.Cd, account?.IBAN, account?.Othr?.Id];
     if identifierCode is string {
         swiftmt:MT52A fieldMt52A = {
             name: "52A",
@@ -588,14 +631,17 @@ isolated function getField52Alt(string? identifierCode, string? name, pacsIsoRec
     return [];
 }
 
-isolated function getField50a(string? identifierCode, string? name, pacsIsoRecord:Max70Text[]? address, string? iban, string? bban, pacsIsoRecord:GenericPersonIdentification2[]? otherId, boolean isSecondType = false, string? townName = (), string? countryCode = ()) returns [swiftmt:MT50A?, swiftmt:MT50G?, swiftmt:MT50K?, swiftmt:MT50H?, swiftmt:MT50F?]|error {
+isolated function getField50a(pacsIsoRecord:PartyIdentification272? debtor, pacsIsoRecord:AccountIdentification4Choice? account = (), boolean isSecondType = false, boolean isOptionFPresent = true) returns swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F?|error {
+    [string?, string?, pacsIsoRecord:Max70Text[]?, string?, string?, pacsIsoRecord:GenericPersonIdentification2[]?, string?, string?] 
+        [identifierCode, name, address, iban, bban, otherId, townName, countryCode] = [debtor?.Id?.OrgId?.AnyBIC, debtor?.Nm, 
+        debtor?.PstlAdr?.AdrLine, account?.IBAN, account?.Othr?.Id, debtor?.Id?.PrvtId?.Othr, debtor?.PstlAdr?.TwnNm, debtor?.PstlAdr?.Ctry];
     if identifierCode is string && isSecondType {
         swiftmt:MT50G fieldMt50G = {
             name: MT50G_NAME,
             Acc: {content: getAccountId(iban, bban), number: NUMBER1},
             IdnCd: {content: getMandatoryField(identifierCode), number: NUMBER2}
         };
-        return [(), fieldMt50G];
+        return fieldMt50G;
     }
     if identifierCode is string {
         swiftmt:MT50A fieldMt50A = {
@@ -603,29 +649,28 @@ isolated function getField50a(string? identifierCode, string? name, pacsIsoRecor
             Acc: getAccount(getAccountId(iban, bban)),
             IdnCd: {content: getMandatoryField(identifierCode), number: NUMBER2}
         };
-        return [fieldMt50A];
+        return fieldMt50A;
     }
-    if otherId is pacsIsoRecord:GenericPersonIdentification2[] && otherId[0].Id is string {
+    if otherId is pacsIsoRecord:GenericPersonIdentification2[] && otherId[0].Id is string && isOptionFPresent{
         swiftmt:MT50F fieldMt50F = {
             name: MT50F_NAME,
-            CdTyp: getCodeType(address, townName, countryCode),
-            PrtyIdn: check getPartyIdentifierOrAccount(otherId[0].Id, getAccountId(iban, bban), NUMBER1).ensureType(),
+            CdTyp: getCodeType(name, address, townName, countryCode),
+            PrtyIdn: getPartyIdentifierForField50a(otherId[0], countryCode),
             Nm: [{content: getMandatoryField(name), number: NUMBER3}],
             AdrsLine: getAddressLine(address, 5, true, townName, countryCode)
         };
-        return [(), (), (), (), fieldMt50F];
+        return fieldMt50F;
     }
-    // This codition cannot be checked due to a bug in ballerina.
-    // if !getAccountId(iban, bban).equalsIgnoreCaseAscii("") && address is pacsIsoRecord:Max70Text[] && townName is string && countryCode is string {
-    //     swiftmt:MT50F fieldMt50F = {
-    //         name: "50F",
-    //         CdTyp: [],
-    //         PrtyIdn: check getPartyIdentifierOrAccount((), getAccountId(iban, bban), NUMBER1).ensureType(),
-    //         Nm: [{content: getMandatoryField(name), number: NUMBER3}],
-    //         AdrsLine: getAddressLine(address, 5, true, townName, countryCode)
-    //     };
-    //     return [(), (), (), (), fieldMt50F];
-    // }
+    if ((!getAccountId(iban, bban).equalsIgnoreCaseAscii("") && address is pacsIsoRecord:Max70Text[]) || (townName is string || countryCode is string)) && isOptionFPresent{
+        swiftmt:MT50F fieldMt50F = {
+            name: "50F",
+            CdTyp: getCodeType(name, address, townName, countryCode),
+            PrtyIdn: check getPartyIdentifierOrAccount((), getAccountId(iban, bban), NUMBER1).ensureType(),
+            Nm: [{content: getMandatoryField(name), number: NUMBER3}],
+            AdrsLine: getAddressLine(address, 5, true, townName, countryCode)
+        };
+        return fieldMt50F;
+    }
     if (name is string || address is pacsIsoRecord:Max70Text[] || !getAccountId(iban, bban).equalsIgnoreCaseAscii("")) && isSecondType {
         swiftmt:MT50H fieldMt50H = {
             name: MT50H_NAME,
@@ -633,7 +678,7 @@ isolated function getField50a(string? identifierCode, string? name, pacsIsoRecor
             Nm: [{content: getMandatoryField(name), number: NUMBER2}],
             AdrsLine: getAddressLine(address, 3)
         };
-        return [(), (), (), fieldMt50H];
+        return fieldMt50H;
     }
     if name is string || address is pacsIsoRecord:Max70Text[] || !getAccountId(iban, bban).equalsIgnoreCaseAscii("") {
         swiftmt:MT50K fieldMt50K = {
@@ -642,40 +687,42 @@ isolated function getField50a(string? identifierCode, string? name, pacsIsoRecor
             Nm: [{content: getMandatoryField(name), number: NUMBER2}],
             AdrsLine: getAddressLine(address)
         };
-        return [(), (), fieldMt50K];
+        return fieldMt50K;
     }
-    return [];
+    return ();
 }
 
-isolated function getCodeType(pacsIsoRecord:Max70Text[]? address, string? townName = (), string? countryCode = ()) returns swiftmt:CdTyp[] {
+isolated function getCodeType(string? name, pacsIsoRecord:Max70Text[]? address, string? townName = (), string? countryCode = ()) returns swiftmt:CdTyp[] {
     swiftmt:CdTyp[] codeType = [];
     int count = 2;
-    if address is pacsIsoRecord:Max70Text[] && address.length() < 3 && townName is string && countryCode is string {
+    if name is string {
+        codeType.push({content: NUMBER1, number: count.toString()});
+        count += 2;
+    }
+    if address is pacsIsoRecord:Max70Text[] && address.length() < 3 && (townName is string || countryCode is string) {
         foreach int i in 0 ... address.length() - 1 {
-            if count == 2 {
-                codeType.push({content: NUMBER1, number: count.toString()});
-            }
-            count += 2;
             codeType.push({content: NUMBER2, number: count.toString()});
+            count += 2;
         }
-        //codeType.push({content: NUMBER3, number: (count + 2).toString()});
+        codeType.push({content: NUMBER3, number: count.toString()});
         return codeType;
     }
 
     if address is pacsIsoRecord:Max70Text[] && address.length() < 4 {
         foreach int i in 0 ... address.length() - 1 {
-            if count == 2 {
-                codeType.push({content: NUMBER1, number: count.toString()});
-            }
-            count += 2;
             codeType.push({content: NUMBER2, number: count.toString()});
+            count += 2;
         }
         return codeType;
+    }
+    if (townName is string || countryCode is string) && address !is pacsIsoRecord:Max70Text[] {
+        codeType.push({content: NUMBER3, number: count.toString()});
     }
     return codeType;
 }
 
-isolated function getField50Or50COr50L(string? identifierCode, string? name, pacsIsoRecord:Max70Text[]? address, pacsIsoRecord:GenericPersonIdentification2[]? otherId) returns swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? {
+isolated function getField50Or50COr50L(pacsIsoRecord:PartyIdentification272? agent) returns swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? {
+    [string?, string?, pacsIsoRecord:Max70Text[]?, pacsIsoRecord:GenericPersonIdentification2[]?] [identifierCode, name, address, otherId] = [agent?.Id?.OrgId?.AnyBIC, agent?.Nm, agent?.PstlAdr?.AdrLine, agent?.Id?.PrvtId?.Othr];
     if identifierCode is string {
         swiftmt:MT50C fieldMt50C = {name: MT50C_NAME, IdnCd: {content: identifierCode, number: NUMBER1}};
         return fieldMt50C;
@@ -732,6 +779,7 @@ isolated function getFieldMt13C(string? closeTime, string? creditTime, string? d
         }
     }
     return {
+        name: MT13C_NAME,
         Cd: {content: code, number: NUMBER1},
         Tm: {content: swiftTime, number: NUMBER2},
         Sgn: {content: sign, number: NUMBER3},
@@ -739,14 +787,17 @@ isolated function getFieldMt13C(string? closeTime, string? creditTime, string? d
     };
 }
 
-isolated function getField58(string? identifierCode, string? name, pacsIsoRecord:Max70Text[]? address, string? partyIdentifier, string? iban = (), string? bban = ()) returns [swiftmt:MT58A?, swiftmt:MT58D?] {
+isolated function getField58(pacsIsoRecord:FinancialInstitutionIdentification23? institution, pacsIsoRecord:AccountIdentification4Choice? account) returns swiftmt:MT58A?|swiftmt:MT58D?|error {
+    [string?, string?, pacsIsoRecord:Max70Text[]?, string?, string?, string?] [identifierCode, name, 
+        address, partyIdentifier, iban, bban] = [institution?.BICFI, institution?.Nm, institution?.PstlAdr?.AdrLine, 
+        institution?.ClrSysMmbId?.ClrSysId?.Cd, account?.IBAN, account?.Othr?.Id];
     if identifierCode is string {
         swiftmt:MT58A fieldMt58A = {
             name: "58A",
             PrtyIdn: getPartyIdentifierOrAccount(partyIdentifier, getAccountId(iban, bban)),
             IdnCd: {content: identifierCode, number: NUMBER3}
         };
-        return [fieldMt58A];
+        return fieldMt58A;
     }
     if name is string || address is pacsIsoRecord:Max70Text[] {
         swiftmt:MT58D fieldMt58D = {
@@ -755,7 +806,7 @@ isolated function getField58(string? identifierCode, string? name, pacsIsoRecord
             AdrsLine: getAddressLine(address),
             Nm: [{content: getMandatoryField(name), number: NUMBER3}]
         };
-        return [(), fieldMt58D];
+        return fieldMt58D;
     }
     if partyIdentifier is string {
         swiftmt:MT58A fieldMt58A = {
@@ -763,19 +814,22 @@ isolated function getField58(string? identifierCode, string? name, pacsIsoRecord
             PrtyIdn: getPartyIdentifierOrAccount(partyIdentifier, getAccountId(iban, bban)),
             IdnCd: {content: "", number: NUMBER3}
         };
-        return [fieldMt58A];
+        return fieldMt58A;
     }
-    return [];
+    return ();
 }
 
-isolated function getField54(string? identifierCode, string? name, pacsIsoRecord:Max70Text[]? address, string? partyIdentifier, string? iban = (), string? bban = (), boolean isOptionBPresent = false) returns [swiftmt:MT54A?, swiftmt:MT54B?, swiftmt:MT54D?] {
+isolated function getField54(pacsIsoRecord:FinancialInstitutionIdentification23? institution, pacsIsoRecord:AccountIdentification4Choice? account, boolean isOptionBPresent = false) returns swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? {
+    [string?, string?, pacsIsoRecord:Max70Text[]?, string?, string?, string?] [identifierCode, name, 
+        address, partyIdentifier, iban, bban] = [institution?.BICFI, institution?.Nm, institution?.PstlAdr?.AdrLine, 
+        institution?.ClrSysMmbId?.ClrSysId?.Cd, account?.IBAN, account?.Othr?.Id];
     if identifierCode is string {
         swiftmt:MT54A fieldMt54A = {
             name: MT54A_NAME,
             PrtyIdn: getPartyIdentifierOrAccount(partyIdentifier, getAccountId(iban, bban)),
             IdnCd: {content: identifierCode, number: NUMBER3}
         };
-        return [fieldMt54A];
+        return fieldMt54A;
     }
     if name is string || (address is pacsIsoRecord:Max70Text[] && !isOptionBPresent) {
         swiftmt:MT54D fieldMt54D = {
@@ -784,7 +838,7 @@ isolated function getField54(string? identifierCode, string? name, pacsIsoRecord
             AdrsLine: getAddressLine(address),
             Nm: [{content: getMandatoryField(name), number: NUMBER3}]
         };
-        return [(), (), fieldMt54D];
+        return fieldMt54D;
     }
     if (partyIdentifier is string || !getAccountId(iban, bban).equalsIgnoreCaseAscii("")) && isOptionBPresent {
         swiftmt:MT54B fieldMt54B = {
@@ -792,7 +846,7 @@ isolated function getField54(string? identifierCode, string? name, pacsIsoRecord
             PrtyIdn: getPartyIdentifierOrAccount(partyIdentifier, getAccountId(iban, bban)),
             Lctn: getLocation(getAddressLine(address))
         };
-        return [(), fieldMt54B];
+        return fieldMt54B;
     }
     if partyIdentifier is string {
         swiftmt:MT54A fieldMt54A = {
@@ -800,19 +854,22 @@ isolated function getField54(string? identifierCode, string? name, pacsIsoRecord
             PrtyIdn: getPartyIdentifierOrAccount(partyIdentifier, getAccountId(iban, bban)),
             IdnCd: {content: "", number: NUMBER3}
         };
-        return [fieldMt54A];
+        return fieldMt54A;
     }
-    return [];
+    return ();
 }
 
-isolated function getField53(string? identifierCode, string? name, pacsIsoRecord:Max70Text[]? address, string? partyIdentifier, string? iban = (), string? bban = (), boolean isOptionBPresent = false, boolean isOptionCPresent = false) returns [swiftmt:MT53A?, swiftmt:MT53B?, swiftmt:MT53C?, swiftmt:MT53D?] {
+isolated function getField53(pacsIsoRecord:FinancialInstitutionIdentification23? institution, pacsIsoRecord:AccountIdentification4Choice? account, boolean isOptionBPresent = false, boolean isOptionCPresent = false) returns swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? {
+    [string?, string?, pacsIsoRecord:Max70Text[]?, string?, string?, string?] [identifierCode, name, 
+        address, partyIdentifier, iban, bban] = [institution?.BICFI, institution?.Nm, institution?.PstlAdr?.AdrLine, 
+        institution?.ClrSysMmbId?.ClrSysId?.Cd, account?.IBAN, account?.Othr?.Id];
     if identifierCode is string {
         swiftmt:MT53A fieldMt53A = {
             name: MT53A_NAME,
             PrtyIdn: getPartyIdentifierOrAccount(partyIdentifier, getAccountId(iban, bban)),
             IdnCd: {content: identifierCode, number: NUMBER3}
         };
-        return [fieldMt53A];
+        return fieldMt53A;
     }
     if name is string || (address is pacsIsoRecord:Max70Text[] && !isOptionBPresent) {
         swiftmt:MT53D fieldMt53D = {
@@ -821,22 +878,22 @@ isolated function getField53(string? identifierCode, string? name, pacsIsoRecord
             AdrsLine: getAddressLine(address),
             Nm: [{content: getMandatoryField(name), number: NUMBER3}]
         };
-        return [(), (), (), fieldMt53D];
+        return fieldMt53D;
     }
     if !getAccountId(iban, bban).equalsIgnoreCaseAscii("") && isOptionCPresent {
         swiftmt:MT53C fieldMt53C = {
             name: MT53C_NAME,
             Acc: {content: getAccountId(iban, bban), number: NUMBER1}
         };
-        return [(), (), fieldMt53C];
+        return fieldMt53C;
     }
     if (partyIdentifier is string || !getAccountId(iban, bban).equalsIgnoreCaseAscii("")) && isOptionBPresent {
         swiftmt:MT53B fieldMt53B = {
             name: MT53B_NAME,
             PrtyIdn: getPartyIdentifierOrAccount(partyIdentifier, getAccountId(iban, bban)),
-            Lctn: getLocation(getAddressLine(address))
+            Lctn: getLocation(getOptionalAddressLine(address))
         };
-        return [(), fieldMt53B];
+        return fieldMt53B;
     }
     if partyIdentifier is string {
         swiftmt:MT53A fieldMt53A = {
@@ -844,9 +901,9 @@ isolated function getField53(string? identifierCode, string? name, pacsIsoRecord
             PrtyIdn: getPartyIdentifierOrAccount(partyIdentifier, getAccountId(iban, bban)),
             IdnCd: {content: "", number: NUMBER3}
         };
-        return [fieldMt53A];
+        return fieldMt53A;
     }
-    return [];
+    return ();
 }
 
 isolated function getOrignalMessageName(string? messageName) returns string {
@@ -970,24 +1027,27 @@ isolated function getField76(camtIsoRecord:CancellationStatusReason5[]? cancelSt
     return [{Nrtv: {content: narration, number: NUMBER1}, name: MT76_NAME}, ()];
 }
 
-isolated function getField59a(string? identifierCode, string? name, pacsIsoRecord:Max70Text[]? address, string? iban, string? bban, boolean isOptionFPresent = true, string? townName = (), string? countryCode = ()) returns [swiftmt:MT59?, swiftmt:MT59A?, swiftmt:MT59F?] {
+isolated function getField59a(pacsIsoRecord:PartyIdentification272? creditor, pacsIsoRecord:AccountIdentification4Choice? account, boolean isOptionFPresent = true) returns swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? {
+    [string?, string?, pacsIsoRecord:Max70Text[]?, string?, string?, string?, string?] 
+        [identifierCode, name, address, iban, bban, townName, countryCode] = [creditor?.Id?.OrgId?.AnyBIC, creditor?.Nm, 
+        creditor?.PstlAdr?.AdrLine, account?.IBAN, account?.Othr?.Id, creditor?.PstlAdr?.TwnNm, creditor?.PstlAdr?.Ctry];
     if identifierCode is string {
         swiftmt:MT59A fieldMt59A = {
             name: MT59A_NAME,
             Acc: getAccount(getAccountId(iban, bban)),
             IdnCd: {content: identifierCode, number: NUMBER2}
         };
-        return [(), fieldMt59A];
+        return fieldMt59A;
     }
-    if name is string && address is pacsIsoRecord:Max70Text[] && isOptionFPresent {
+    if ((name is string && address is pacsIsoRecord:Max70Text[]) || (townName is string || countryCode is string)) && isOptionFPresent {
         swiftmt:MT59F fieldMt59F = {
             name: MT59F_NAME,
-            CdTyp: getCodeType(address, townName, countryCode),
+            CdTyp: getCodeType(name, address, townName, countryCode),
             Acc: getAccount(getAccountId(iban, bban)),
-            Nm: [{content: name, number: NUMBER3}],
+            Nm: [{content: getMandatoryField(name), number: NUMBER3}],
             AdrsLine: getAddressLine(address, 5, true, townName, countryCode)
         };
-        return [(), (), fieldMt59F];
+        return fieldMt59F;
     }
     if name is string || address is pacsIsoRecord:Max70Text[] || !(getAccountId(iban, bban).equalsIgnoreCaseAscii("")) {
         swiftmt:MT59 fieldMt59 = {
@@ -996,9 +1056,9 @@ isolated function getField59a(string? identifierCode, string? name, pacsIsoRecor
             Nm: [{content: getMandatoryField(name), number: NUMBER2}],
             AdrsLine: getAddressLine(address)
         };
-        return [fieldMt59];
+        return fieldMt59;
     }
-    return [];
+    return ();
 }
 
 isolated function getField33BOptional(pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount? instrdAmt) returns swiftmt:MT33B?|error {
@@ -1016,6 +1076,9 @@ isolated function getField70(pacsIsoRecord:Max140Text[]? remmitanceInfoArray) re
     string information = "";
     int count = 1;
     if remmitanceInfoArray is pacsIsoRecord:Max140Text[] {
+        if remmitanceInfoArray.length() == 0 {
+            return ();
+        }
         foreach int i in 0 ... remmitanceInfoArray.length() - 1 {
             if i == remmitanceInfoArray.length() - 1 || count == 4 {
                 information += remmitanceInfoArray[i];
@@ -1083,7 +1146,8 @@ isolated function getField36(pacsIsoRecord:BaseOneRate? exchangeRate) returns sw
     return ();
 }
 
-isolated function getField51A(string? identifierCode, string? partyIdentifier) returns swiftmt:MT51A? {
+isolated function getField51A(pacsIsoRecord:FinancialInstitutionIdentification23? institution) returns swiftmt:MT51A? {
+    [string?, string?] [identifierCode, partyIdentifier] = [institution?.BICFI, institution?.ClrSysMmbId?.ClrSysId?.Cd];
     if identifierCode is string {
         swiftmt:MT51A fieldMt51A = {
             name: MT51A_NAME,
@@ -1186,9 +1250,10 @@ isolated function getfield23EForMt101(painIsoRecord:InstructionForCreditorAgent3
 #
 # + payments - The array of payment instructions.
 # + transaxion - The payment instruction of the mapping transaction
+# + isTransaction - The flag to identify whether it is a transaction or common field
 # + return - The ordering customer or an empty record
-isolated function getMT101OrderingCustomerFromPain001Document(painIsoRecord:PaymentInstruction44[] payments, painIsoRecord:PaymentInstruction44? transaxion = ())
-returns [swiftmt:MT50A?, swiftmt:MT50G?, swiftmt:MT50K?, swiftmt:MT50H?, swiftmt:MT50F?]|error {
+isolated function getMT101OrderingCustomerFromPain001Document(painIsoRecord:PaymentInstruction44[] payments, painIsoRecord:PaymentInstruction44? transaxion = (), boolean isTransaction = false)
+returns swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F?|error {
     string? partyIdentifier = ();
     painIsoRecord:GenericPersonIdentification2[]? otherId = payments[0].Dbtr.Id?.PrvtId?.Othr;
     if otherId is painIsoRecord:GenericPersonIdentification2[] {
@@ -1202,50 +1267,93 @@ returns [swiftmt:MT50A?, swiftmt:MT50G?, swiftmt:MT50K?, swiftmt:MT50H?, swiftmt
             partyIdentifier2 = otherId2[0].Id;
         }
         if iban != payments[i].DbtrAcct?.Id?.IBAN || bban != payments[i].DbtrAcct?.Id?.Othr?.Id || identifierCode != payments[i].Dbtr.Id?.OrgId?.AnyBIC || partyIdentifier != partyIdentifier2 {
-            return getField50a(transaxion?.Dbtr?.Id?.OrgId?.AnyBIC, transaxion?.Dbtr?.Nm, transaxion?.Dbtr?.PstlAdr?.AdrLine, transaxion?.DbtrAcct?.Id?.IBAN, transaxion?.DbtrAcct?.Id?.Othr?.Id, transaxion?.Dbtr?.Id?.PrvtId?.Othr, true, transaxion?.Dbtr?.PstlAdr?.TwnNm, transaxion?.Dbtr?.PstlAdr?.Ctry);
+            return getField50a(transaxion?.Dbtr, transaxion?.DbtrAcct?.Id, true);
         }
     }
-    return getField50a(payments[0].Dbtr?.Id?.OrgId?.AnyBIC, payments[0].Dbtr?.Nm, payments[0].Dbtr.PstlAdr?.AdrLine, payments[0].DbtrAcct?.Id?.IBAN, payments[0].DbtrAcct?.Id?.Othr?.Id, payments[0].Dbtr.Id?.PrvtId?.Othr, true, payments[0].Dbtr.PstlAdr?.TwnNm, payments[0].Dbtr?.PstlAdr?.Ctry);
+    if isTransaction {
+        return ();
+    }
+    return getField50a(payments[0].Dbtr, payments[0].DbtrAcct?.Id, true);
 }
 
 # Get the account servicing institution from the Pain001 document.
 #
 # + payments - The array of payment instructions.
 # + transaxion - The payment instruction of the mapping transaction
+# + isTransaction - The flag to identify whether it is a transaction or common field
 # + return - The account servicing institution or an empty record
-isolated function getMT101AccountServicingInstitutionFromPain001Document(painIsoRecord:PaymentInstruction44[] payments, painIsoRecord:PaymentInstruction44? transaxion = ())
-returns [swiftmt:MT52A?, swiftmt:MT52B?, swiftmt:MT52C?, swiftmt:MT52D?]|error {
+isolated function getMT101AccountServicingInstitutionFromPain001Document(painIsoRecord:PaymentInstruction44[] payments, painIsoRecord:PaymentInstruction44? transaxion = (), boolean isTransaction = false)
+returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D?|error {
     [string?, string?, string?, string?] [iban, bban, identifierCode, partyIdentifier] = [payments[0].DbtrAgtAcct?.Id?.IBAN, payments[0].DbtrAgtAcct?.Id?.Othr?.Id, payments[0].DbtrAgt?.FinInstnId?.BICFI, payments[0].DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd];
     foreach int i in 1 ... payments.length() - 1 {
         if iban != payments[i].DbtrAgtAcct?.Id?.IBAN || bban != payments[i].DbtrAgtAcct?.Id?.Othr?.Id || identifierCode != payments[i].DbtrAgt?.FinInstnId?.BICFI || partyIdentifier != payments[i].DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd {
-            return getField52Alt(transaxion?.DbtrAgt?.FinInstnId?.BICFI, transaxion?.DbtrAgt?.FinInstnId?.Nm, transaxion?.DbtrAgt?.FinInstnId?.PstlAdr?.AdrLine, transaxion?.DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, transaxion?.DbtrAgtAcct?.Id?.IBAN, transaxion?.DbtrAgtAcct?.Id?.Othr?.Id, isOptionCPresent = true);
+            return getField52(transaxion?.DbtrAgt?.FinInstnId, transaxion?.DbtrAgtAcct?.Id, isOptionCPresent = true);
         }
     }
-    return getField52Alt(payments[0].DbtrAgt?.FinInstnId?.BICFI, payments[0].DbtrAgt?.FinInstnId?.Nm, payments[0].DbtrAgt?.FinInstnId?.PstlAdr?.AdrLine, payments[0].DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, payments[0].DbtrAgtAcct?.Id?.IBAN, payments[0].DbtrAgtAcct?.Id?.Othr?.Id, isOptionCPresent = true);
+    if isTransaction {
+        return ();
+    }
+    return getField52(payments[0].DbtrAgt?.FinInstnId, payments[0].DbtrAgtAcct?.Id, isOptionCPresent = true);
 }
 
-isolated function getRepeatingField26TForPacs008(pacsIsoRecord:CreditTransferTransaction64[] crdtTrfTx, pacsIsoRecord:Purpose2Choice? purp = ()) returns swiftmt:MT26T? {
+isolated function getRepeatingField26TForPacs008(pacsIsoRecord:CreditTransferTransaction64[] crdtTrfTx, pacsIsoRecord:Purpose2Choice? purp = (), boolean isTransaction = false) returns swiftmt:MT26T? {
     string? purpose = crdtTrfTx[0].Purp?.Cd;
     foreach int i in 1 ... crdtTrfTx.length() - 1 {
         if purpose != crdtTrfTx[i].Purp?.Cd {
             return getField26T(purp?.Cd);
         }
     }
+    if isTransaction {
+        return ();
+    }
     return getField26T(purpose);
 }
 
-isolated function getRepeatingField26TForPacs003(pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx, pacsIsoRecord:Purpose2Choice? purp = ()) returns swiftmt:MT26T? {
+# Get the ordering customer from the Pacs008 document.
+#
+# + crdtTrfTx - The array of credit transactions
+# + transaxion - The current credit transaction
+# + isTransaction - The flag to identify whether it is a transaction or common field
+# + return - The ordering customer or null record
+isolated function getOrderingCustomerFromPacs008Document(pacsIsoRecord:CreditTransferTransaction64[] crdtTrfTx, pacsIsoRecord:CreditTransferTransaction64? transaxion = (), boolean isTransaction = false)
+    returns swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F?|error {
+    string? partyIdentifier = ();
+    pacsIsoRecord:GenericPersonIdentification2[]? otherId = crdtTrfTx[0].Dbtr.Id?.PrvtId?.Othr;
+    if otherId is pacsIsoRecord:GenericPersonIdentification2[] {
+        partyIdentifier = otherId[0].Id;
+    }
+    [string?, string?, string?] [iban, bban, identifierCode] = [crdtTrfTx[0].DbtrAcct?.Id?.IBAN, crdtTrfTx[0].DbtrAcct?.Id?.Othr?.Id, crdtTrfTx[0].Dbtr.Id?.OrgId?.AnyBIC];
+    foreach int i in 1 ... crdtTrfTx.length() - 1 {
+        string? partyIdentifier2 = ();
+        pacsIsoRecord:GenericPersonIdentification2[]? otherId2 = crdtTrfTx[i].Dbtr.Id?.PrvtId?.Othr;
+        if otherId2 is pacsIsoRecord:GenericPersonIdentification2[] {
+            partyIdentifier2 = otherId2[0].Id;
+        }
+        if iban != crdtTrfTx[i].DbtrAcct?.Id?.IBAN || bban != crdtTrfTx[i].DbtrAcct?.Id?.Othr?.Id || identifierCode != crdtTrfTx[i].Dbtr.Id?.OrgId?.AnyBIC || partyIdentifier != partyIdentifier2 {
+            return getField50a(transaxion?.Dbtr, transaxion?.DbtrAcct?.Id);
+        }
+    }
+    if isTransaction {
+        return ();
+    }
+    return getField50a(crdtTrfTx[0].Dbtr, crdtTrfTx[0].DbtrAcct?.Id);
+}
+
+isolated function getRepeatingField26TForPacs003(pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx, pacsIsoRecord:Purpose2Choice? purp = (), boolean isTransaction = false) returns swiftmt:MT26T? {
     string? purpose = dbtTrfTx[0].Purp?.Cd;
     foreach int i in 1 ... dbtTrfTx.length() - 1 {
         if purpose != dbtTrfTx[i].Purp?.Cd {
             return getField26T(purp?.Cd);
         }
     }
+    if isTransaction {
+        return ();
+    }
     return getField26T(purpose);
 }
 
 isolated function getField26T(string? code) returns swiftmt:MT26T? {
-    if code is string {
+    if code is string && code.matches(re `[A-Z0-9]{3}`){
         return {
             name: MT26T_NAME,
             Typ: {content: getMandatoryField(code), number: NUMBER1}
@@ -1254,7 +1362,7 @@ isolated function getField26T(string? code) returns swiftmt:MT26T? {
     return ();
 }
 
-isolated function getRepeatingField71AForPacs008(pacsIsoRecord:CreditTransferTransaction64[] crdtTrfTx, pacsIsoRecord:ChargeBearerType1Code? chrgBr = ()) returns swiftmt:MT71A? {
+isolated function getRepeatingField71AForPacs008(pacsIsoRecord:CreditTransferTransaction64[] crdtTrfTx, pacsIsoRecord:ChargeBearerType1Code? chrgBr = (), boolean isTransaction = false) returns swiftmt:MT71A? {
     pacsIsoRecord:ChargeBearerType1Code? chargeBearer = crdtTrfTx[0].ChrgBr;
     foreach int i in 1 ... crdtTrfTx.length() - 1 {
         if chargeBearer != crdtTrfTx[i].ChrgBr {
@@ -1264,13 +1372,16 @@ isolated function getRepeatingField71AForPacs008(pacsIsoRecord:CreditTransferTra
             };
         }
     }
+    if isTransaction {
+        return ();
+    }
     return {
         name: MT71A_NAME,
         Cd: getDetailsOfChargesFromChargeBearerType1Code(chargeBearer)
     };
 }
 
-isolated function getRepeatingField71AForPacs003(pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx, pacsIsoRecord:ChargeBearerType1Code? chrgBr = ()) returns swiftmt:MT71A? {
+isolated function getRepeatingField71AForPacs003(pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx, pacsIsoRecord:ChargeBearerType1Code? chrgBr = (), boolean isTransaction = false) returns swiftmt:MT71A? {
     pacsIsoRecord:ChargeBearerType1Code? chargeBearer = dbtTrfTx[0].ChrgBr;
     foreach int i in 1 ... dbtTrfTx.length() - 1 {
         if chargeBearer != dbtTrfTx[i].ChrgBr {
@@ -1280,13 +1391,16 @@ isolated function getRepeatingField71AForPacs003(pacsIsoRecord:DirectDebitTransa
             };
         }
     }
+    if isTransaction {
+        return ();
+    }
     return {
         name: "71A",
         Cd: getDetailsOfChargesFromChargeBearerType1Code(chargeBearer)
     };
 }
 
-isolated function getRepeatingField77BForPacs008(pacsIsoRecord:CreditTransferTransaction64[] crdtTrfTx, pacsIsoRecord:CreditTransferTransaction64? transaxion = ()) returns swiftmt:MT77B? {
+isolated function getRepeatingField77BForPacs008(pacsIsoRecord:CreditTransferTransaction64[] crdtTrfTx, pacsIsoRecord:CreditTransferTransaction64? transaxion = (), boolean isTransaction = false) returns swiftmt:MT77B? {
     swiftmt:MT77B? regulatoryReport = getField77B(crdtTrfTx[0].RgltryRptg);
     foreach int i in 1 ... crdtTrfTx.length() - 1 {
         swiftmt:MT77B? regulatoryReport2 = getField77B(crdtTrfTx[i].RgltryRptg);
@@ -1294,10 +1408,37 @@ isolated function getRepeatingField77BForPacs008(pacsIsoRecord:CreditTransferTra
             return getField77B(transaxion?.RgltryRptg);
         }
     }
+    if isTransaction {
+        return ();
+    }
     return regulatoryReport;
 }
 
-isolated function getRepeatingField77BForPacs003(pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx, pacsIsoRecord:RegulatoryReporting3[]? rgltryRptg = ()) returns swiftmt:MT77B? {
+isolated function getRepeatingField23EForPacs003(pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx, string? ctgryPurp = (), boolean isTransaction = false) returns swiftmt:MT23E? {
+    string? purpose = dbtTrfTx[0].PmtTpInf?.CtgyPurp?.Cd;
+    string[] ctgryPurpCode = ["OTHR", "NAUT", "AUTH"];
+    foreach int i in 1 ... dbtTrfTx.length() - 1 {
+        if purpose.toString() != dbtTrfTx[i].PmtTpInf?.CtgyPurp?.Cd.toString() 
+            && ctgryPurpCode.indexOf(ctgryPurp.toString()) !is () {
+                return {
+                    name: MT23E_NAME,
+                    InstrnCd: {content: ctgryPurp.toString(), number: NUMBER1}
+                };
+        }
+    }
+    if isTransaction {
+        return ();
+    }
+    if ctgryPurpCode.indexOf(purpose.toString()) !is () {
+        return {
+            name: MT23E_NAME,
+            InstrnCd: {content: purpose.toString(), number: NUMBER1}
+        };
+    }
+    return ();
+}
+
+isolated function getRepeatingField77BForPacs003(pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx, pacsIsoRecord:RegulatoryReporting3[]? rgltryRptg = (), boolean isTransaction = false) returns swiftmt:MT77B? {
     swiftmt:MT77B? regulatoryReport = getField77B(dbtTrfTx[0].RgltryRptg);
     foreach int i in 1 ... dbtTrfTx.length() - 1 {
         swiftmt:MT77B? regulatoryReport2 = getField77B(dbtTrfTx[i].RgltryRptg);
@@ -1305,15 +1446,35 @@ isolated function getRepeatingField77BForPacs003(pacsIsoRecord:DirectDebitTransa
             return getField77B(rgltryRptg);
         }
     }
+    if isTransaction {
+        return ();
+    }
     return regulatoryReport;
 }
 
-isolated function getRepeatingField36(pacsIsoRecord:CreditTransferTransaction64[] crdtTrfTx, pacsIsoRecord:BaseOneRate? rate = ()) returns swiftmt:MT36?|error {
-    decimal? xchgRate = crdtTrfTx[0].XchgRate;
+isolated function getField25A(painIsoRecord:CashAccount40? chargesAcct) returns swiftmt:MT25A? {
+    if chargesAcct?.Id?.IBAN is painIsoRecord:IBAN2007Identifier {
+        return {
+            name: MT25A_NAME,
+            Acc: {content: chargesAcct?.Id?.IBAN.toString(), number: NUMBER1}};
+    }
+    if chargesAcct?.Id?.Othr?.Id is painIsoRecord:Max34Text {
+        return {
+            name: MT25A_NAME,
+            Acc: {content: chargesAcct?.Id?.Othr?.Id.toString(), number: NUMBER1}};
+    }
+    return ();
+}
+
+isolated function getRepeatingField36(pacsIsoRecord:CreditTransferTransaction64[] crdtTrfTx, pacsIsoRecord:BaseOneRate? rate = (), boolean isTransaction = false) returns swiftmt:MT36?|error {
+    pacsIsoRecord:BaseOneRate? xchgRate = crdtTrfTx[0].XchgRate;
     foreach int i in 1 ... crdtTrfTx.length() - 1 {
         if xchgRate != crdtTrfTx[i].XchgRate {
             return getField36(rate);
         }
+    }
+    if isTransaction {
+        return ();
     }
     return getField36(xchgRate);
 }
@@ -1371,7 +1532,7 @@ isolated function getField19(decimal? controlSum) returns swiftmt:MT19?|error {
 //     return mt71g;
 // }
 
-isolated function getField33B(pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount? instdAmt, pacsIsoRecord:ActiveCurrencyAndAmount? intrBkSttlmAmt) returns swiftmt:MT33B?|error {
+isolated function getField33B(pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount? instdAmt, pacsIsoRecord:ActiveCurrencyAndAmount? intrBkSttlmAmt, boolean isUnderlyingTransaction = false) returns swiftmt:MT33B?|error {
     if instdAmt is pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount &&
         intrBkSttlmAmt is pacsIsoRecord:ActiveCurrencyAndAmount {
         if instdAmt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType
@@ -1384,17 +1545,26 @@ isolated function getField33B(pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount? i
         }
         return ();
     }
+    if instdAmt is pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount && isUnderlyingTransaction {
+        return {
+            name: MT33B_NAME,
+            Ccy: {content: instdAmt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
+            Amnt: {content: check convertToString(instdAmt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER2}
+        };
+    }
     return ();
 }
 
-isolated function getField55(string? identifierCode, string? name, pacsIsoRecord:Max70Text[]? address, string? partyIdentifier, string? iban = (), string? bban = (), boolean isOptionBPresent = false) returns [swiftmt:MT55A?, swiftmt:MT55B?, swiftmt:MT55D?] {
+isolated function getField55(pacsIsoRecord:FinancialInstitutionIdentification23? institution, pacsIsoRecord:AccountIdentification4Choice? account, boolean isOptionBPresent = false) returns swiftmt:MT55A?|swiftmt:MT55B?|swiftmt:MT55D? {
+    [string?, string?, pacsIsoRecord:Max70Text[]?, string?, string?, string?] [identifierCode, name, 
+        address, partyIdentifier, iban, bban] = [institution?.BICFI, institution?.Nm, institution?.PstlAdr?.AdrLine, institution?.ClrSysMmbId?.ClrSysId?.Cd, account?.IBAN, account?.Othr?.Id];
     if identifierCode is string {
         swiftmt:MT55A fieldMt55A = {
             name: MT55A_NAME,
             PrtyIdn: getPartyIdentifierOrAccount(partyIdentifier, getAccountId(iban, bban)),
             IdnCd: {content: identifierCode, number: NUMBER3}
         };
-        return [fieldMt55A];
+        return fieldMt55A;
     }
     if name is string || (address is pacsIsoRecord:Max70Text[] && !isOptionBPresent) {
         swiftmt:MT55D fieldMt55D = {
@@ -1403,7 +1573,7 @@ isolated function getField55(string? identifierCode, string? name, pacsIsoRecord
             AdrsLine: getAddressLine(address),
             Nm: [{content: getMandatoryField(name), number: NUMBER3}]
         };
-        return [(), (), fieldMt55D];
+        return fieldMt55D;
     }
     if (partyIdentifier is string || !getAccountId(iban, bban).equalsIgnoreCaseAscii("")) && isOptionBPresent {
         swiftmt:MT55B fieldMt55B = {
@@ -1411,7 +1581,7 @@ isolated function getField55(string? identifierCode, string? name, pacsIsoRecord
             PrtyIdn: getPartyIdentifierOrAccount(partyIdentifier, getAccountId(iban, bban)),
             Lctn: getLocation(getAddressLine(address))
         };
-        return [(), fieldMt55B];
+        return fieldMt55B;
     }
     if partyIdentifier is string {
         swiftmt:MT55A fieldMt55A = {
@@ -1419,9 +1589,9 @@ isolated function getField55(string? identifierCode, string? name, pacsIsoRecord
             PrtyIdn: getPartyIdentifierOrAccount(partyIdentifier, getAccountId(iban, bban)),
             IdnCd: {content: "", number: NUMBER3}
         };
-        return [fieldMt55A];
+        return fieldMt55A;
     }
-    return [];
+    return ();
 }
 
 isolated function getField77T(pacsIsoRecord:SupplementaryData1[]? supplementaryData, string[]? remmitanceInfo) returns swiftmt:MT77T {
@@ -1473,18 +1643,22 @@ isolated function getField21C(string? mandateId) returns swiftmt:MT21C? {
 #
 # + crdtTrfTx - The array of credit transactions
 # + transaxion - The current credit transaction
+# + isTransaction - The flag to identify whether it is a transaction or common field
 # + return - The ordering institution or an empty record
 isolated function getMT102OrderingInstitutionFromPacs008Document(pacsIsoRecord:CreditTransferTransaction64[] crdtTrfTx,
-        pacsIsoRecord:CreditTransferTransaction64? transaxion = ())
-    returns [swiftmt:MT52A?, swiftmt:MT52B?, swiftmt:MT52C?, swiftmt:MT52D?]|error {
+        pacsIsoRecord:CreditTransferTransaction64? transaxion = (), boolean isTransaction = false)
+    returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D?|error {
 
     [string?, string?, string?, string?] [iban, bban, identifierCode, partyIdentifier] = [crdtTrfTx[0].DbtrAgtAcct?.Id?.IBAN, crdtTrfTx[0].DbtrAgtAcct?.Id?.Othr?.Id, crdtTrfTx[0].DbtrAgt?.FinInstnId?.BICFI, crdtTrfTx[0].DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd];
     foreach int i in 1 ... crdtTrfTx.length() - 1 {
         if iban != crdtTrfTx[i].DbtrAgtAcct?.Id?.IBAN || bban != crdtTrfTx[i].DbtrAgtAcct?.Id?.Othr?.Id || identifierCode != crdtTrfTx[i].DbtrAgt?.FinInstnId?.BICFI || partyIdentifier != crdtTrfTx[i].DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd {
-            return getField52Alt(transaxion?.DbtrAgt?.FinInstnId?.BICFI, transaxion?.DbtrAgt?.FinInstnId?.Nm, transaxion?.DbtrAgt?.FinInstnId?.PstlAdr?.AdrLine, transaxion?.DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, transaxion?.DbtrAgtAcct?.Id?.IBAN, transaxion?.DbtrAgtAcct?.Id?.Othr?.Id, isOptionCPresent = true);
+            return getField52(transaxion?.DbtrAgt?.FinInstnId, transaxion?.DbtrAgtAcct?.Id, isOptionCPresent = true);
         }
     }
-    return getField52Alt(crdtTrfTx[0].DbtrAgt?.FinInstnId?.BICFI, crdtTrfTx[0].DbtrAgt?.FinInstnId?.Nm, crdtTrfTx[0].DbtrAgt?.FinInstnId?.PstlAdr?.AdrLine, crdtTrfTx[0].DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, crdtTrfTx[0].DbtrAgtAcct?.Id?.IBAN, crdtTrfTx[0].DbtrAgtAcct?.Id?.Othr?.Id, isOptionCPresent = true);
+    if isTransaction {
+        return ();
+    }
+    return getField52(crdtTrfTx[0].DbtrAgt?.FinInstnId, crdtTrfTx[0].DbtrAgtAcct?.Id, isOptionCPresent = true);
 }
 
 # Get the intermediary institution from the Pacs008 document.
@@ -1831,10 +2005,11 @@ function getMT72Narrative(pacsIsoRecord:DirectDebitTransactionInformation31 docu
 #
 # + dbtTrfTx - The array of direct debit transactions
 # + transaxion - The current direct debit transaction
+# + isTransaction - The flag to identify whether it is a transaction or common field
 # + return - The instructing party or an empty record
 isolated function getMT104Or107InstructionPartyFromPacs003Document(pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx,
-        pacsIsoRecord:DirectDebitTransactionInformation31? transaxion = ())
-    returns [swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L?, swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L?] {
+        pacsIsoRecord:DirectDebitTransactionInformation31? transaxion = (), boolean isTransaction = false)
+    returns swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? {
     string? partyIdentifier = ();
     pacsIsoRecord:GenericPersonIdentification2[]? otherId = dbtTrfTx[0].InitgPty?.Id?.PrvtId?.Othr;
     if otherId is pacsIsoRecord:GenericPersonIdentification2[] {
@@ -1845,58 +2020,58 @@ isolated function getMT104Or107InstructionPartyFromPacs003Document(pacsIsoRecord
         string? partyIdentifier2 = ();
         pacsIsoRecord:GenericPersonIdentification2[]? otherId2 = dbtTrfTx[i].InitgPty?.Id?.PrvtId?.Othr;
         if otherId2 is pacsIsoRecord:GenericPersonIdentification2[] {
-            partyIdentifier2 = otherId2[i].Id;
+            partyIdentifier2 = otherId2[0].Id;
         }
         if identifierCode != dbtTrfTx[i].InitgPty?.Id?.OrgId?.AnyBIC || partyIdentifier != partyIdentifier2 {
-            return [(), getField50Or50COr50L(transaxion?.InitgPty?.Id?.OrgId?.AnyBIC, (), (), transaxion?.InitgPty?.Id?.PrvtId?.Othr)];
+            return getField50Or50COr50L(transaxion?.InitgPty);
         }
     }
-    return [getField50Or50COr50L(dbtTrfTx[0]?.InitgPty?.Id?.OrgId?.AnyBIC, (), (), dbtTrfTx[0]?.InitgPty?.Id?.PrvtId?.Othr)];
+    if isTransaction {
+        return ();
+    }
+    return getField50Or50COr50L(dbtTrfTx[0]?.InitgPty);
 }
 
 # Get the ordering customer from the Pacs003 document.
 #
 # + dbtTrfTx - The array of direct debit transactions
 # + transaxion - The current direct debit transaction
+# + isTransaction - The flag to identify whether it is a transaction or common field
 # + return - The ordering customer or an empty record
-isolated function getMT104Or107CreditorFromPacs003Document(pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx, pacsIsoRecord:DirectDebitTransactionInformation31? transaxion = ())
-    returns [[swiftmt:MT50A?, swiftmt:MT50G?, swiftmt:MT50K?, swiftmt:MT50H?, swiftmt:MT50F?], [swiftmt:MT50A?, swiftmt:MT50G?, swiftmt:MT50K?, swiftmt:MT50H?, swiftmt:MT50F?]]|error {
-    string? partyIdentifier = ();
-    pacsIsoRecord:GenericPersonIdentification2[]? otherId = dbtTrfTx[0].Cdtr.Id?.PrvtId?.Othr;
-    if otherId is pacsIsoRecord:GenericPersonIdentification2[] {
-        partyIdentifier = otherId[0].Id;
-    }
+isolated function getMT104Or107CreditorFromPacs003Document(pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx, pacsIsoRecord:DirectDebitTransactionInformation31? transaxion = (), boolean isTransaction = false)
+    returns swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F?|error {
     [string?, string?, string?] [iban, bban, identifierCode] = [dbtTrfTx[0].CdtrAcct?.Id?.IBAN, dbtTrfTx[0].CdtrAcct?.Id?.Othr?.Id, dbtTrfTx[0].Cdtr.Id?.OrgId?.AnyBIC];
     foreach int i in 1 ... dbtTrfTx.length() - 1 {
-        string? partyIdentifier2 = ();
-        pacsIsoRecord:GenericPersonIdentification2[]? otherId2 = dbtTrfTx[i].Cdtr.Id?.PrvtId?.Othr;
-        if otherId2 is pacsIsoRecord:GenericPersonIdentification2[] {
-            partyIdentifier2 = otherId2[i].Id;
-        }
-        if iban != dbtTrfTx[i].CdtrAcct?.Id?.IBAN || bban != dbtTrfTx[i].CdtrAcct?.Id?.Othr?.Id || identifierCode != dbtTrfTx[i].Cdtr.Id?.OrgId?.AnyBIC || partyIdentifier != partyIdentifier2 {
-            return [[], check getField50a(transaxion?.Cdtr?.Id?.OrgId?.AnyBIC, transaxion?.Cdtr?.Nm, transaxion?.Cdtr?.PstlAdr?.AdrLine, transaxion?.CdtrAcct?.Id?.IBAN, transaxion?.CdtrAcct?.Id?.Othr?.Id, (), false)];
+        if iban != dbtTrfTx[i].CdtrAcct?.Id?.IBAN || bban != dbtTrfTx[i].CdtrAcct?.Id?.Othr?.Id || identifierCode != dbtTrfTx[i].Cdtr.Id?.OrgId?.AnyBIC {
+            return getField50a(transaxion?.Cdtr, transaxion?.CdtrAcct?.Id, false, false);
         }
     }
-    return [check getField50a(dbtTrfTx[0].Cdtr?.Id?.OrgId?.AnyBIC, dbtTrfTx[0].Cdtr?.Nm, dbtTrfTx[0].Cdtr.PstlAdr?.AdrLine, dbtTrfTx[0].CdtrAcct?.Id?.IBAN, dbtTrfTx[0].CdtrAcct?.Id?.Othr?.Id, (), false)];
+    if isTransaction {
+        return ();
+    }
+    return getField50a(dbtTrfTx[0].Cdtr, dbtTrfTx[0].CdtrAcct?.Id, false, false);
 }
 
 # Get the account servicing institution from the Pacs003 document.
 #
 # + dbtTrfTx - The array of direct debit transactions
 # + transaxion - The current direct debit transaction
+# + isTransaction - The flag to identify whether it is a transaction or common field
 # + return - The account servicing institution or an empty record
 isolated function getMT104Or107CreditorsBankFromPacs003Document(pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx,
-        pacsIsoRecord:DirectDebitTransactionInformation31? transaxion = ())
-    returns [[swiftmt:MT52A?, swiftmt:MT52B?, swiftmt:MT52C?, swiftmt:MT52D?],
-    [swiftmt:MT52A?, swiftmt:MT52B?, swiftmt:MT52C?, swiftmt:MT52D?]]|error {
+        pacsIsoRecord:DirectDebitTransactionInformation31? transaxion = (), boolean isTransaction = false)
+    returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D?|error {
 
     [string?, string?, string?, string?] [iban, bban, identifierCode, partyIdentifier] = [dbtTrfTx[0].DbtrAgtAcct?.Id?.IBAN, dbtTrfTx[0].DbtrAgtAcct?.Id?.Othr?.Id, dbtTrfTx[0].DbtrAgt?.FinInstnId?.BICFI, dbtTrfTx[0].DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd];
     foreach int i in 1 ... dbtTrfTx.length() - 1 {
         if iban != dbtTrfTx[i].CdtrAgtAcct?.Id?.IBAN || bban != dbtTrfTx[i].CdtrAgtAcct?.Id?.Othr?.Id || identifierCode != dbtTrfTx[i].CdtrAgt?.FinInstnId?.BICFI || partyIdentifier != dbtTrfTx[i].CdtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd {
-            return [[], check getField52Alt(transaxion?.CdtrAgt?.FinInstnId?.BICFI, transaxion?.CdtrAgt?.FinInstnId?.Nm, transaxion?.CdtrAgt?.FinInstnId?.PstlAdr?.AdrLine, transaxion?.CdtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, transaxion?.CdtrAgtAcct?.Id?.IBAN, transaxion?.CdtrAgtAcct?.Id?.Othr?.Id, isOptionCPresent = true)];
+            return check getField52(transaxion?.CdtrAgt?.FinInstnId, transaxion?.CdtrAgtAcct?.Id, isOptionCPresent = true);
         }
     }
-    return [check getField52Alt(transaxion?.CdtrAgt?.FinInstnId?.BICFI, transaxion?.CdtrAgt?.FinInstnId?.Nm, transaxion?.CdtrAgt?.FinInstnId?.PstlAdr?.AdrLine, transaxion?.CdtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd, transaxion?.CdtrAgtAcct?.Id?.IBAN, transaxion?.CdtrAgtAcct?.Id?.Othr?.Id, isOptionCPresent = true)];
+    if isTransaction {
+        return ();
+    }
+    return check getField52(dbtTrfTx[0].CdtrAgt?.FinInstnId, dbtTrfTx[0].CdtrAgtAcct?.Id, isOptionCPresent = true);
 }
 
 isolated function getSenderOrReceiver(string? identifierCode) returns string? {
@@ -1910,8 +2085,17 @@ isolated function convertToSwiftTimeFormat(string? content) returns string|error
     if content is () {
         return "";
     }
-
-    return regex:replace(content, "\\:", "");
+    string time = "";
+    foreach int i in 0 ... content.length() - 1 {
+        if content.substring(i, i + 1).equalsIgnoreCaseAscii(".") {
+            break;
+        }
+        if content.substring(i, i + 1).equalsIgnoreCaseAscii(":") {
+            continue;
+        }
+        time += content.substring(i, i+1);
+    }
+    return time;
 }
 
 // TODO Add the necessary functions to map the MX messages to the MT messages.
@@ -2185,7 +2369,7 @@ isolated function convertCharges16toMT71a(painIsoRecord:Charges16[]? charges) re
                 swiftmt:MT71F mt71f = {
                     name: MT71F_NAME,
                     Ccy: {content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
-                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER1}
+                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER2}
                 };
 
                 result.push(mt71f);
@@ -2195,7 +2379,7 @@ isolated function convertCharges16toMT71a(painIsoRecord:Charges16[]? charges) re
                 swiftmt:MT71G mt71g = {
                     name: MT71G_NAME,
                     Ccy: {content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
-                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER1}
+                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER2}
                 };
 
                 result.push(mt71g);
@@ -2222,11 +2406,7 @@ isolated function convertCharges16toMT71F(painIsoRecord:Charges16[]? charges, st
         return check e.ensureType(swiftmt:MT71F);
     }
 
-    return {
-        name: MT71F_NAME,
-        Ccy: {content: "NOTPROVIDED", number: NUMBER1},
-        Amnt: {content: "0", number: NUMBER1}
-    };
+    return ();
 }
 
 # Convert the charges from the MX message to the MT71G message.
@@ -2244,12 +2424,12 @@ isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges, st
     }
 
     decimal mxTotalAmount = 0.0;
-    string? mtCurrency = ();
+    string mtCurrency = "";
     string mtAmount = "";
 
     foreach painIsoRecord:Charges16 charge in charges {
         string currentCurrency = charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy;
-        if mtCurrency is () {
+        if mtCurrency.equalsIgnoreCaseAscii("") {
             mtCurrency = currentCurrency;
         }
         if mtCurrency != currentCurrency {
@@ -2270,8 +2450,8 @@ isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges, st
 
     swiftmt:MT71G mt71g = {
         name: MT71G_NAME,
-        Ccy: {content: mtCurrency ?: "NOTPROVIDED", number: NUMBER1},
-        Amnt: {content: mtAmount, number: NUMBER1}
+        Ccy: {content: mtCurrency, number: NUMBER1},
+        Amnt: {content: mtAmount, number: NUMBER2}
     };
 
     return mt71g;
@@ -2284,23 +2464,27 @@ isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges, st
 isolated function createMT13C(string code, painIsoRecord:ISOTime?|painIsoRecord:ISODateTime? time)
     returns swiftmt:MT13C?|error {
 
-    if time is () {
-        return ();
+    if time is painIsoRecord:ISOTime && time.length() > 13{
+        return {
+            name: MT13C_NAME,
+            Cd: {content: code, number: NUMBER1},
+            Tm: {content: time.substring(0,2) + time.substring(3,5), number: NUMBER2},
+            Sgn: {content: time.substring(8,9), number: NUMBER3}, 
+            TmOfst: {content: time.substring(9,11) + time.substring(12,14), number: NUMBER4} 
+        };
     }
 
-    time:Utc isoTime = check time:utcFromString(time.toString());
-    time:Civil civilTime = time:utcToCivil(isoTime);
-    string hour = civilTime.hour < 10 ? "0" + civilTime.hour.toString() : civilTime.hour.toString();
-    string minute = civilTime.minute < 10 ? "0" + civilTime.minute.toString() : civilTime.minute.toString();
-    string convertedTime = hour + minute;
+    if time is painIsoRecord:ISODateTime && time.length() > 24{
+        return {
+            name: MT13C_NAME,
+            Cd: {content: code, number: NUMBER1},
+            Tm: {content: time.substring(11,13) + time.substring(14,16), number: NUMBER2},
+            Sgn: {content: time.substring(19,20), number: NUMBER3}, 
+            TmOfst: {content: time.substring(20,22) + time.substring(23,24), number: NUMBER4} 
+        };
+    }
 
-    return {
-        name: MT13C_NAME,
-        Cd: {content: code, number: NUMBER1},
-        Tm: {content: convertedTime, number: NUMBER2},
-        Sgn: {content: "+", number: NUMBER3}, // TODO - This is a placeholder. The sign should be determined based on the timezone.
-        TmOfst: {content: "0000", number: NUMBER4} // TODO - This is a placeholder. The timezone offset should be determined based on the timezone.
-    };
+    return ();
 }
 
 # Convert settlement time information to a single MT13C field.
@@ -2347,7 +2531,7 @@ isolated function convertTimeToMT13C(
 # + return - The MT70 message
 isolated function getRemittanceInformation(painIsoRecord:PaymentIdentification13? PmtId,
         painIsoRecord:RemittanceInformation22? RmtInf,
-        painIsoRecord:Purpose2Choice? Prps) returns swiftmt:MT70 {
+        painIsoRecord:Purpose2Choice? Prps) returns swiftmt:MT70? {
 
     string name = MT70_NAME;
     string content = "";
@@ -2367,8 +2551,7 @@ isolated function getRemittanceInformation(painIsoRecord:PaymentIdentification13
         content = getEmptyStrIfNull(PmtId?.EndToEndId);
     }
     if RmtInf?.Ustrd != () {
-        string[] unstructured = RmtInf?.Ustrd ?: [];
-        content = joinStringArray(unstructured, "\n");
+        return getField70(RmtInf?.Ustrd);
     }
 
     return {name, Nrtv: {content, number}};
@@ -3044,4 +3227,87 @@ isolated function getRejectionReasonNarrative(camtIsoRecord:InvestigationRejecti
     if (rejectionCode == camtIsoRecord:MROI) {
         return "Investigation rejected: Message received out of scope.";
     }
+}
+
+isolated function getField23EForMt103(pacsIsoRecord:InstructionForCreditorAgent3[]? cdtrInstrctn, pacsIsoRecord:InstructionForNextAgent1[]? dbtrInstrctn, pacsIsoRecord:ServiceLevel8Choice[]? svcLvl, pacsIsoRecord:CategoryPurpose1Choice? ctgryPurp) returns swiftmt:MT23E[] {
+    swiftmt:MT23E[] field23E = [];
+    if cdtrInstrctn is pacsIsoRecord:InstructionForCreditorAgent3[] {
+        string[] MT_103_INSTRC_CD = ["CHQB", "TELB", "PHOB", "HOLD"];
+        foreach pacsIsoRecord:InstructionForCreditorAgent3 instruction in cdtrInstrctn {
+            if MT_103_INSTRC_CD.indexOf(instruction.Cd.toString()) !is () {
+                if instruction.InstrInf is string {
+                    field23E.push({name: MT23E_NAME, InstrnCd: {content: 
+                        instruction.Cd.toString() + "/" + instruction.InstrInf.toString(), number: NUMBER1}});
+                } else {
+                    field23E.push({name: MT23E_NAME, InstrnCd: {content: instruction.Cd.toString(), number: NUMBER1}});
+                }
+            }
+        }
+    }
+
+    if dbtrInstrctn is pacsIsoRecord:InstructionForNextAgent1[] {
+        string[] MT_103_INSTRC_CD = ["PHON", "TELI", "TELE", "PHOI", "REPA"];
+        foreach pacsIsoRecord:InstructionForNextAgent1 instruction in dbtrInstrctn {
+            if MT_103_INSTRC_CD.indexOf(instruction.Cd.toString()) !is () {
+                if instruction.InstrInf is string {
+                    field23E.push({name: MT23E_NAME, InstrnCd: {content: 
+                        instruction.Cd.toString() + "/" + instruction.InstrInf.toString(), number: NUMBER1}});
+                } else {
+                    field23E.push({name: MT23E_NAME, InstrnCd: {content: instruction.Cd.toString(), number: NUMBER1}});
+                }
+            }
+        }
+    }
+
+    if svcLvl is pacsIsoRecord:ServiceLevel8Choice[] {
+        foreach pacsIsoRecord:ServiceLevel8Choice instruction in svcLvl {
+            if instruction.Cd.toString().equalsIgnoreCaseAscii("SDVA") {
+                field23E.push({name: MT23E_NAME, InstrnCd: {content: "SDVA", number: NUMBER1}});
+            }
+        }
+    }
+
+    if ctgryPurp is pacsIsoRecord:CategoryPurpose1Choice {
+        if ctgryPurp.Cd.toString().equalsIgnoreCaseAscii("INTC") || 
+            ctgryPurp.Cd.toString().equalsIgnoreCaseAscii("CORT") {
+                field23E.push({name: MT23E_NAME, InstrnCd: {content: ctgryPurp.Cd.toString(), number: NUMBER1}});
+                return field23E;
+        } 
+        if ctgryPurp.Prtry.toString().equalsIgnoreCaseAscii("INTC CORT") {
+            field23E.push({name: MT23E_NAME, InstrnCd: {content: "INTC", number: NUMBER1}});
+            field23E.push({name: MT23E_NAME, InstrnCd: {content: "CORT", number: NUMBER1}});
+            return field23E;
+        }
+    }
+    return field23E;
+}
+
+isolated function getField23B(string? bankOpCd) returns swiftmt:MT23B {
+    string[] operationCodes = ["CRED", "SPAY", "CRTS", "SSTD", "SPRI"];
+    if bankOpCd is string {
+        if operationCodes.indexOf(bankOpCd) !is () {
+            return {
+                name: MT23B_NAME,
+                Typ: {content: bankOpCd, number: NUMBER1}};
+        }
+    }
+    return {
+        name: MT23B_NAME,
+        Typ: {content: "NOTPROVIDED", number: NUMBER1}
+    };
+}
+
+isolated function getField23(string? bankOpCd) returns swiftmt:MT23 {
+    string[] operationCodes = ["CREDIT", "SPAY", "CRTST"];
+    if bankOpCd is string {
+        if operationCodes.indexOf(bankOpCd) !is () {
+            return {
+                name: MT23_NAME,
+                Cd: {content: bankOpCd, number: NUMBER1}};
+        }
+    }
+    return {
+        name: MT23_NAME,
+        Cd: {content: "NOTPROVIDED", number: NUMBER1}
+    };
 }
