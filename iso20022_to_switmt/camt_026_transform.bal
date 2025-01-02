@@ -17,11 +17,11 @@
 import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
-# Transforms a camt.026 ISO 20022 document to its corresponding SWIFT MT195 format.
+# Transforms a camt.026 ISO 20022 document to its corresponding SWIFT MTn95 format.
 #
 # + document - The camt.026 document to be transformed.
-# + messageType - The SWIFT message type
-# + return - The transformed SWIFT MT195 message or an error.
+# + messageType - The SWIFT MTn95 message type to be transformed.
+# + return - The transformed SWIFT MTn95 message or an error.
 isolated function transformCamt026ToMtn95(camtIsoRecord:Camt026Document document, string messageType) returns swiftmt:MTn95Message|error => let
     camtIsoRecord:SupplementaryData1[]? splmtryData = document.UblToApply.SplmtryData
     in {

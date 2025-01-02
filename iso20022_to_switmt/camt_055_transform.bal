@@ -17,11 +17,11 @@
 import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
-# This function transforms a camt.055 ISO 20022 message into an MT192 SWIFT format message.
+# This function transforms a camt.055 ISO 20022 message into an MTn92 SWIFT format message.
 #
 # + document - The camt.055 message to be transformed, in `camtIsoRecord:Camt055Document` format.
-# + messageType - The message type to which the ISO 20022 is being transformed.
-# + return - Returns an MT192 message in the `swiftmt:MTn92Message` format if successful, otherwise returns an error.
+# + messageType - The SWIFT MTn92 message type to be transformed.
+# + return - Returns an MTn92 message in the `swiftmt:MTn92Message` format if successful, otherwise returns an error.
 isolated function transformCamt055ToMtn92(camtIsoRecord:Camt055Document document, string messageType) returns swiftmt:MTn92Message|error => let
     camtIsoRecord:UnderlyingTransaction33 undrlygTransaction = document.CstmrPmtCxlReq.Undrlyg[0] in {
         block1: {

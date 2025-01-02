@@ -6,8 +6,26 @@ The DataMapper Library is a comprehensive toolkit designed to convert ISO 20022 
 
 ## Supported Conversions
 
-- ISO 20022 to SWIFT MT 1XX Category
-- ISO 20022 to SWIFT MT 2XX Category
+- pain.001.001.12 to SWIFT MT101
+- pacs.008.001.12 to SWIFT MT102
+- pacs.008.001.12 to SWIFT MT102STP
+- pacs.008.001.12 to SWIFT MT103
+- pacs.008.001.12 to SWIFT MT103STP
+- pacs.008.001.12 to SWIFT MT103REMIT
+- pacs.003.001.11 to SWIFT MT104
+- pacs.003.001.11 to SWIFT MT107
+- pacs.009.001.11 to SWIFT MT200
+- pacs.009.001.11 to SWIFT MT201
+- pacs.009.001.11 to SWIFT MT202
+- pacs.009.001.11 to SWIFT MT202COV
+- pacs.009.001.11 to SWIFT MT203
+- pacs.010.001.06 to SWIFT MT204
+- pacs.009.001.11 to SWIFT MT205
+- pacs.009.001.11 to SWIFT MT205COV
+- camt.057.001.08 to SWIFT MT210
+- camt.056.001.11 to SWIFT MTn92
+- camt.026.001.10 to SWIFT MTn95
+- camt.029.001.13 to SWIFT MTn96
 
 ## Usage
 
