@@ -16,6 +16,14 @@
 
 import ballerina/data.xmldata;
 
+# Converts an ISO 20022 XML message to its corresponding SWIFT MT message format.
+#
+# The function uses a map of transformation functions for different ISO 20022 message types
+# and applies the appropriate transformation based on the provided XML content and target SWIFT MT message type.
+#
+# + xmlContent - The ISO 20022 XML content that needs to be converted.
+# + messageType - The target SWIFT MT message type (e.g., "103", "102STP","202", "202COV").
+# + return - Returns the transformed SWIFT MT message as a record value or an error if the conversion fails.
 public isolated function toSwiftMtMessage(xml xmlContent, string messageType) returns record {}|error {
     xml:Element document = check xmlContent.get(0).ensureType();
     string? isoMessageType = (document).getAttributes()["{" + xml:XMLNS_NAMESPACE_URI + "}xmlns"];
