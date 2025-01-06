@@ -1,4 +1,4 @@
-# Ballerina SWIFT MT to ISO 20022 Data Mapper Library
+# Ballerina ISO 20022 to SWIFT MT Data Mapper Library
 
 ## Overview
 
@@ -29,34 +29,74 @@ The DataMapper Library is a comprehensive toolkit designed to convert ISO 20022 
 
 ## Usage
 
-### Conversion of ISO 20022 to SWIFT MT
+### Conversion of ISO 20022 xml to SWIFT MT message
 
 ```ballerina
 import ballerina/io;
 import ballerinax/financial.iso20022ToSwiftMT as mxToMt;
 
 public function main() returns error? {
-    string isoMessage = string `<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.054.001.04">
-    <BkToCstmrDbtCdtNtfctn>
-        <GrpHdr>
-            <MsgId>C11126A1378</MsgId>
-            <CreDtTm>2024-12-16T12:00:00Z</CreDtTm>
-        </GrpHdr>
-        <Ntfctn>
-            <Id>5482ABC</Id>
-            <Acct>
-                <Id>
-                    <IBAN>CH9380000000009876543</IBAN>
-                </Id>
-            </Acct>
-            <TxsSummry>
-                <TtlAmt>
-                    <Amt Ccy="USD">233530.00</Amt>
-                </TtlAmt>
-            </TxsSummry>
-        </Ntfctn>
-    </BkToCstmrDbtCdtNtfctn>
+    xml isoMessage = xml `<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.057.001.08">
+  <NtfctnToRcv>
+    <GrpHdr>
+      <MsgId>318393</MsgId>
+      <CreDtTm>2025-01-01T10:12:11.802172400Z</CreDtTm>
+    </GrpHdr>
+    <Ntfctn>
+      <Id>318393</Id>
+      <Itm>
+        <Id>BEBEBB0023CRESZZ</Id>
+        <EndToEndId>BEBEBB0023CRESZZ</EndToEndId>
+        <Acct>
+          <Id>
+            <Othr>
+              <SchmeNm/>
+            </Othr>
+          </Id>
+        </Acct>
+        <Amt>
+          <ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="USD">
+            <ActiveOrHistoricCurrencyAndAmount_SimpleType>230000.00</ActiveOrHistoricCurrencyAndAmount_SimpleType>
+          </ActiveOrHistoricCurrencyAndAmount_SimpleType>
+        </Amt>
+        <XpctdValDt>2010-02-22</XpctdValDt>
+        <Dbtr>
+          <Pty>
+            <PstlAdr/>
+            <Id>
+              <OrgId/>
+              <PrvtId>
+                <Othr>
+                  <SchmeNm/>
+                </Othr>
+              </PrvtId>
+            </Id>
+          </Pty>
+        </Dbtr>
+        <DbtrAgt>
+          <FinInstnId>
+            <BICFI>CRESCHZZ</BICFI>
+            <ClrSysMmbId>
+              <ClrSysId/>
+              <MmbId/>
+            </ClrSysMmbId>
+            <PstlAdr/>
+          </FinInstnId>
+        </DbtrAgt>
+        <IntrmyAgt>
+          <FinInstnId>
+            <BICFI>CITIUS33</BICFI>
+            <ClrSysMmbId>
+              <ClrSysId/>
+              <MmbId/>
+            </ClrSysMmbId>
+            <PstlAdr/>
+          </FinInstnId>
+        </IntrmyAgt>
+      </Itm>
+    </Ntfctn>
+  </NtfctnToRcv>
 </Document>`;
-    io:println(mxToMt:toSwiftMtMessage(finMessage));
+    io:println(mxToMt:toSwiftMtMessage(isoMessage, "210"));
 }
 ```
