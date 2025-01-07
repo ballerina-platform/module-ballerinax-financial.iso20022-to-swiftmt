@@ -17,13 +17,13 @@
 import ballerinax/financial.iso20022.payments_clearing_and_settlement as pacsIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
-# Transforms the given ISO 20022 Pacs.003 document to its corresponding SWIFT MT104 format.
+# Transforms the given ISO 20022 Pacs.003 envelope.Document to its corresponding SWIFT MT104 format.
 #
-# + document - The Pacs003Document as an input
+# + envelope - The Pacs003 envelope containing the corresponding document to be transformed.
 # + messageType - The SWIFT message type
 # + return - The transformed SWIFT MT104 message or an error if the transformation fails
-isolated function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document document, string messageType) returns swiftmt:MT104Message|error => let
-    pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx = document.FIToFICstmrDrctDbt.DrctDbtTxInf,
+isolated function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Envelope envelope, string messageType) returns swiftmt:MT104Message|error => let
+    pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx = envelope.Document.FIToFICstmrDrctDbt.DrctDbtTxInf,
     swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT104Or107InstructionPartyFromPacs003Document(dbtTrfTx),
     swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getMT104Or107CreditorFromPacs003Document(dbtTrfTx),
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getMT104Or107CreditorsBankFromPacs003Document(dbtTrfTx),
@@ -31,22 +31,24 @@ isolated function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document 
     swiftmt:MT104Transaction[] transactions = check generateMT104TransactionsFromPacs003(dbtTrfTx)
     in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI)
+            applicationId: "F",
+            serviceId: "01",
+            logicalTerminal: getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId?.UETR),
+        block3: createMtBlock3(envelope.Document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
-            MT19: check getField19(document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum),
+            MT19: check getField19(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum),
             MT20: {
                 name: MT20_NAME,
                 msgId: {
-                    content: document.FIToFICstmrDrctDbt.GrpHdr.MsgId,
+                    content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.MsgId,
                     number: NUMBER1
                 }
             },
@@ -58,14 +60,14 @@ isolated function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document 
             },
             MT32B: {
                 name: MT32B_NAME,
-                Ccy: {content: document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType?.Ccy.toString(), number: NUMBER1},
-                Amnt: {content: document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType?.ActiveCurrencyAndAmount_SimpleType.toString(), number: NUMBER2}
+                Ccy: {content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.Ccy.toString(), number: NUMBER1},
+                Amnt: {content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.content.toString(), number: NUMBER2}
             },
             MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
             MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
             MT50A: field50a is swiftmt:MT50A ? field50a : (),
             MT50K: field50a is swiftmt:MT50K ? field50a : (),
-            MT51A: getField51A(document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId),
+            MT51A: getField51A(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId),
             MT52A: field52 is swiftmt:MT52A ? field52 : (),
             MT52C: field52 is swiftmt:MT52C ? field52 : (),
             MT52D: field52 is swiftmt:MT52D ? field52 : (),
@@ -74,23 +76,23 @@ isolated function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Document 
             MT71A: getRepeatingField71AForPacs003(dbtTrfTx),
             MT71F: dbtTrfTx[0].ChrgsInf is () ? () : {
                     name: MT71F_NAME,
-                    Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString(), number: NUMBER1},
-                    Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString(), number: NUMBER2}
+                    Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.Ccy.toString(), number: NUMBER1},
+                    Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.content.toString(), number: NUMBER2}
                 },
             MT71G: dbtTrfTx[0].ChrgsInf is () ? () : {
                     name: MT71G_NAME,
-                    Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString(), number: NUMBER1},
-                    Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString(), number: NUMBER2}
+                    Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.Ccy.toString(), number: NUMBER1},
+                    Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.content.toString(), number: NUMBER2}
                 },
             MT77B: getRepeatingField77BForPacs003(dbtTrfTx),
             Transaction: transactions
         },
-        block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrDrctDbt.SplmtryData)
+        block5: check generateMtBlock5FromSupplementaryData(envelope.Document.FIToFICstmrDrctDbt.SplmtryData)
     };
 
-# Creates the MT104 transactions from the Pacs003 document's direct debit transaction information.
+# Creates the MT104 transactions from the Pacs003 envelope.Document's direct debit transaction information.
 #
-# + drctDbtTxInf - Array of DirectDebitTransactionInformation31 from Pacs003 document
+# + drctDbtTxInf - Array of DirectDebitTransactionInformation31 from Pacs003 envelope.Document
 # + return - Array of MT104 transactions or an error
 isolated function generateMT104TransactionsFromPacs003(
         pacsIsoRecord:DirectDebitTransactionInformation31[] drctDbtTxInf
@@ -114,8 +116,8 @@ isolated function generateMT104TransactionsFromPacs003(
 
         swiftmt:MT32B MT32B = {
             name: MT32B_NAME,
-            Ccy: {content: tx.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
-            Amnt: {content: tx.IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType.ActiveCurrencyAndAmount_SimpleType.toString(), number: NUMBER2}
+            Ccy: {content: tx.IntrBkSttlmAmt.Ccy, number: NUMBER1},
+            Amnt: {content: tx.IntrBkSttlmAmt?.content.toString(), number: NUMBER2}
         };
 
         swiftmt:MT21C? MT21C = getField21C(tx.DrctDbtTx?.MndtRltdInf?.MndtId);
@@ -173,12 +175,12 @@ isolated function generateMT104TransactionsFromPacs003(
     return transactions;
 }
 
-# Tranform the given ISO 20022 Pacs.003 document to its corresponding SWIFT MT107 format.
-# + document - The Pacs003Document as an input
+# Tranform the given ISO 20022 Pacs.003 envelope.Document to its corresponding SWIFT MT107 format.
+# + envelope - The Pacs003 envelope containing the corresponding document to be transformed.
 # + messageType - The SWIFT message type
 # + return - The transformed SWIFT MT107 message or an error if the transformation fails
-isolated function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document document, string messageType) returns swiftmt:MT107Message|error => let
-    pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx = document.FIToFICstmrDrctDbt.DrctDbtTxInf,
+isolated function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Envelope envelope, string messageType) returns swiftmt:MT107Message|error => let
+    pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx = envelope.Document.FIToFICstmrDrctDbt.DrctDbtTxInf,
     swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT104Or107InstructionPartyFromPacs003Document(dbtTrfTx),
     swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getMT104Or107CreditorFromPacs003Document(dbtTrfTx),
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getMT104Or107CreditorsBankFromPacs003Document(dbtTrfTx),
@@ -186,22 +188,24 @@ isolated function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document 
     swiftmt:MT104Transaction[] transactions = check generateMT107TransactionsFromPacs003(dbtTrfTx)
     in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI)
+            applicationId: "F",
+            serviceId: "01",
+            logicalTerminal: getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId?.UETR),
+        block3: createMtBlock3(envelope.Document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
-            MT19: check getField19(document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum),
+            MT19: check getField19(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum),
             MT20: {
                 name: MT20_NAME,
                 msgId: {
-                    content: document.FIToFICstmrDrctDbt.GrpHdr.MsgId,
+                    content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.MsgId,
                     number: NUMBER1
                 }
             },
@@ -216,14 +220,14 @@ isolated function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document 
             },
             MT32B: {
                 name: MT32B_NAME,
-                Ccy: {content: document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType?.Ccy.toString(), number: NUMBER1},
-                Amnt: {content: document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType?.ActiveCurrencyAndAmount_SimpleType.toString(), number: NUMBER2}
+                Ccy: {content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.Ccy.toString(), number: NUMBER1},
+                Amnt: {content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.content.toString(), number: NUMBER2}
             },
             MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
             MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
             MT50A: field50a is swiftmt:MT50A ? field50a : (),
             MT50K: field50a is swiftmt:MT50K ? field50a : (),
-            MT51A: getField51A(document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId),
+            MT51A: getField51A(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId),
             MT52A: field52 is swiftmt:MT52A ? field52 : (),
             MT52C: field52 is swiftmt:MT52C ? field52 : (),
             MT52D: field52 is swiftmt:MT52D ? field52 : (),
@@ -232,22 +236,22 @@ isolated function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Document 
             MT71A: getRepeatingField71AForPacs003(dbtTrfTx),
             MT71F: dbtTrfTx[0].ChrgsInf is () ? () : {
                     name: MT71F_NAME,
-                    Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString(), number: NUMBER1},
-                    Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString(), number: NUMBER2}
+                    Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.Ccy.toString(), number: NUMBER1},
+                    Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.content.toString(), number: NUMBER2}
                 },
             MT71G: dbtTrfTx[0].ChrgsInf is () ? () : {
                     name: MT71G_NAME,
-                    Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString(), number: NUMBER1},
-                    Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString(), number: NUMBER2}
+                    Ccy: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.Ccy.toString(), number: NUMBER1},
+                    Amnt: {content: (<pacsIsoRecord:Charges16?>getFirstElementFromArray(dbtTrfTx[0].ChrgsInf))?.Amt?.content.toString(), number: NUMBER2}
                 },
             MT77B: getRepeatingField77BForPacs003(dbtTrfTx),
             Transaction: transactions
         },
-        block5: check generateMtBlock5FromSupplementaryData(document.FIToFICstmrDrctDbt.SplmtryData)
+        block5: check generateMtBlock5FromSupplementaryData(envelope.Document.FIToFICstmrDrctDbt.SplmtryData)
     };
 
-# generate the MT107 transactions from the Pacs003 document's direct debit transaction information.
-# + drctDbtTxInf - Array of DirectDebitTransactionInformation31 from Pacs003 document
+# generate the MT107 transactions from the Pacs003 envelope.Document's direct debit transaction information.
+# + drctDbtTxInf - Array of DirectDebitTransactionInformation31 from Pacs003 envelope.Document
 # + return - Array of MT107 transactions or an error
 isolated function generateMT107TransactionsFromPacs003(
         pacsIsoRecord:DirectDebitTransactionInformation31[] drctDbtTxInf
@@ -274,8 +278,8 @@ isolated function generateMT107TransactionsFromPacs003(
 
         swiftmt:MT32B MT32B = {
             name: MT23B_NAME,
-            Ccy: {content: tx.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
-            Amnt: {content: tx.IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType.toString(), number: NUMBER1}
+            Ccy: {content: tx.IntrBkSttlmAmt.Ccy, number: NUMBER1},
+            Amnt: {content: tx.IntrBkSttlmAmt?.content.toString(), number: NUMBER1}
         };
 
         swiftmt:MT21C? MT21C = getField21C(tx.DrctDbtTx?.MndtRltdInf?.MndtId);

@@ -19,36 +19,38 @@ import ballerinax/financial.swift.mt as swiftmt;
 
 # Transforms a camt.026 ISO 20022 document to its corresponding SWIFT MTn95 format.
 #
-# + document - The camt.026 document to be transformed.
+# + envelope - The camt.026 envelope containing the corresponding document to be transformed.
 # + messageType - The SWIFT MTn95 message type to be transformed.
 # + return - The transformed SWIFT MTn95 message or an error.
-isolated function transformCamt026ToMtn95(camtIsoRecord:Camt026Document document, string messageType) returns swiftmt:MTn95Message|error => let
-    camtIsoRecord:SupplementaryData1[]? splmtryData = document.UblToApply.SplmtryData
+isolated function transformCamt026ToMtn95(camtIsoRecord:Camt026Envelope envelope, string messageType) returns swiftmt:MTn95Message|error => let
+    camtIsoRecord:SupplementaryData1[]? splmtryData = envelope.Document.UblToApply.SplmtryData
     in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI)
+            applicationId: "F",
+            serviceId: "01",
+            logicalTerminal: getSenderOrReceiver(envelope.Document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.UblToApply.Assgnmt.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.UblToApply.Assgnmt.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.UblToApply.Assgnmt.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.UblToApply.Assgnmt.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.UblToApply.Undrlyg.Initn?.OrgnlUETR),
+        block3: createMtBlock3(envelope.Document.UblToApply.Undrlyg.Initn?.OrgnlUETR),
         block4: {
-            MT20: check getMT20(document.UblToApply.Case?.Id),
+            MT20: check getMT20(envelope.Document.UblToApply.Case?.Id),
             MT21: {
                 name: MT21_NAME,
                 Ref: {
-                    content: document.UblToApply.Undrlyg.Initn?.OrgnlInstrId.toString(),
+                    content: envelope.Document.UblToApply.Undrlyg.Initn?.OrgnlInstrId.toString(),
                     number: NUMBER1
                 }
             },
             MT75: {
                 name: MT75_NAME,
                 Nrtv: {
-                    content: getConcatenatedQueries(document.UblToApply.Justfn.MssngOrIncrrctInf),
+                    content: getConcatenatedQueries(envelope.Document.UblToApply.Justfn.MssngOrIncrrctInf),
                     number: NUMBER1
                 }
             },
@@ -71,6 +73,6 @@ isolated function transformCamt026ToMtn95(camtIsoRecord:Camt026Document document
             MessageCopy: () // TODO - Need to add the relavent field mapping for this using the official mappings
 
         },
-        block5: check generateMtBlock5FromSupplementaryData(document.UblToApply.SplmtryData),
+        block5: check generateMtBlock5FromSupplementaryData(envelope.Document.UblToApply.SplmtryData),
         unparsedTexts: ()
     };

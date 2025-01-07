@@ -1065,8 +1065,8 @@ isolated function getField33BOptional(pacsIsoRecord:ActiveOrHistoricCurrencyAndA
     if instrdAmt is pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount {
         return {
             name: "33B",
-            Ccy: {content: instrdAmt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
-            Amnt: {content: check convertToString(instrdAmt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER2}
+            Ccy: {content: instrdAmt.Ccy, number: NUMBER1},
+            Amnt: {content: check convertToString(instrdAmt.content), number: NUMBER2}
         };
     }
     return ();
@@ -1501,14 +1501,14 @@ isolated function getField19(decimal? controlSum) returns swiftmt:MT19?|error {
 //             painIsoRecord:Charges16[]? charges = transaxion.ChrgsInf;
 //             if charges is painIsoRecord:Charges16[] {
 //                 foreach painIsoRecord:Charges16 charge in charges {
-//                     string currentCurrency = charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy;
+//                     string currentCurrency = charge.Amt.Ccy;
 //                     if mtCurrency is () {
 //                         mtCurrency = currentCurrency;
 //                     }
 //                     if mtCurrency != currentCurrency {
 //                         return error("All charges must have the same currency (Error Code: T20045).");
 //                     }
-//                     mxTotalAmount += charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType;
+//                     mxTotalAmount += charge.Amt.content;
 //                 }
 //             }
 //         }
@@ -1535,12 +1535,12 @@ isolated function getField19(decimal? controlSum) returns swiftmt:MT19?|error {
 isolated function getField33B(pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount? instdAmt, pacsIsoRecord:ActiveCurrencyAndAmount? intrBkSttlmAmt, boolean isUnderlyingTransaction = false) returns swiftmt:MT33B?|error {
     if instdAmt is pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount &&
         intrBkSttlmAmt is pacsIsoRecord:ActiveCurrencyAndAmount {
-        if instdAmt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType
-                != intrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.ActiveCurrencyAndAmount_SimpleType {
+        if instdAmt.content
+                != intrBkSttlmAmt.content {
             return {
                 name: MT33B_NAME,
-                Ccy: {content: instdAmt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
-                Amnt: {content: check convertToString(instdAmt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER2}
+                Ccy: {content: instdAmt.Ccy, number: NUMBER1},
+                Amnt: {content: check convertToString(instdAmt.content), number: NUMBER2}
             };
         }
         return ();
@@ -1548,8 +1548,8 @@ isolated function getField33B(pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount? i
     if instdAmt is pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount && isUnderlyingTransaction {
         return {
             name: MT33B_NAME,
-            Ccy: {content: instdAmt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
-            Amnt: {content: check convertToString(instdAmt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER2}
+            Ccy: {content: instdAmt.Ccy, number: NUMBER1},
+            Amnt: {content: check convertToString(instdAmt.content), number: NUMBER2}
         };
     }
     return ();
@@ -2074,11 +2074,11 @@ isolated function getMT104Or107CreditorsBankFromPacs003Document(pacsIsoRecord:Di
     return check getField52(dbtTrfTx[0].CdtrAgt?.FinInstnId, dbtTrfTx[0].CdtrAgtAcct?.Id, isOptionCPresent = true);
 }
 
-isolated function getSenderOrReceiver(string? identifierCode) returns string? {
+isolated function getSenderOrReceiver(string? identifierCode, string? identifierCode2 = ()) returns string? {
     if identifierCode is string {
         return identifierCode;
     }
-    return ();
+    return identifierCode2;
 }
 
 isolated function convertToSwiftTimeFormat(string? content) returns string|error {
@@ -2255,7 +2255,7 @@ isolated function getActiveOrHistoricCurrencyAndAmountCcy(painIsoRecord:ActiveOr
         return "";
     }
 
-    return ccyAndAmount.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy.toString();
+    return ccyAndAmount.Ccy.toString();
 }
 
 # Convert the MX payment amount
@@ -2266,7 +2266,7 @@ isolated function getActiveOrHistoricCurrencyAndAmountValue(painIsoRecord:Active
         return "";
     }
 
-    return ccyAndAmount.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString();
+    return ccyAndAmount.content.toString();
 }
 
 # Convert an ISO date string to a Swift MT date record
@@ -2368,8 +2368,8 @@ isolated function convertCharges16toMT71a(painIsoRecord:Charges16[]? charges) re
             "CRED" => {
                 swiftmt:MT71F mt71f = {
                     name: MT71F_NAME,
-                    Ccy: {content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
-                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER2}
+                    Ccy: {content: charge.Amt.Ccy, number: NUMBER1},
+                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.content), number: NUMBER2}
                 };
 
                 result.push(mt71f);
@@ -2378,8 +2378,8 @@ isolated function convertCharges16toMT71a(painIsoRecord:Charges16[]? charges) re
             "DEBT" => {
                 swiftmt:MT71G mt71g = {
                     name: MT71G_NAME,
-                    Ccy: {content: charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
-                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER2}
+                    Ccy: {content: charge.Amt.Ccy, number: NUMBER1},
+                    Amnt: {content: convertDecimalNumberToSwiftDecimal(charge.Amt.content), number: NUMBER2}
                 };
 
                 result.push(mt71g);
@@ -2428,7 +2428,7 @@ isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges, st
     string mtAmount = "";
 
     foreach painIsoRecord:Charges16 charge in charges {
-        string currentCurrency = charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy;
+        string currentCurrency = charge.Amt.Ccy;
         if mtCurrency.equalsIgnoreCaseAscii("") {
             mtCurrency = currentCurrency;
         }
@@ -2436,7 +2436,7 @@ isolated function convertCharges16toMT71G(painIsoRecord:Charges16[]? charges, st
             return error("All charges must have the same currency (Error Code: T20045).");
         }
 
-        mxTotalAmount += check charge.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType.ensureType(decimal);
+        mxTotalAmount += check charge.Amt.content.ensureType(decimal);
     }
 
     mtAmount = convertDecimalNumberToSwiftDecimal(mxTotalAmount);
@@ -2836,10 +2836,10 @@ isolated function getCurrencyCodeFromInterbankOrInstructedAmount(
         painIsoRecord:ActiveOrHistoricCurrencyAndAmount? instructedAmount,
         painIsoRecord:ActiveCurrencyAndAmount interbankAmount
 ) returns string|error {
-    if instructedAmount?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy is string {
-        return instructedAmount?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.Ccy.toString();
-    } else if interbankAmount.ActiveCurrencyAndAmount_SimpleType?.Ccy is string {
-        return interbankAmount.ActiveCurrencyAndAmount_SimpleType.Ccy;
+    if instructedAmount?.Ccy is string {
+        return instructedAmount?.Ccy.toString();
+    } else if interbankAmount.Ccy is string {
+        return interbankAmount.Ccy;
     }
 
 }
@@ -2853,11 +2853,10 @@ isolated function getAmountValueFromInterbankOrInstructedAmount(
         painIsoRecord:ActiveOrHistoricCurrencyAndAmount? instructedAmount,
         painIsoRecord:ActiveCurrencyAndAmount interbankAmount
 ) returns string|error {
-    if instructedAmount?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.ActiveOrHistoricCurrencyAndAmount_SimpleType is decimal {
-        return instructedAmount?.ActiveOrHistoricCurrencyAndAmount_SimpleType?.ActiveOrHistoricCurrencyAndAmount_SimpleType.toString();
-    } else if interbankAmount.ActiveCurrencyAndAmount_SimpleType?.ActiveCurrencyAndAmount_SimpleType is decimal {
-        return interbankAmount.ActiveCurrencyAndAmount_SimpleType.ActiveCurrencyAndAmount_SimpleType.toString();
+    if instructedAmount?.content is decimal {
+        return instructedAmount?.content.toString();
     }
+    return interbankAmount.content.toString();
 }
 
 # Converts an ISO date to Swift MT YYMMDD format and returns the substring (3rd to 6th characters).

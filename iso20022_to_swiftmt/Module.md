@@ -36,67 +36,68 @@ import ballerina/io;
 import ballerinax/financial.iso20022ToSwiftMT as mxToMt;
 
 public function main() returns error? {
-    xml isoMessage = xml `<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.057.001.08">
-  <NtfctnToRcv>
-    <GrpHdr>
-      <MsgId>318393</MsgId>
-      <CreDtTm>2025-01-01T10:12:11.802172400Z</CreDtTm>
-    </GrpHdr>
-    <Ntfctn>
-      <Id>318393</Id>
-      <Itm>
-        <Id>BEBEBB0023CRESZZ</Id>
-        <EndToEndId>BEBEBB0023CRESZZ</EndToEndId>
-        <Acct>
-          <Id>
-            <Othr>
-              <SchmeNm/>
-            </Othr>
-          </Id>
-        </Acct>
-        <Amt>
-          <ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="USD">
-            <ActiveOrHistoricCurrencyAndAmount_SimpleType>230000.00</ActiveOrHistoricCurrencyAndAmount_SimpleType>
-          </ActiveOrHistoricCurrencyAndAmount_SimpleType>
-        </Amt>
-        <XpctdValDt>2010-02-22</XpctdValDt>
-        <Dbtr>
-          <Pty>
-            <PstlAdr/>
+    xml isoMessage = xml `<Envelope><Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.057.001.08">
+    <NtfctnToRcv>
+        <GrpHdr>
+        <MsgId>318393</MsgId>
+        <CreDtTm>2025-01-01T10:12:11.802172400Z</CreDtTm>
+        </GrpHdr>
+        <Ntfctn>
+        <Id>318393</Id>
+        <Itm>
+            <Id>BEBEBB0023CRESZZ</Id>
+            <EndToEndId>BEBEBB0023CRESZZ</EndToEndId>
+            <Acct>
             <Id>
-              <OrgId/>
-              <PrvtId>
                 <Othr>
-                  <SchmeNm/>
+                <SchmeNm/>
                 </Othr>
-              </PrvtId>
             </Id>
-          </Pty>
-        </Dbtr>
-        <DbtrAgt>
-          <FinInstnId>
-            <BICFI>CRESCHZZ</BICFI>
-            <ClrSysMmbId>
-              <ClrSysId/>
-              <MmbId/>
-            </ClrSysMmbId>
-            <PstlAdr/>
-          </FinInstnId>
-        </DbtrAgt>
-        <IntrmyAgt>
-          <FinInstnId>
-            <BICFI>CITIUS33</BICFI>
-            <ClrSysMmbId>
-              <ClrSysId/>
-              <MmbId/>
-            </ClrSysMmbId>
-            <PstlAdr/>
-          </FinInstnId>
-        </IntrmyAgt>
-      </Itm>
-    </Ntfctn>
-  </NtfctnToRcv>
-</Document>`;
+            </Acct>
+            <Amt>
+            <ActiveOrHistoricCurrencyAndAmount_SimpleType Ccy="USD">
+                <ActiveOrHistoricCurrencyAndAmount_SimpleType>230000.00</ActiveOrHistoricCurrencyAndAmount_SimpleType>
+            </ActiveOrHistoricCurrencyAndAmount_SimpleType>
+            </Amt>
+            <XpctdValDt>2010-02-22</XpctdValDt>
+            <Dbtr>
+            <Pty>
+                <PstlAdr/>
+                <Id>
+                <OrgId/>
+                <PrvtId>
+                    <Othr>
+                    <SchmeNm/>
+                    </Othr>
+                </PrvtId>
+                </Id>
+            </Pty>
+            </Dbtr>
+            <DbtrAgt>
+            <FinInstnId>
+                <BICFI>CRESCHZZ</BICFI>
+                <ClrSysMmbId>
+                <ClrSysId/>
+                <MmbId/>
+                </ClrSysMmbId>
+                <PstlAdr/>
+            </FinInstnId>
+            </DbtrAgt>
+            <IntrmyAgt>
+            <FinInstnId>
+                <BICFI>CITIUS33</BICFI>
+                <ClrSysMmbId>
+                <ClrSysId/>
+                <MmbId/>
+                </ClrSysMmbId>
+                <PstlAdr/>
+            </FinInstnId>
+            </IntrmyAgt>
+        </Itm>
+        </Ntfctn>
+    </NtfctnToRcv>
+    </Document>
+</Envelope>`;
     io:println(mxToMt:toSwiftMtMessage(isoMessage, "210"));
 }
 ```

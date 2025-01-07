@@ -19,21 +19,23 @@ import ballerinax/financial.swift.mt as swiftmt;
 
 # This function transforms a camt.029 ISO 20022 message into an MTn96 SWIFT format message.
 #
-# + document - The camt.029 message to be transformed, in `camtIsoRecord:Camt029Document` format.
+# + envelope - The camt.029 envelope containing the corresponding document to be transformed.
 # + messageType - The SWIFT MTn96 message type to be transformed.
 # + return - Returns an MTn96 message in the `swiftmt:MTn96Message` format if successful, otherwise returns an error.
-isolated function transformCamt029ToMtn96(camtIsoRecord:Camt029Document document, string messageType) returns swiftmt:MTn96Message|error => let
-    camtIsoRecord:PaymentTransaction152 cancellationDtls = check getTransactionInfoAndSts(check getCancellationDetails(document.RsltnOfInvstgtn.CxlDtls)),
-    var [field76, field77A] = getField76(cancellationDtls.CxlStsRsnInf, document.RsltnOfInvstgtn.Sts.Conf) in {
+isolated function transformCamt029ToMtn96(camtIsoRecord:Camt029Envelope envelope, string messageType) returns swiftmt:MTn96Message|error => let
+    camtIsoRecord:PaymentTransaction152 cancellationDtls = check getTransactionInfoAndSts(check getCancellationDetails(envelope.Document.RsltnOfInvstgtn.CxlDtls)),
+    var [field76, field77A] = getField76(cancellationDtls.CxlStsRsnInf, envelope.Document.RsltnOfInvstgtn.Sts.Conf) in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(document.RsltnOfInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI)
+            applicationId:"F",
+            serviceId: "01",
+            logicalTerminal: getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(document.RsltnOfInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.RsltnOfInvstgtn.Assgnmt.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.RsltnOfInvstgtn.Assgnmt.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.RsltnOfInvstgtn.Assgnmt.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.RsltnOfInvstgtn.Assgnmt.CreDtTm.substring(0, 10))}
         },
         block3: createMtBlock3(cancellationDtls.OrgnlUETR),
         block4: {

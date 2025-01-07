@@ -19,20 +19,22 @@ import ballerinax/financial.swift.mt as swiftmt;
 
 # This function transforms a camt.055 ISO 20022 message into an MTn92 SWIFT format message.
 #
-# + document - The camt.055 message to be transformed, in `camtIsoRecord:Camt055Document` format.
+# + envelope - The camt.055 envelope containing the corresponding document to be transformed.
 # + messageType - The SWIFT MTn92 message type to be transformed.
 # + return - Returns an MTn92 message in the `swiftmt:MTn92Message` format if successful, otherwise returns an error.
-isolated function transformCamt055ToMtn92(camtIsoRecord:Camt055Document document, string messageType) returns swiftmt:MTn92Message|error => let
-    camtIsoRecord:UnderlyingTransaction33 undrlygTransaction = document.CstmrPmtCxlReq.Undrlyg[0] in {
+isolated function transformCamt055ToMtn92(camtIsoRecord:Camt055Envelope envelope, string messageType) returns swiftmt:MTn92Message|error => let
+    camtIsoRecord:UnderlyingTransaction33 undrlygTransaction = envelope.Document.CstmrPmtCxlReq.Undrlyg[0] in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI)
+            applicationId:"F",
+            serviceId: "01",
+            logicalTerminal: getSenderOrReceiver(envelope.Document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.CstmrPmtCxlReq.Assgnmt.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.CstmrPmtCxlReq.Assgnmt.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.CstmrPmtCxlReq.Assgnmt.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.CstmrPmtCxlReq.Assgnmt.CreDtTm.substring(0, 10))}
         },
         block4: {
             MT20: {

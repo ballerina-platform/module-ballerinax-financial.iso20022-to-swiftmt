@@ -25,7 +25,12 @@ import ballerina/data.xmldata;
 # + messageType - The target SWIFT MT message type (e.g., "103", "102STP","202", "202COV").
 # + return - Returns the transformed SWIFT MT message as a record value or an error if the conversion fails.
 public isolated function toSwiftMtMessage(xml xmlContent, string messageType) returns record {}|error {
-    xml:Element document = check xmlContent.get(0).ensureType();
+    xml:Element document = xml `<Empty/>`;
+    foreach xml:Element element in xmlContent.elementChildren() {
+        if element.getName().includes("Document") {
+            document = element;
+        }
+    }
     string? isoMessageType = (document).getAttributes()["{" + xml:XMLNS_NAMESPACE_URI + "}xmlns"];
     if isoMessageType is () {
         return error("Invalid xml: Cannot be converted to SWIFT MT message.");
@@ -38,5 +43,5 @@ public isolated function toSwiftMtMessage(xml xmlContent, string messageType) re
     if transformFunction is () {
         return error("ISO 20022 xml to SWIFT MT message is not supported.");
     }
-    return function:call(transformFunction, check xmldata:parseAsType(xmlContent, t = recordType), messageType.substring(0, 3)).ensureType();
+    return function:call(transformFunction, check xmldata:parseAsType(xmlContent, {textFieldName: "content"}, recordType), messageType.substring(0, 3)).ensureType();
 }

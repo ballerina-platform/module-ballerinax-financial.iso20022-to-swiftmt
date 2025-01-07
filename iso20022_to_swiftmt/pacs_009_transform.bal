@@ -17,23 +17,25 @@
 import ballerinax/financial.iso20022.payments_clearing_and_settlement as pacsIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
-isolated function transformPacs009ToMt200(pacsIsoRecord:Pacs009Document document, string messageType) returns swiftmt:MT200Message|error => let
-    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = document.FICdtTrf.CdtTrfTxInf[0],
+isolated function transformPacs009ToMt200(pacsIsoRecord:Pacs009Envelope envelope, string messageType) returns swiftmt:MT200Message|error => let
+    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = envelope.Document.FICdtTrf.CdtTrfTxInf[0],
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(creditTransfer.Dbtr.FinInstnId, creditTransfer.DbtrAcct?.Id, true),
     swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(creditTransfer.IntrmyAgt1?.FinInstnId, creditTransfer.IntrmyAgt1Acct?.Id),
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id, true)
     in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI)
+            applicationId: "F",
+            serviceId: "01",
+            logicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
+        block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
             MT20: {
                 name: MT20_NAME,
@@ -49,11 +51,11 @@ isolated function transformPacs009ToMt200(pacsIsoRecord:Pacs009Document document
                     number: NUMBER1
                 },
                 Ccy: {
-                    content: getMandatoryField(creditTransfer.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.Ccy),
+                    content: getMandatoryField(creditTransfer.IntrBkSttlmAmt.Ccy),
                     number: NUMBER2
                 },
                 Amnt: {
-                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.ActiveCurrencyAndAmount_SimpleType),
+                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.content),
                     number: NUMBER2
                 }
             },
@@ -67,26 +69,28 @@ isolated function transformPacs009ToMt200(pacsIsoRecord:Pacs009Document document
         }
     };
 
-isolated function transformPacs009ToMt201(pacsIsoRecord:Pacs009Document document, string messageType) returns swiftmt:MT201Message|error => let
-    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = document.FICdtTrf.CdtTrfTxInf[0],
+isolated function transformPacs009ToMt201(pacsIsoRecord:Pacs009Envelope envelope, string messageType) returns swiftmt:MT201Message|error => let
+    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = envelope.Document.FICdtTrf.CdtTrfTxInf[0],
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(creditTransfer.Dbtr.FinInstnId, creditTransfer.DbtrAcct?.Id, true) in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI)
+            applicationId: "F",
+            serviceId: "01",
+            logicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
+        block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
             MT30: {name: MT30_NAME, Dt: {content: convertToSWIFTStandardDate(creditTransfer.IntrBkSttlmDt), number: NUMBER1}},
             MT53B: field53 is swiftmt:MT53B ? field53 : (),
-            MT72: getRepeatingField72(document.FICdtTrf.CdtTrfTxInf),
-            Transaction: check getMT201Transaction(document.FICdtTrf.CdtTrfTxInf),
-            MT19: {name: MT19_NAME, Amnt: {content: check convertToString(document.FICdtTrf.GrpHdr.CtrlSum), number: NUMBER1}}
+            MT72: getRepeatingField72(envelope.Document.FICdtTrf.CdtTrfTxInf),
+            Transaction: check getMT201Transaction(envelope.Document.FICdtTrf.CdtTrfTxInf),
+            MT19: {name: MT19_NAME, Amnt: {content: check convertToString(envelope.Document.FICdtTrf.GrpHdr.CtrlSum), number: NUMBER1}}
         }
     };
 
@@ -106,11 +110,11 @@ isolated function getMT201Transaction(pacsIsoRecord:CreditTransferTransaction62[
             MT32B: {
                 name: MT32B_NAME,
                 Ccy: {
-                    content: transaxion.IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType?.Ccy,
+                    content: transaxion.IntrBkSttlmAmt?.Ccy,
                     number: NUMBER1
                 },
                 Amnt: {
-                    content: check convertToString(transaxion.IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType?.ActiveCurrencyAndAmount_SimpleType),
+                    content: check convertToString(transaxion.IntrBkSttlmAmt?.content),
                     number: NUMBER2
                 }
             },
@@ -125,9 +129,9 @@ isolated function getMT201Transaction(pacsIsoRecord:CreditTransferTransaction62[
     return transactionArray;
 }
 
-isolated function transformPacs009ToMt202(pacsIsoRecord:Pacs009Document document, string messageType) returns swiftmt:MT202Message|error => let
-    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = document.FICdtTrf.CdtTrfTxInf[0],
-    pacsIsoRecord:SettlementInstruction15 settlementInfo = document.FICdtTrf.GrpHdr.SttlmInf,
+isolated function transformPacs009ToMt202(pacsIsoRecord:Pacs009Envelope envelope, string messageType) returns swiftmt:MT202Message|error => let
+    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = envelope.Document.FICdtTrf.CdtTrfTxInf[0],
+    pacsIsoRecord:SettlementInstruction15 settlementInfo = envelope.Document.FICdtTrf.GrpHdr.SttlmInf,
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getField52(creditTransfer.Dbtr?.FinInstnId, creditTransfer.DbtrAcct?.Id),
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(settlementInfo.InstgRmbrsmntAgt?.FinInstnId, settlementInfo.InstgRmbrsmntAgtAcct?.Id, true),
     swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? field54 = getField54(settlementInfo.InstdRmbrsmntAgt?.FinInstnId, settlementInfo.InstdRmbrsmntAgtAcct?.Id, true),
@@ -135,16 +139,18 @@ isolated function transformPacs009ToMt202(pacsIsoRecord:Pacs009Document document
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.CdtrAgt?.FinInstnId, creditTransfer.CdtrAgtAcct?.Id, true),
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI)
+            applicationId: "F",
+            serviceId: "01",
+            logicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
+        block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
             MT13C: getFieldMt13C(creditTransfer.SttlmTmReq?.CLSTm, creditTransfer.SttlmTmIndctn?.CdtDtTm, creditTransfer.SttlmTmIndctn?.DbtDtTm),
             MT20: {
@@ -168,11 +174,11 @@ isolated function transformPacs009ToMt202(pacsIsoRecord:Pacs009Document document
                     number: NUMBER1
                 },
                 Ccy: {
-                    content: getMandatoryField(creditTransfer.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.Ccy),
+                    content: getMandatoryField(creditTransfer.IntrBkSttlmAmt.Ccy),
                     number: NUMBER2
                 },
                 Amnt: {
-                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.ActiveCurrencyAndAmount_SimpleType),
+                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.content),
                     number: NUMBER2
                 }
             },
@@ -195,9 +201,9 @@ isolated function transformPacs009ToMt202(pacsIsoRecord:Pacs009Document document
         }
 };
 
-isolated function transformPacs009ToMt202COV(pacsIsoRecord:Pacs009Document document, string messageType) returns swiftmt:MT202COVMessage|error => let
-    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = document.FICdtTrf.CdtTrfTxInf[0],
-    pacsIsoRecord:SettlementInstruction15 settlementInfo = document.FICdtTrf.GrpHdr.SttlmInf,
+isolated function transformPacs009ToMt202COV(pacsIsoRecord:Pacs009Envelope envelope, string messageType) returns swiftmt:MT202COVMessage|error => let
+    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = envelope.Document.FICdtTrf.CdtTrfTxInf[0],
+    pacsIsoRecord:SettlementInstruction15 settlementInfo = envelope.Document.FICdtTrf.GrpHdr.SttlmInf,
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getField52(creditTransfer.Dbtr?.FinInstnId, creditTransfer.DbtrAcct?.Id),
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(settlementInfo.InstgRmbrsmntAgt?.FinInstnId, settlementInfo.InstgRmbrsmntAgtAcct?.Id, true),
     swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? field54 = getField54(settlementInfo.InstdRmbrsmntAgt?.FinInstnId, settlementInfo.InstdRmbrsmntAgtAcct?.Id, true),
@@ -205,16 +211,18 @@ isolated function transformPacs009ToMt202COV(pacsIsoRecord:Pacs009Document docum
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.CdtrAgt?.FinInstnId, creditTransfer.CdtrAgtAcct?.Id, true),
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI)
+            applicationId: "F",
+            serviceId: "01",
+            logicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR, VALIDATION_FLAG_COV),
+        block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR, VALIDATION_FLAG_COV),
         block4: {
             MT13C: getFieldMt13C(creditTransfer.SttlmTmReq?.CLSTm, creditTransfer.SttlmTmIndctn?.CdtDtTm, creditTransfer.SttlmTmIndctn?.DbtDtTm),
             MT20: {
@@ -238,11 +246,11 @@ isolated function transformPacs009ToMt202COV(pacsIsoRecord:Pacs009Document docum
                     number: NUMBER1
                 },
                 Ccy: {
-                    content: getMandatoryField(creditTransfer.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.Ccy),
+                    content: getMandatoryField(creditTransfer.IntrBkSttlmAmt.Ccy),
                     number: NUMBER2
                 },
                 Amnt: {
-                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.ActiveCurrencyAndAmount_SimpleType),
+                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.content),
                     number: NUMBER2
                 }
             },
@@ -292,25 +300,27 @@ isolated function getUnderlyingCustomerTransaction(pacsIsoRecord:CreditTransferT
     };
 }
 
-isolated function transformPacs009ToMt203(pacsIsoRecord:Pacs009Document document, string messageType) returns swiftmt:MT203Message|error => let
-    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = document.FICdtTrf.CdtTrfTxInf[0],
-    pacsIsoRecord:SettlementInstruction15 settlementInfo = document.FICdtTrf.GrpHdr.SttlmInf,
+isolated function transformPacs009ToMt203(pacsIsoRecord:Pacs009Envelope envelope, string messageType) returns swiftmt:MT203Message|error => let
+    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = envelope.Document.FICdtTrf.CdtTrfTxInf[0],
+    pacsIsoRecord:SettlementInstruction15 settlementInfo = envelope.Document.FICdtTrf.GrpHdr.SttlmInf,
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getField52(creditTransfer.Dbtr?.FinInstnId, creditTransfer.DbtrAcct?.Id),
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(settlementInfo.InstgRmbrsmntAgt?.FinInstnId, settlementInfo.InstgRmbrsmntAgtAcct?.Id, true),
     swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? field54 = getField54(settlementInfo.InstdRmbrsmntAgt?.FinInstnId, settlementInfo.InstdRmbrsmntAgtAcct?.Id, true) in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI)
+            applicationId: "F",
+            serviceId: "01",
+            logicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
+        block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
-            MT19: {name: MT19_NAME, Amnt: {content: check convertToString(document.FICdtTrf.GrpHdr.CtrlSum), number: NUMBER1}},
+            MT19: {name: MT19_NAME, Amnt: {content: check convertToString(envelope.Document.FICdtTrf.GrpHdr.CtrlSum), number: NUMBER1}},
             MT30: {
                 name: MT30_NAME,
                 Dt: {content: convertToSWIFTStandardDate(creditTransfer.IntrBkSttlmDt), number: NUMBER1}
@@ -322,8 +332,8 @@ isolated function transformPacs009ToMt203(pacsIsoRecord:Pacs009Document document
             MT53D: field53 is swiftmt:MT53D ? field53 : (),
             MT54A: field54 is swiftmt:MT54A ? field54 : (),
             MT54B: field54 is swiftmt:MT54B ? field54 : (),
-            MT72: getRepeatingField72(document.FICdtTrf.CdtTrfTxInf),
-            Transaction: check getMT203Transaction(document.FICdtTrf.CdtTrfTxInf)
+            MT72: getRepeatingField72(envelope.Document.FICdtTrf.CdtTrfTxInf),
+            Transaction: check getMT203Transaction(envelope.Document.FICdtTrf.CdtTrfTxInf)
         }
     };
 
@@ -345,11 +355,11 @@ isolated function getMT203Transaction(pacsIsoRecord:CreditTransferTransaction62[
             MT32B: {
                 name: MT32B_NAME,
                 Ccy: {
-                    content: transaxion.IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType?.Ccy,
+                    content: transaxion.IntrBkSttlmAmt?.Ccy,
                     number: NUMBER1
                 },
                 Amnt: {
-                    content: check convertToString(transaxion.IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType?.ActiveCurrencyAndAmount_SimpleType),
+                    content: check convertToString(transaxion.IntrBkSttlmAmt?.content),
                     number: NUMBER2
                 }
             },
@@ -366,25 +376,27 @@ isolated function getMT203Transaction(pacsIsoRecord:CreditTransferTransaction62[
     return transactionArray;
 }
 
-isolated function transformPacs009ToMt205(pacsIsoRecord:Pacs009Document document, string messageType) returns swiftmt:MT205Message|error => let
-    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = document.FICdtTrf.CdtTrfTxInf[0],
-    pacsIsoRecord:SettlementInstruction15 settlementInfo = document.FICdtTrf.GrpHdr.SttlmInf,
+isolated function transformPacs009ToMt205(pacsIsoRecord:Pacs009Envelope envelope, string messageType) returns swiftmt:MT205Message|error => let
+    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = envelope.Document.FICdtTrf.CdtTrfTxInf[0],
+    pacsIsoRecord:SettlementInstruction15 settlementInfo = envelope.Document.FICdtTrf.GrpHdr.SttlmInf,
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getField52(creditTransfer.Dbtr?.FinInstnId, creditTransfer.DbtrAcct?.Id),
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(settlementInfo.InstgRmbrsmntAgt?.FinInstnId, settlementInfo.InstgRmbrsmntAgtAcct?.Id, true),
     swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(creditTransfer.IntrmyAgt1?.FinInstnId, creditTransfer.IntrmyAgt1Acct?.Id),
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.CdtrAgt?.FinInstnId, creditTransfer.CdtrAgtAcct?.Id, true),
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI)
+            applicationId: "F",
+            serviceId: "01",
+            logicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
+        block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
             MT13C: getFieldMt13C(creditTransfer.SttlmTmReq?.CLSTm, creditTransfer.SttlmTmIndctn?.CdtDtTm, creditTransfer.SttlmTmIndctn?.DbtDtTm),
             MT20: {
@@ -408,11 +420,11 @@ isolated function transformPacs009ToMt205(pacsIsoRecord:Pacs009Document document
                     number: NUMBER1
                 },
                 Ccy: {
-                    content: getMandatoryField(creditTransfer.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.Ccy),
+                    content: getMandatoryField(creditTransfer.IntrBkSttlmAmt.Ccy),
                     number: NUMBER2
                 },
                 Amnt: {
-                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.ActiveCurrencyAndAmount_SimpleType),
+                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.content),
                     number: NUMBER2
                 }
             },
@@ -431,25 +443,27 @@ isolated function transformPacs009ToMt205(pacsIsoRecord:Pacs009Document document
         }
 };
 
-isolated function transformPacs009ToMt205COV(pacsIsoRecord:Pacs009Document document, string messageType) returns swiftmt:MT205COVMessage|error => let
-    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = document.FICdtTrf.CdtTrfTxInf[0],
-    pacsIsoRecord:SettlementInstruction15 settlementInfo = document.FICdtTrf.GrpHdr.SttlmInf,
+isolated function transformPacs009ToMt205COV(pacsIsoRecord:Pacs009Envelope envelope, string messageType) returns swiftmt:MT205COVMessage|error => let
+    pacsIsoRecord:CreditTransferTransaction62 creditTransfer = envelope.Document.FICdtTrf.CdtTrfTxInf[0],
+    pacsIsoRecord:SettlementInstruction15 settlementInfo = envelope.Document.FICdtTrf.GrpHdr.SttlmInf,
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getField52(creditTransfer.Dbtr?.FinInstnId, creditTransfer.DbtrAcct?.Id),
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(settlementInfo.InstgRmbrsmntAgt?.FinInstnId, settlementInfo.InstgRmbrsmntAgtAcct?.Id, true),
     swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(creditTransfer.IntrmyAgt1?.FinInstnId, creditTransfer.IntrmyAgt1Acct?.Id),
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.CdtrAgt?.FinInstnId, creditTransfer.CdtrAgtAcct?.Id, true),
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI)
+            applicationId: "F",
+            serviceId: "01",
+            logicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.FICdtTrf.GrpHdr.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR, VALIDATION_FLAG_COV),
+        block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR, VALIDATION_FLAG_COV),
         block4: {
             MT13C: getFieldMt13C(creditTransfer.SttlmTmReq?.CLSTm, creditTransfer.SttlmTmIndctn?.CdtDtTm, creditTransfer.SttlmTmIndctn?.DbtDtTm),
             MT20: {
@@ -473,11 +487,11 @@ isolated function transformPacs009ToMt205COV(pacsIsoRecord:Pacs009Document docum
                     number: NUMBER1
                 },
                 Ccy: {
-                    content: getMandatoryField(creditTransfer.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.Ccy),
+                    content: getMandatoryField(creditTransfer.IntrBkSttlmAmt.Ccy),
                     number: NUMBER2
                 },
                 Amnt: {
-                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.ActiveCurrencyAndAmount_SimpleType.ActiveCurrencyAndAmount_SimpleType),
+                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.content),
                     number: NUMBER2
                 }
             },

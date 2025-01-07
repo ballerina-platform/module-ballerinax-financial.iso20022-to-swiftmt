@@ -17,24 +17,30 @@
 import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
-isolated function transformCamt057ToMt210(camtIsoRecord:Camt057Document document, string messageType) returns swiftmt:MT210Message|error => let
-    camtIsoRecord:NotificationItem9 notificationItem = document.NtfctnToRcv.Ntfctn.Itm[0],
+isolated function transformCamt057ToMt210(camtIsoRecord:Camt057Envelope envelope, string messageType) returns swiftmt:MT210Message|error => let
+    camtIsoRecord:NotificationItem9 notificationItem = envelope.Document.NtfctnToRcv.Ntfctn.Itm[0],
     swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? field50 = getField50Or50COr50L(notificationItem.Dbtr?.Pty),
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getField52(notificationItem.DbtrAgt?.FinInstnId),
     swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(notificationItem.IntrmyAgt?.FinInstnId),
     swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getField50a(notificationItem.Dbtr?.Pty)
     in {
+        block1: {
+            applicationId:"F",
+            serviceId: "01",
+            logicalTerminal: envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI
+        },
         block2: {
             'type: "output",
             messageType: messageType,
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.NtfctnToRcv.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.NtfctnToRcv.GrpHdr.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI,
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.NtfctnToRcv.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.NtfctnToRcv.GrpHdr.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.NtfctnToRcv.Ntfctn.Itm[0].UETR),
+        block3: createMtBlock3(envelope.Document.NtfctnToRcv.Ntfctn.Itm[0].UETR),
         block4: {
             MT20: {
                 name: MT20_NAME,
-                msgId: {content: document.NtfctnToRcv.Ntfctn.Id, number: NUMBER1}
+                msgId: {content: envelope.Document.NtfctnToRcv.Ntfctn.Id, number: NUMBER1}
             },
             MT21: {
                 name: MT21_NAME,
@@ -42,8 +48,8 @@ isolated function transformCamt057ToMt210(camtIsoRecord:Camt057Document document
             },
             MT32B: {
                 name: MT32B_NAME,
-                Ccy: {content: notificationItem.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.Ccy, number: NUMBER1},
-                Amnt: {content: check convertToString(notificationItem.Amt.ActiveOrHistoricCurrencyAndAmount_SimpleType.ActiveOrHistoricCurrencyAndAmount_SimpleType), number: NUMBER2}
+                Ccy: {content: notificationItem.Amt.Ccy, number: NUMBER1},
+                Amnt: {content: check convertToString(notificationItem.Amt.content), number: NUMBER2}
             },
             MT30: {
                 name: MT30_NAME,
