@@ -19,27 +19,29 @@ import ballerinax/financial.swift.mt as swiftmt;
 
 # This function transforms a camt.028 ISO 20022 message into an MTn96 SWIFT format message.
 #
-# + document - The camt.028 message to be transformed, in `camtIsoRecord:Camt028Document` format.
+# + envelope - The camt.028 envelope containing the corresponding document to be transformed.
 # + messageType - The SWIFT MTn96 message type to be transformed.
 # + return - Returns an MTn96 message in the `swiftmt:MTn96Message` format if successful, otherwise returns an error.
-isolated function transformCamt028ToMtn96(camtIsoRecord:Camt028Document document, string messageType) returns swiftmt:MTn96Message|error => {
+isolated function transformCamt028ToMtn96(camtIsoRecord:Camt028Envelope envelope, string messageType) returns swiftmt:MTn96Message|error => {
     block1: {
-        logicalTerminal: getSenderOrReceiver(document.AddtlPmtInf.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI)
+        applicationId: "F",
+        serviceId: "01",
+        logicalTerminal: getSenderOrReceiver(envelope.Document.AddtlPmtInf.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
     },
     block2: {
         'type: "output",
         messageType: messageType,
-        MIRLogicalTerminal: getSenderOrReceiver(document.AddtlPmtInf.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI),
-        senderInputTime: {content: check convertToSwiftTimeFormat(document.AddtlPmtInf.Assgnmt.CreDtTm.substring(11))},
-        MIRDate: {content: convertToSWIFTStandardDate(document.AddtlPmtInf.Assgnmt.CreDtTm.substring(0, 10))}
+        MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.AddtlPmtInf.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.AddtlPmtInf.Assgnmt.CreDtTm.substring(11))},
+        MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.AddtlPmtInf.Assgnmt.CreDtTm.substring(0, 10))}
     },
-    block3: createMtBlock3(document.AddtlPmtInf.Undrlyg.Initn?.OrgnlUETR),
+    block3: createMtBlock3(envelope.Document.AddtlPmtInf.Undrlyg.Initn?.OrgnlUETR),
     block4: {
-        MT20: check getMT20(document.AddtlPmtInf.Case?.Id),
+        MT20: check getMT20(envelope.Document.AddtlPmtInf.Case?.Id),
         MT21: {
             name: MT21_NAME,
             Ref: {
-                content: document.AddtlPmtInf.Undrlyg?.Initn?.OrgnlInstrId ?: "",
+                content: envelope.Document.AddtlPmtInf.Undrlyg?.Initn?.OrgnlInstrId ?: "",
                 number: NUMBER1
             }
         },
@@ -49,23 +51,23 @@ isolated function transformCamt028ToMtn96(camtIsoRecord:Camt028Document document
                 content: "028", // TODO - Implement the correct mapping for this field
                 number: NUMBER1
             },
-            Dt: check convertISODateStringToSwiftMtDate(document.AddtlPmtInf.Assgnmt.CreDtTm.toString())
+            Dt: check convertISODateStringToSwiftMtDate(envelope.Document.AddtlPmtInf.Assgnmt.CreDtTm.toString())
         }
 ,
         MT76: {
             name: MT76_NAME,
             Nrtv: {
-                content: extractNarrativeFromSupplementaryData(document.AddtlPmtInf.SplmtryData),
+                content: extractNarrativeFromSupplementaryData(envelope.Document.AddtlPmtInf.SplmtryData),
                 number: NUMBER1
             }
         },
-        MT79: document.AddtlPmtInf.SplmtryData is camtIsoRecord:SupplementaryData1[] ? {
+        MT79: envelope.Document.AddtlPmtInf.SplmtryData is camtIsoRecord:SupplementaryData1[] ? {
                 name: MT79_NAME,
-                Nrtv: getAdditionalNarrativeInfo(document.AddtlPmtInf.SplmtryData)
+                Nrtv: getAdditionalNarrativeInfo(envelope.Document.AddtlPmtInf.SplmtryData)
             } : (),
         MessageCopy: () // TODO - Need to add the relavent field mapping for this using the official mappings
     },
-    block5: check generateMtBlock5FromSupplementaryData(document.AddtlPmtInf.SplmtryData),
+    block5: check generateMtBlock5FromSupplementaryData(envelope.Document.AddtlPmtInf.SplmtryData),
     unparsedTexts: ()
 
 };

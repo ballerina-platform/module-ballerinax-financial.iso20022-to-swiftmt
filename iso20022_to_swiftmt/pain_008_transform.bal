@@ -19,39 +19,41 @@ import ballerinax/financial.swift.mt as swiftmt;
 
 # generate the MT104 message from the Pain008 document
 #
-# + document - The Pain008 document
+# + envelope - The Pain008 envelope containing the corresponding document to be transformed.
 # + messageType - The SWIFT message type
 # + return - The MT104 message or an error if the transformation fails
-function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document, string messageType) returns swiftmt:MT104Message|error => let
-    swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT104InstructionPartyFromPain008Document(document),
-    swiftmt:MT50A?|swiftmt:MT50K? creditor = getMT104CreditorFromPain008Document(document),
-    swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? creditorsBank = getMT104CreditorsBankFromPain008Document(document),
-    swiftmt:MT53A?|swiftmt:MT53B? sendersCorrespondent = getMT104SendersCorrespondentFromPain008Document(document),
-    swiftmt:MT104Transaction[] transactions = check generateMT104Transactions(document.CstmrDrctDbtInitn.PmtInf, instructingParty, creditor, creditorsBank)
+function transformPain008DocumentToMT104(painIsoRecord:Pain008Envelope envelope, string messageType) returns swiftmt:MT104Message|error => let
+    swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT104InstructionPartyFromPain008Document(envelope.Document),
+    swiftmt:MT50A?|swiftmt:MT50K? creditor = getMT104CreditorFromPain008Document(envelope.Document),
+    swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? creditorsBank = getMT104CreditorsBankFromPain008Document(envelope.Document),
+    swiftmt:MT53A?|swiftmt:MT53B? sendersCorrespondent = getMT104SendersCorrespondentFromPain008Document(envelope.Document),
+    swiftmt:MT104Transaction[] transactions = check generateMT104Transactions(envelope.Document.CstmrDrctDbtInitn.PmtInf, instructingParty, creditor, creditorsBank)
     in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(())
+            applicationId: "F",
+            serviceId: "01",
+            logicalTerminal: envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(()),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.CstmrDrctDbtInitn.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.CstmrDrctDbtInitn.GrpHdr.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI,
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.CstmrDrctDbtInitn.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.CstmrDrctDbtInitn.GrpHdr.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId?.UETR),
+        block3: createMtBlock3(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
             MT19: {
                 name: MT19_NAME,
                 Amnt: {
-                    content: document.CstmrDrctDbtInitn.GrpHdr.CtrlSum.toString(),
+                    content: envelope.Document.CstmrDrctDbtInitn.GrpHdr.CtrlSum.toString(),
                     number: NUMBER1
                 }
             },
             MT20: {
                 name: MT20_NAME,
                 msgId: {
-                    content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId.InstrId),
+                    content: getEmptyStrIfNull(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId.InstrId),
                     number: NUMBER1
                 }
             },
@@ -65,29 +67,29 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document,
             MT23E: {
                 name: MT23E_NAME,
                 InstrnCd: {
-                    content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.PmtInf[0].PmtTpInf?.CtgyPurp?.Cd),
+                    content: getEmptyStrIfNull(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].PmtTpInf?.CtgyPurp?.Cd),
                     number: NUMBER1
                 }
             },
             MT21E: {
                 name: MT21E_NAME,
                 Ref: {
-                    content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.GrpHdr.MsgId),
+                    content: getEmptyStrIfNull(envelope.Document.CstmrDrctDbtInitn.GrpHdr.MsgId),
                     number: NUMBER1
                 }
             },
             MT30: {
                 name: MT30_NAME,
-                Dt: check convertISODateStringToSwiftMtDate(document.CstmrDrctDbtInitn.PmtInf[0].ReqdColltnDt, NUMBER1)
+                Dt: check convertISODateStringToSwiftMtDate(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].ReqdColltnDt, NUMBER1)
             },
             MT51A: {
                 name: MT51A_NAME,
                 IdnCd: {
-                    content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.GrpHdr.FwdgAgt?.FinInstnId?.BICFI),
+                    content: getEmptyStrIfNull(envelope.Document.CstmrDrctDbtInitn.GrpHdr.FwdgAgt?.FinInstnId?.BICFI),
                     number: NUMBER1
                 },
                 PrtyIdn: {
-                    content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.GrpHdr.FwdgAgt?.FinInstnId?.LEI),
+                    content: getEmptyStrIfNull(envelope.Document.CstmrDrctDbtInitn.GrpHdr.FwdgAgt?.FinInstnId?.LEI),
                     number: NUMBER2
                 }
             },
@@ -100,7 +102,7 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document,
             MT52D: creditorsBank is swiftmt:MT52D ? creditorsBank : (),
             MT26T: {
                 name: MT26T_NAME,
-                Typ: {content: getEmptyStrIfNull(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].Purp?.Cd), number: NUMBER1}
+                Typ: {content: getEmptyStrIfNull(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].Purp?.Cd), number: NUMBER1}
             },
             MT77B: {
                 name: MT77B_NAME,
@@ -108,7 +110,7 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document,
             },
             MT71A: {
                 name: MT71A_NAME,
-                Cd: getDetailsOfChargesFromChargeBearerType1Code(document.CstmrDrctDbtInitn.PmtInf[0].ChrgBr)
+                Cd: getDetailsOfChargesFromChargeBearerType1Code(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].ChrgBr)
             },
             MT72: {
                 name: MT72_NAME,
@@ -116,8 +118,8 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document,
             },
             MT32B: {
                 name: MT32B_NAME,
-                Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: NUMBER1},
-                Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: NUMBER2}
+                Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: NUMBER1},
+                Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: NUMBER2}
             },
             MT71F: {
                 name: MT71F_NAME,
@@ -133,10 +135,10 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Document document,
             MT53B: sendersCorrespondent is swiftmt:MT53B ? sendersCorrespondent : (),
             Transaction: transactions
         },
-        block5: check generateMtBlock5FromSupplementaryData(document.CstmrDrctDbtInitn.SplmtryData)
+        block5: check generateMtBlock5FromSupplementaryData(envelope.Document.CstmrDrctDbtInitn.SplmtryData)
     };
 
-# generate the MT104 transactions from the Pain008 document
+# generate the MT104 transactions from the Pain008 envelope.Document
 #
 # + mxTransactions - The Pain008 transactions
 # + instrutingParty - The instructing party

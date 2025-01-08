@@ -17,25 +17,27 @@
 import ballerinax/financial.iso20022.payments_clearing_and_settlement as pacsIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
-isolated function transformPacs010ToMt204(pacsIsoRecord:Pacs010Document document, string messageType) returns swiftmt:MT204Message|error => let
-    pacsIsoRecord:CreditTransferTransaction66 debitTransfer = document.FIDrctDbt.CdtInstr[0],
+isolated function transformPacs010ToMt204(pacsIsoRecord:Pacs010Envelope envelope, string messageType) returns swiftmt:MT204Message|error => let
+    pacsIsoRecord:CreditTransferTransaction66 debitTransfer = envelope.Document.FIDrctDbt.CdtInstr[0],
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(debitTransfer.CdtrAgt?.FinInstnId, debitTransfer.CdtrAgtAcct?.Id, true),
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(debitTransfer.Cdtr?.FinInstnId, debitTransfer.CdtrAcct?.Id) in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(document.FIDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI)
+            applicationId: "F",
+            serviceId: "01",
+            logicalTerminal: getSenderOrReceiver(envelope.Document.FIDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(document.FIDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.FIDrctDbt.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.FIDrctDbt.GrpHdr.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.FIDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.FIDrctDbt.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.FIDrctDbt.GrpHdr.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.FIDrctDbt.CdtInstr[0].DrctDbtTxInf[0].PmtId?.UETR),
+        block3: createMtBlock3(envelope.Document.FIDrctDbt.CdtInstr[0].DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
             MT19: {
                 name: MT19_NAME,
-                Amnt: {content: check convertToString(document.FIDrctDbt.GrpHdr.CtrlSum), number: NUMBER1}
+                Amnt: {content: check convertToString(envelope.Document.FIDrctDbt.GrpHdr.CtrlSum), number: NUMBER1}
             },
             MT20: {
                 name: MT20_NAME,
@@ -70,11 +72,11 @@ isolated function getMT204Transaction(pacsIsoRecord:DirectDebitTransactionInform
             MT32B: {
                 name: MT32B_NAME,
                 Ccy: {
-                    content: transaxion.IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType?.Ccy,
+                    content: transaxion.IntrBkSttlmAmt?.Ccy,
                     number: NUMBER1
                 },
                 Amnt: {
-                    content: check convertToString(transaxion.IntrBkSttlmAmt?.ActiveCurrencyAndAmount_SimpleType?.ActiveCurrencyAndAmount_SimpleType),
+                    content: check convertToString(transaxion.IntrBkSttlmAmt?.content),
                     number: NUMBER2
                 }
             },

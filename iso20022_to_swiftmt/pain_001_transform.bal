@@ -19,29 +19,31 @@ import ballerinax/financial.swift.mt as swiftmt;
 
 # generate the MT101 message from the Pain001 document
 #
-# + document - The Pain001 document
+# + envelope - The Pain001 envelope containing the corresponding document to be transformed.
 # + messageType - The SWIFT message type
 # + return - The MT101 message or an error if the transformation fails
-isolated function transformPain001DocumentToMT101(painIsoRecord:Pain001Document document, string messageType) returns swiftmt:MT101Message|error => let 
-    swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getField50Or50COr50L(document.CstmrCdtTrfInitn.GrpHdr.InitgPty),
-    swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getMT101OrderingCustomerFromPain001Document(document.CstmrCdtTrfInitn.PmtInf),
-    swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getMT101AccountServicingInstitutionFromPain001Document(document.CstmrCdtTrfInitn.PmtInf) in {
+isolated function transformPain001DocumentToMT101(painIsoRecord:Pain001Envelope envelope, string messageType) returns swiftmt:MT101Message|error => let 
+    swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getField50Or50COr50L(envelope.Document.CstmrCdtTrfInitn.GrpHdr.InitgPty),
+    swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getMT101OrderingCustomerFromPain001Document(envelope.Document.CstmrCdtTrfInitn.PmtInf),
+    swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getMT101AccountServicingInstitutionFromPain001Document(envelope.Document.CstmrCdtTrfInitn.PmtInf) in {
         block1: {
-            logicalTerminal: getSenderOrReceiver(())
+            applicationId: "F",
+            serviceId: "01",
+            logicalTerminal: envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI
         },
         block2: {
             'type: "output",
             messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(()),
-            senderInputTime: {content: check convertToSwiftTimeFormat(document.CstmrCdtTrfInitn.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(document.CstmrCdtTrfInitn.GrpHdr.CreDtTm.substring(0, 10))}
+            MIRLogicalTerminal: envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI,
+            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.CstmrCdtTrfInitn.GrpHdr.CreDtTm.substring(11))},
+            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.CstmrCdtTrfInitn.GrpHdr.CreDtTm.substring(0, 10))}
         },
-        block3: createMtBlock3(document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId?.UETR),
+        block3: createMtBlock3(envelope.Document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
             MT20: {
                 name: MT20_NAME,
                 msgId: {
-                    content: ((document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId != ()) ? document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId.toString() : ""),
+                    content: ((envelope.Document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId != ()) ? envelope.Document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId.toString() : ""),
                     number: NUMBER1
                 }
             },
@@ -58,19 +60,19 @@ isolated function transformPain001DocumentToMT101(painIsoRecord:Pain001Document 
             },
             MT30: {
                 name: MT30_NAME,
-                Dt: check convertISODateStringToSwiftMtDate(document.CstmrCdtTrfInitn.PmtInf[0].ReqdExctnDt.Dt.toString(), NUMBER1)
+                Dt: check convertISODateStringToSwiftMtDate(envelope.Document.CstmrCdtTrfInitn.PmtInf[0].ReqdExctnDt.Dt.toString(), NUMBER1)
             },
             MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
             MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
             MT50F: field50a is swiftmt:MT50F ? field50a : (),
             MT50G: field50a is swiftmt:MT50G ? field50a : (),
             MT50H: field50a is swiftmt:MT50H ? field50a : (),
-            MT51A: getField51A(document.CstmrCdtTrfInitn.GrpHdr.FwdgAgt?.FinInstnId),
+            MT51A: getField51A(envelope.Document.CstmrCdtTrfInitn.GrpHdr.FwdgAgt?.FinInstnId),
             MT52A: field52 is swiftmt:MT52A ? field52 : (),
             MT52C: field52 is swiftmt:MT52C ? field52 : (),
-            Transaction: check generateMT101Transactions(document.CstmrCdtTrfInitn.PmtInf, instructingParty)
+            Transaction: check generateMT101Transactions(envelope.Document.CstmrCdtTrfInitn.PmtInf, instructingParty)
         },
-        block5: check generateMtBlock5FromSupplementaryData(document.CstmrCdtTrfInitn.SplmtryData)
+        block5: check generateMtBlock5FromSupplementaryData(envelope.Document.CstmrCdtTrfInitn.SplmtryData)
     };
 
 # generate the Transactions of the MT101 message
