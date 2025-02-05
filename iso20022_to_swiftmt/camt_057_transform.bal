@@ -25,7 +25,7 @@ isolated function transformCamt057ToMt210(camtIsoRecord:Camt057Envelope envelope
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
-            envelope.Document.NtfctnToRcv.GrpHdr.CreDtTm),
+                envelope.Document.NtfctnToRcv.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.NtfctnToRcv.Ntfctn.Itm[0].UETR),
         block4: {
             MT20: {

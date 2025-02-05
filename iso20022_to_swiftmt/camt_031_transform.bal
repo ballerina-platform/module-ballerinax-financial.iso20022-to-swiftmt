@@ -24,9 +24,9 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + return - Returns an MTn96 message in the `swiftmt:MTn96Message` format if successful, otherwise returns an error.
 isolated function transformCamt031ToMtn96(camtIsoRecord:Camt031Envelope envelope, string messageType) returns swiftmt:MTn96Message|error => {
     block1: generateBlock1(getSenderOrReceiver(envelope.Document.RjctInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
-        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+                    envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
     block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.RjctInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
-        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.RjctInvstgtn.Assgnmt.CreDtTm),
+                    envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.RjctInvstgtn.Assgnmt.CreDtTm),
     block4:
         {
         MT20: check getMT20(envelope.Document.RjctInvstgtn.Case?.Id),

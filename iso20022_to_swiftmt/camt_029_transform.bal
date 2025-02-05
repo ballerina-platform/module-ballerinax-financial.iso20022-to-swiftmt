@@ -29,9 +29,9 @@ isolated function transformCamt029ToMtn96(camtIsoRecord:Camt029Envelope envelope
     var field77A = getCamtField77A(status, envelope.Document.RsltnOfInvstgtn)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+                        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgnr.Agt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.RsltnOfInvstgtn.Assgnmt.CreDtTm),
+                        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.RsltnOfInvstgtn.Assgnmt.CreDtTm),
         block3: createMtBlock3(cancellationDtls.OrgnlUETR),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getField20Content(cancellationDtls.CxlStsId), number: NUMBER1}},

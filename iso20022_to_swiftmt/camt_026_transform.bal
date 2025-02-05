@@ -26,9 +26,9 @@ isolated function transformCamt026ToMtn95(camtIsoRecord:Camt026Envelope envelope
     camtIsoRecord:SupplementaryData1[]? splmtryData = envelope.Document.UblToApply.SplmtryData
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+                        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.UblToApply.Assgnmt.CreDtTm),
+                        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.UblToApply.Assgnmt.CreDtTm),
         block3: createMtBlock3(envelope.Document.UblToApply.Undrlyg.Initn?.OrgnlUETR),
         block4: {
             MT20: check getMT20(envelope.Document.UblToApply.Case?.Id),

@@ -25,9 +25,9 @@ import ballerinax/financial.swift.mt as swiftmt;
 isolated function transformCamt055ToMtn92(camtIsoRecord:Camt055Envelope envelope, string messageType) returns swiftmt:MTn92Message|error => let
     camtIsoRecord:UnderlyingTransaction33 undrlygTransaction = envelope.Document.CstmrPmtCxlReq.Undrlyg[0] in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+                        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.CstmrPmtCxlReq.Assgnmt.CreDtTm),
+                        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.CstmrPmtCxlReq.Assgnmt.CreDtTm),
         block4: {
             MT20: {
                 name: MT20_NAME,
