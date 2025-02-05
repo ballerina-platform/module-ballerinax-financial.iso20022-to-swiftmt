@@ -24,27 +24,22 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + return - Returns an MTn96 message in the `swiftmt:MTn96Message` format if successful, otherwise returns an error.
 isolated function transformCamt029ToMtn96(camtIsoRecord:Camt029Envelope envelope, string messageType) returns swiftmt:MTn96Message|error => let
     camtIsoRecord:PaymentTransaction152 cancellationDtls = check getTransactionInfoAndSts(check getCancellationDetails(envelope.Document.RsltnOfInvstgtn.CxlDtls)),
-    var [field76, field77A] = getField76(cancellationDtls.CxlStsRsnInf, envelope.Document.RsltnOfInvstgtn.Sts.Conf) in {
-        block1: {
-            applicationId:"F",
-            serviceId: "01",
-            logicalTerminal: getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
-        },
-        block2: {
-            'type: "output",
-            messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.RsltnOfInvstgtn.Assgnmt.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.RsltnOfInvstgtn.Assgnmt.CreDtTm.substring(0, 10))}
-        },
+    string status = generateStatus(envelope.Document.RsltnOfInvstgtn),
+    var field76 = getCamtField76(status),
+    var field77A = getCamtField77A(status, envelope.Document.RsltnOfInvstgtn)
+    in {
+        block1: generateBlock1(getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
+            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgnr.Agt?.FinInstnId?.BICFI,
+            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.RsltnOfInvstgtn.Assgnmt.CreDtTm),
         block3: createMtBlock3(cancellationDtls.OrgnlUETR),
         block4: {
-            MT20: {name: MT20_NAME, msgId: {content: getMandatoryField(cancellationDtls.CxlStsId), number: NUMBER1}},
-            MT21: {name: MT21_NAME, Ref: {content: getMandatoryField(cancellationDtls.RslvdCase?.Id), number: NUMBER1}},
+            MT20: {name: MT20_NAME, msgId: {content: getField20Content(cancellationDtls.CxlStsId), number: NUMBER1}},
+            MT21: {name: MT21_NAME, Ref: {content: getField21Content(cancellationDtls.RslvdCase?.Id), number: NUMBER1}},
             MT11R: {
                 name: MT11R_NAME,
                 Dt: {content: convertToSWIFTStandardDate(cancellationDtls.OrgnlGrpInf?.OrgnlCreDtTm), number: NUMBER2},
-                MtNum: {content: getMandatoryField(cancellationDtls.OrgnlGrpInf?.OrgnlMsgNmId), number: NUMBER1}
+                MtNum: {content: getCamt029MtNumber(getMandatoryField(cancellationDtls.OrgnlGrpInf?.OrgnlMsgNmId)), number: NUMBER1}
             },
             MT76: field76,
             MT77A: field77A

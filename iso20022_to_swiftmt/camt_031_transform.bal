@@ -23,25 +23,17 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + messageType - The SWIFT MTn96 message type to be transformed.
 # + return - Returns an MTn96 message in the `swiftmt:MTn96Message` format if successful, otherwise returns an error.
 isolated function transformCamt031ToMtn96(camtIsoRecord:Camt031Envelope envelope, string messageType) returns swiftmt:MTn96Message|error => {
-    block1: {
-        applicationId:"F",
-        serviceId: "01",
-        logicalTerminal: getSenderOrReceiver(envelope.Document.RjctInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
-    },
-    block2: {
-        'type: "output",
-        messageType: messageType,
-        MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.RjctInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
-        senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.RjctInvstgtn.Assgnmt.CreDtTm.substring(11))},
-        MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.RjctInvstgtn.Assgnmt.CreDtTm.substring(0, 10))}
-    },
+    block1: generateBlock1(getSenderOrReceiver(envelope.Document.RjctInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
+        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+    block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.RjctInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
+        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.RjctInvstgtn.Assgnmt.CreDtTm),
     block4:
         {
         MT20: check getMT20(envelope.Document.RjctInvstgtn.Case?.Id),
         MT21: {
             name: MT21_NAME,
             Ref: {
-                content: envelope.Document.RjctInvstgtn.Assgnmt.Id,
+                content: getField21Content(envelope.Document.RjctInvstgtn.Assgnmt.Id),
                 number: NUMBER1
             }
         },

@@ -26,24 +26,15 @@ isolated function transformPain001DocumentToMT101(painIsoRecord:Pain001Envelope 
     swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getField50Or50COr50L(envelope.Document.CstmrCdtTrfInitn.GrpHdr.InitgPty),
     swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getMT101OrderingCustomerFromPain001Document(envelope.Document.CstmrCdtTrfInitn.PmtInf),
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getMT101AccountServicingInstitutionFromPain001Document(envelope.Document.CstmrCdtTrfInitn.PmtInf) in {
-        block1: {
-            applicationId: "F",
-            serviceId: "01",
-            logicalTerminal: envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI
-        },
-        block2: {
-            'type: "output",
-            messageType: messageType,
-            MIRLogicalTerminal: envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI,
-            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.CstmrCdtTrfInitn.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.CstmrCdtTrfInitn.GrpHdr.CreDtTm.substring(0, 10))}
-        },
+        block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            envelope.Document.CstmrCdtTrfInitn.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
             MT20: {
                 name: MT20_NAME,
                 msgId: {
-                    content: ((envelope.Document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId != ()) ? envelope.Document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId.toString() : ""),
+                    content: getField20Content(envelope.Document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId.InstrId),
                     number: NUMBER1
                 }
             },
@@ -97,7 +88,7 @@ isolated function generateMT101Transactions(
             MT21: {
                 name: MT21_NAME,
                 Ref: {
-                    content: getEmptyStrIfNull(creditTransferTransaction.PmtId.EndToEndId),
+                    content: getField21Content(creditTransferTransaction.PmtId.EndToEndId),
                     number: NUMBER1
                 }
             },

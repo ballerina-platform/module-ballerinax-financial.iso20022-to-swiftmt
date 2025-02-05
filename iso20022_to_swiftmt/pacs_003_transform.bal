@@ -30,25 +30,17 @@ isolated function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Envelope 
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(dbtTrfTx[0].IntrmyAgt1?.FinInstnId, dbtTrfTx[0].IntrmyAgt1Acct?.Id, isOptionBPresent = true),
     swiftmt:MT104Transaction[] transactions = check generateMT104TransactionsFromPacs003(dbtTrfTx)
     in {
-        block1: {
-            applicationId: "F",
-            serviceId: "01",
-            logicalTerminal: getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
-        },
-        block2: {
-            'type: "output",
-            messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm.substring(0, 10))}
-        },
+        block1: generateBlock1(getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
+            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
             MT19: check getField19(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum),
             MT20: {
                 name: MT20_NAME,
                 msgId: {
-                    content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.MsgId,
+                    content: getField20Content(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.MsgId),
                     number: NUMBER1
                 }
             },
@@ -107,7 +99,7 @@ isolated function generateMT104TransactionsFromPacs003(
         swiftmt:MT21 MT21 = {
             name: MT21_NAME,
             Ref: {
-                content: getMandatoryField(tx.PmtId?.EndToEndId),
+                content: getField21Content(tx.PmtId?.EndToEndId),
                 number: NUMBER1
             }
         };
@@ -187,25 +179,17 @@ isolated function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Envelope 
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(dbtTrfTx[0].IntrmyAgt1?.FinInstnId, dbtTrfTx[0].IntrmyAgt1Acct?.Id, isOptionBPresent = true),
     swiftmt:MT104Transaction[] transactions = check generateMT107TransactionsFromPacs003(dbtTrfTx)
     in {
-        block1: {
-            applicationId: "F",
-            serviceId: "01",
-            logicalTerminal: getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
-        },
-        block2: {
-            'type: "output",
-            messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm.substring(0, 10))}
-        },
+        block1: generateBlock1(getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
+            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
             MT19: check getField19(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum),
             MT20: {
                 name: MT20_NAME,
                 msgId: {
-                    content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.MsgId,
+                    content: getField20Content(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.MsgId),
                     number: NUMBER1
                 }
             },
@@ -266,7 +250,7 @@ isolated function generateMT107TransactionsFromPacs003(
         swiftmt:MT21 MT21 = {
             name: MT21_NAME,
             Ref: {
-                content: getMandatoryField(tx.PmtId?.EndToEndId),
+                content: getField21Content(tx.PmtId?.EndToEndId),
                 number: NUMBER1
             }
         };

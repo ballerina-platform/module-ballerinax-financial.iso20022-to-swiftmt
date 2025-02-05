@@ -21,18 +21,10 @@ isolated function transformPacs010ToMt204(pacsIsoRecord:Pacs010Envelope envelope
     pacsIsoRecord:CreditTransferTransaction66 debitTransfer = envelope.Document.FIDrctDbt.CdtInstr[0],
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(debitTransfer.CdtrAgt?.FinInstnId, debitTransfer.CdtrAgtAcct?.Id, true),
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(debitTransfer.Cdtr?.FinInstnId, debitTransfer.CdtrAcct?.Id) in {
-        block1: {
-            applicationId: "F",
-            serviceId: "01",
-            logicalTerminal: getSenderOrReceiver(envelope.Document.FIDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
-        },
-        block2: {
-            'type: "output",
-            messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.FIDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.FIDrctDbt.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.FIDrctDbt.GrpHdr.CreDtTm.substring(0, 10))}
-        },
+        block1: generateBlock1(getSenderOrReceiver(envelope.Document.FIDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
+            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FIDrctDbt.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FIDrctDbt.CdtInstr[0].DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
             MT19: {
@@ -41,7 +33,7 @@ isolated function transformPacs010ToMt204(pacsIsoRecord:Pacs010Envelope envelope
             },
             MT20: {
                 name: MT20_NAME,
-                msgId: {content: debitTransfer.CdtId, number: NUMBER1}
+                msgId: {content: getField20Content(debitTransfer.CdtId), number: NUMBER1}
             },
             MT30: {
                 name: MT30_NAME,
@@ -64,11 +56,11 @@ isolated function getMT204Transaction(pacsIsoRecord:DirectDebitTransactionInform
             MT20: {
                 name: MT20_NAME,
                 msgId: {
-                    content: getMandatoryField(transaxion.PmtId.InstrId),
+                    content: getField20Content(transaxion.PmtId.InstrId),
                     number: NUMBER1
                 }
             },
-            MT21: {name: MT21_NAME, Ref: {content: transaxion.PmtId.EndToEndId, number: NUMBER1}},
+            MT21: {name: MT21_NAME, Ref: {content: getField21Content(transaxion.PmtId.EndToEndId), number: NUMBER1}},
             MT32B: {
                 name: MT32B_NAME,
                 Ccy: {

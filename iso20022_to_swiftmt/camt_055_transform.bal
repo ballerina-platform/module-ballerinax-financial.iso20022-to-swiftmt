@@ -24,32 +24,24 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + return - Returns an MTn92 message in the `swiftmt:MTn92Message` format if successful, otherwise returns an error.
 isolated function transformCamt055ToMtn92(camtIsoRecord:Camt055Envelope envelope, string messageType) returns swiftmt:MTn92Message|error => let
     camtIsoRecord:UnderlyingTransaction33 undrlygTransaction = envelope.Document.CstmrPmtCxlReq.Undrlyg[0] in {
-        block1: {
-            applicationId:"F",
-            serviceId: "01",
-            logicalTerminal: getSenderOrReceiver(envelope.Document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
-        },
-        block2: {
-            'type: "output",
-            messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.CstmrPmtCxlReq.Assgnmt.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.CstmrPmtCxlReq.Assgnmt.CreDtTm.substring(0, 10))}
-        },
+        block1: generateBlock1(getSenderOrReceiver(envelope.Document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
+            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
+            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.CstmrPmtCxlReq.Assgnmt.CreDtTm),
         block4: {
             MT20: {
                 name: MT20_NAME,
-                msgId: {content: getMandatoryField(undrlygTransaction.OrgnlGrpInfAndCxl?.Case?.Id), number: NUMBER1}
+                msgId: {content: getField20Content(undrlygTransaction.OrgnlGrpInfAndCxl?.Case?.Id), number: NUMBER1}
             },
             MT21: {
                 name: MT21_NAME,
-                Ref: {content: getMandatoryField((check getOrginalPaymentInfo(undrlygTransaction.OrgnlPmtInfAndCxl)).OrgnlPmtInfId), number: NUMBER1}
+                Ref: {content: getField21Content((check getOrginalPaymentInfo(undrlygTransaction.OrgnlPmtInfAndCxl)).OrgnlPmtInfId), number: NUMBER1}
             },
             MT11S: {
                 name: MT11S_NAME,
                 Dt: {content: convertToSWIFTStandardDate(undrlygTransaction.OrgnlGrpInfAndCxl?.OrgnlCreDtTm), number: NUMBER2},
                 MtNum: {content: getOrignalMessageName(undrlygTransaction.OrgnlGrpInfAndCxl?.OrgnlMsgNmId), number: NUMBER1}
             },
-            MT79: getField79((check getOrginalPaymentInfo(undrlygTransaction.OrgnlPmtInfAndCxl)).CxlRsnInf)
+            MT79: getCamt055Field79((check getOrginalPaymentInfo(undrlygTransaction.OrgnlPmtInfAndCxl)).CxlRsnInf)
         }
     };

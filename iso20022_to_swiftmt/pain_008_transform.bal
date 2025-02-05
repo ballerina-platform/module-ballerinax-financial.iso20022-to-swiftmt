@@ -22,25 +22,16 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + envelope - The Pain008 envelope containing the corresponding document to be transformed.
 # + messageType - The SWIFT message type
 # + return - The MT104 message or an error if the transformation fails
-function transformPain008DocumentToMT104(painIsoRecord:Pain008Envelope envelope, string messageType) returns swiftmt:MT104Message|error => let
+isolated function transformPain008DocumentToMT104(painIsoRecord:Pain008Envelope envelope, string messageType) returns swiftmt:MT104Message|error => let
     swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT104InstructionPartyFromPain008Document(envelope.Document),
     swiftmt:MT50A?|swiftmt:MT50K? creditor = getMT104CreditorFromPain008Document(envelope.Document),
     swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? creditorsBank = getMT104CreditorsBankFromPain008Document(envelope.Document),
     swiftmt:MT53A?|swiftmt:MT53B? sendersCorrespondent = getMT104SendersCorrespondentFromPain008Document(envelope.Document),
     swiftmt:MT104Transaction[] transactions = check generateMT104Transactions(envelope.Document.CstmrDrctDbtInitn.PmtInf, instructingParty, creditor, creditorsBank)
     in {
-        block1: {
-            applicationId: "F",
-            serviceId: "01",
-            logicalTerminal: envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI
-        },
-        block2: {
-            'type: "output",
-            messageType: messageType,
-            MIRLogicalTerminal: envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI,
-            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.CstmrDrctDbtInitn.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.CstmrDrctDbtInitn.GrpHdr.CreDtTm.substring(0, 10))}
-        },
+        block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+            envelope.Document.CstmrDrctDbtInitn.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
             MT19: {
