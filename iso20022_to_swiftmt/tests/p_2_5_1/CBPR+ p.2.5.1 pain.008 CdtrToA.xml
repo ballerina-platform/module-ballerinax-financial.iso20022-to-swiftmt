@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+====================================================================================================================================================================
+p.2.5.1Creditor/Initiating Party OP Corporate Bank sends a pain.008 to Creditor Agent Nordea Finland
+========================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
+	<head:AppHdr xmlns:head="urn:iso:std:iso:20022:tech:xsd:head.001.001.02">
+		<head:Fr>
+			<head:FIId>
+				<head:FinInstnId>
+					<head:BICFI>OKOYFIHH</head:BICFI>
+				</head:FinInstnId>
+			</head:FIId>
+		</head:Fr>
+		<head:To>
+			<head:FIId>
+				<head:FinInstnId>
+					<head:BICFI>NDEAFIHH</head:BICFI>
+				</head:FinInstnId>
+			</head:FIId>
+		</head:To>
+		<head:BizMsgIdr>pn008bzmsgidr01</head:BizMsgIdr>
+		<head:MsgDefIdr>pain.008.001.08</head:MsgDefIdr>
+		<head:BizSvc>swift.cbprplus.01</head:BizSvc>
+		<head:CreDt>2022-10-20T09:15:00+02:00</head:CreDt>
+	</head:AppHdr>
+	<pain:Document xmlns:pain="urn:iso:std:iso:20022:tech:xsd:pain.008.001.08">
+		<pain:CstmrDrctDbtInitn>
+			<pain:GrpHdr>
+				<pain:MsgId>pn008bzmsgidr01</pain:MsgId>
+				<pain:CreDtTm>2022-10-20T09:15:00+02:00</pain:CreDtTm>
+				<pain:NbOfTxs>1</pain:NbOfTxs>
+				<pain:InitgPty>
+					<pain:Nm>OP Corporate Bank</pain:Nm>
+					<pain:PstlAdr>
+						<pain:StrtNm>Aleksanterinkatu 19</pain:StrtNm>
+						<pain:TwnNm>Helsinki</pain:TwnNm>
+						<pain:Ctry>FI</pain:Ctry>
+					</pain:PstlAdr>
+				</pain:InitgPty>
+				<pain:FwdgAgt>
+					<pain:FinInstnId>
+						<pain:BICFI>OKOYFIHH</pain:BICFI>
+					</pain:FinInstnId>
+				</pain:FwdgAgt>
+			</pain:GrpHdr>
+			<pain:PmtInf>
+				<pain:PmtInfId>PAYMNTINFID001</pain:PmtInfId>
+				<pain:PmtMtd>DD</pain:PmtMtd>
+				<pain:ReqdColltnDt>2022-10-25</pain:ReqdColltnDt>
+				<pain:Cdtr>
+					<pain:Nm>OP Corporate Bank</pain:Nm>
+					<pain:PstlAdr>
+						<pain:StrtNm>Aleksanterinkatu 19</pain:StrtNm>
+						<pain:TwnNm>Helsinki</pain:TwnNm>
+						<pain:Ctry>FI</pain:Ctry>
+					</pain:PstlAdr>
+				</pain:Cdtr>
+				<pain:CdtrAcct>
+					<pain:Id>
+						<pain:Othr>
+							<pain:Id>65479512</pain:Id>
+						</pain:Othr>
+					</pain:Id>
+				</pain:CdtrAcct>
+				<pain:CdtrAgt>
+					<pain:FinInstnId>
+						<pain:BICFI>NDEAFIHH</pain:BICFI>
+					</pain:FinInstnId>
+				</pain:CdtrAgt>
+				<pain:DrctDbtTxInf>
+					<pain:PmtId>
+						<pain:EndToEndId>pain008EndToEndId-001</pain:EndToEndId>
+					</pain:PmtId>
+					<pain:InstdAmt Ccy="EUR">45250</pain:InstdAmt>
+					<pain:DrctDbtTx>
+						<pain:MndtRltdInf>
+							<pain:MndtId>MNDTE258963</pain:MndtId>
+						</pain:MndtRltdInf>
+					</pain:DrctDbtTx>
+					<pain:DbtrAgt>
+						<pain:FinInstnId>
+							<pain:BICFI>RBOSGB2L</pain:BICFI>
+						</pain:FinInstnId>
+					</pain:DbtrAgt>
+					<pain:Dbtr>
+						<pain:Nm>NT Asset Management</pain:Nm>
+						<pain:PstlAdr>
+							<pain:StrtNm>50 Bank Street</pain:StrtNm>
+							<pain:TwnNm>London</pain:TwnNm>
+							<pain:Ctry>GB</pain:Ctry>
+						</pain:PstlAdr>
+					</pain:Dbtr>
+					<pain:DbtrAcct>
+						<pain:Id>
+							<pain:Othr>
+								<pain:Id>25698745</pain:Id>
+							</pain:Othr>
+						</pain:Id>
+					</pain:DbtrAcct>
+				</pain:DrctDbtTxInf>
+			</pain:PmtInf>
+		</pain:CstmrDrctDbtInitn>
+	</pain:Document>
+</Envelope>

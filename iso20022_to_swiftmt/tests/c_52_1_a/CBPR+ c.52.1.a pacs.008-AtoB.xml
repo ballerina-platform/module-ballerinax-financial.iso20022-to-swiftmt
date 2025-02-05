@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+=================================================================================================================================================================================
+c.52.1.aDebtor Agent (A) RBS initiates a serial payment towards the Creditor Agent (D) Deutsche using Agents B Close Bros & C Lloyds as intermediaries
+
+========================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
+	<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.04">
+		<Fr>
+			<FIId>
+				<FinInstnId>
+					<BICFI>RBOSGB2LXXX</BICFI>
+				</FinInstnId>
+			</FIId>
+		</Fr>
+		<To>
+			<FIId>
+				<FinInstnId>
+					<BICFI>CBRLGB2LXXX</BICFI>
+				</FinInstnId>
+			</FIId>
+		</To>
+		<BizMsgIdr>pacs8bizmsgidr01</BizMsgIdr>
+		<MsgDefIdr>pacs.008.001.08</MsgDefIdr>
+		<BizSvc>swift.cbprplus.02</BizSvc>
+		<CreDt>2020-11-24T09:14:47+00:00</CreDt>
+	</AppHdr>
+	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.12">
+		<FIToFICstmrCdtTrf>
+			<GrpHdr>
+				<MsgId>pacs8bizmsgidr01</MsgId>
+				<CreDtTm>2020-11-24T09:14:47+00:00</CreDtTm>
+				<NbOfTxs>1</NbOfTxs>
+				<SttlmInf>
+					<SttlmMtd>INDA</SttlmMtd>
+				</SttlmInf>
+			</GrpHdr>
+			<CdtTrfTxInf>
+				<PmtId>
+					<InstrId>pacs8bizmsgidr01</InstrId>
+					<EndToEndId>pacs008EndToEndId-001</EndToEndId>
+					<UETR>8a562c67-ca16-48ba-b074-65581be6f001</UETR>
+				</PmtId>
+				<IntrBkSttlmAmt Ccy="EUR">750000</IntrBkSttlmAmt>
+				<IntrBkSttlmDt>2020-11-24</IntrBkSttlmDt>
+				<ChrgBr>DEBT</ChrgBr>
+				<InstgAgt>
+					<FinInstnId>
+						<BICFI>RBOSGB2LXXX</BICFI>
+					</FinInstnId>
+				</InstgAgt>
+				<InstdAgt>
+					<FinInstnId>
+						<BICFI>CBRLGB2LXXX</BICFI>
+					</FinInstnId>
+				</InstdAgt>
+				<IntrmyAgt1>
+					<FinInstnId>
+						<BICFI>LOYDGB2LXXX</BICFI>
+					</FinInstnId>
+				</IntrmyAgt1>
+				<Dbtr>
+					<Nm>ABC Investments</Nm>
+					<PstlAdr>
+						<StrtNm>36 Laurie Street</StrtNm>
+						<TwnNm>London</TwnNm>
+						<Ctry>GB</Ctry>
+					</PstlAdr>
+				</Dbtr>
+				<DbtrAcct>
+					<Id>
+						<Othr>
+							<Id>98756925</Id>
+						</Othr>
+					</Id>
+				</DbtrAcct>
+				<DbtrAgt>
+					<FinInstnId>
+						<BICFI>RBOSGB2LXXX</BICFI>
+					</FinInstnId>
+				</DbtrAgt>
+				<CdtrAgt>
+					<FinInstnId>
+						<BICFI>DEUTDEFFXXX</BICFI>
+					</FinInstnId>
+				</CdtrAgt>
+				<Cdtr>
+					<Nm>Allianz </Nm>
+					<PstlAdr>
+						<StrtNm>Koeniginstrasse 28</StrtNm>
+						<TwnNm>Munich</TwnNm>
+						<Ctry>DE</Ctry>
+					</PstlAdr>
+				</Cdtr>
+				<CdtrAcct>
+					<Id>
+						<Othr>
+							<Id>DE8547812</Id>
+						</Othr>
+					</Id>
+				</CdtrAcct>
+			</CdtTrfTxInf>
+		</FIToFICstmrCdtTrf>
+	</Document>
+</Envelope>

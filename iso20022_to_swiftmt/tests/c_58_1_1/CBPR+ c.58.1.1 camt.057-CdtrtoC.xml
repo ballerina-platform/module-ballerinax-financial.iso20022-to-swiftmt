@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+====================================================================================================================================================================
+c.58.1.1Creditor OP Corporate Bank sends a camt.057 to Creditor Agent Nordea Finland
+============================================================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
+	<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.04">
+		<Fr>
+			<FIId>
+				<FinInstnId>
+					<BICFI>OKOYFIHH</BICFI>
+				</FinInstnId>
+			</FIId>
+		</Fr>
+		<To>
+			<FIId>
+				<FinInstnId>
+					<BICFI>NDEAFIHH</BICFI>
+				</FinInstnId>
+			</FIId>
+		</To>
+		<BizMsgIdr>cmt057bizmsgidr001</BizMsgIdr>
+		<MsgDefIdr>camt.057.001.06</MsgDefIdr>
+		<BizSvc>swift.cbprplus.02</BizSvc>
+		<CreDt>2022-10-20T09:25:00+02:00</CreDt>
+	</AppHdr>
+	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.057.001.08">
+		<NtfctnToRcv>
+			<GrpHdr>
+				<MsgId>cmt057bizmsgidr001</MsgId>
+				<CreDtTm>2022-10-20T09:25:00+02:00</CreDtTm>
+			</GrpHdr>
+			<Ntfctn>
+				<Id>100-01</Id>
+				<Acct>
+					<Id>
+						<Othr>
+							<Id>25698745</Id>
+						</Othr>
+					</Id>
+				</Acct>
+				<AcctOwnr>
+					<Agt>
+						<FinInstnId>
+							<BICFI>OKOYFIHH</BICFI>
+						</FinInstnId>
+					</Agt>
+				</AcctOwnr>
+				<AcctSvcr>
+					<FinInstnId>
+						<BICFI>NDEAFIHH</BICFI>
+					</FinInstnId>
+				</AcctSvcr>
+				<Dbtr>
+					<Pty>
+						<Nm>NT Asset Management</Nm>
+						<PstlAdr>
+							<StrtNm>50 Bank Street</StrtNm>
+							<TwnNm>London</TwnNm>
+							<Ctry>GB</Ctry>
+						</PstlAdr>
+					</Pty>
+				</Dbtr>
+				<DbtrAgt>
+					<FinInstnId>
+						<BICFI>CITIGB2L</BICFI>
+					</FinInstnId>
+				</DbtrAgt>
+				<Itm>
+					<Id>ITM-021</Id>
+					<Amt Ccy="EUR">125650</Amt>
+					<XpctdValDt>2022-10-25</XpctdValDt>
+				</Itm>
+			</Ntfctn>
+		</NtfctnToRcv>
+	</Document>
+</Envelope>

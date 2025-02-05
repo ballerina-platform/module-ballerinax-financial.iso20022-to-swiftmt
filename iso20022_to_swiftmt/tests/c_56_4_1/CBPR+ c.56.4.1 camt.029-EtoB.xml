@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+====================================================================================================================================================================
+c.56.4.1Agent E NatWest sends a camt.029 to B Toronto Dominion US
+=============================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
+	<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.04">
+		<Fr>
+			<FIId>
+				<FinInstnId>
+					<BICFI>NWBKGB2L</BICFI>
+				</FinInstnId>
+			</FIId>
+		</Fr>
+		<To>
+			<FIId>
+				<FinInstnId>
+					<BICFI>TDOMUS33</BICFI>
+				</FinInstnId>
+			</FIId>
+		</To>
+		<BizMsgIdr>cmt029bizmsgidr-001</BizMsgIdr>
+		<MsgDefIdr>camt.029.001.09</MsgDefIdr>
+		<BizSvc>swift.cbprplus.02</BizSvc>
+		<CreDt>2021-04-27T15:10:00-05:00</CreDt>
+	</AppHdr>
+	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.029.001.13">
+		<RsltnOfInvstgtn>
+			<Assgnmt>
+				<Id>cmt029bizmsgidr-001</Id>
+				<Assgnr>
+					<Agt>
+						<FinInstnId>
+							<BICFI>NWBKGB2L</BICFI>
+						</FinInstnId>
+					</Agt>
+				</Assgnr>
+				<Assgne>
+					<Agt>
+						<FinInstnId>
+							<BICFI>TDOMUS33</BICFI>
+						</FinInstnId>
+					</Agt>
+				</Assgne>
+				<CreDtTm>2021-04-27T15:10:00-05:00</CreDtTm>
+			</Assgnmt>
+			<Sts>
+				<Conf>PDCR</Conf>
+			</Sts>
+			<CxlDtls>
+				<TxInfAndSts>
+					<CxlStsId>CNCL-ID001</CxlStsId>
+					<RslvdCase>
+						<Id>CSE-001</Id>
+						<Cretr>
+							<Agt>
+								<FinInstnId>
+									<BICFI>TDOMUS33</BICFI>
+								</FinInstnId>
+							</Agt>
+						</Cretr>
+					</RslvdCase>
+					<OrgnlGrpInf>
+						<OrgnlMsgId>pacs9bizmsgidr01</OrgnlMsgId>
+						<OrgnlMsgNmId>pacs.009.001.08</OrgnlMsgNmId>
+						<OrgnlCreDtTm>2021-04-27T09:15:00-05:00</OrgnlCreDtTm>
+					</OrgnlGrpInf>
+					<OrgnlInstrId>pacs9bizmsgidr01</OrgnlInstrId>
+					<OrgnlEndToEndId>pacs9AdvEndToEndId</OrgnlEndToEndId>
+					<OrgnlUETR>7a562c67-ca16-48ba-b074-65581be6f001</OrgnlUETR>
+					<CxlStsRsnInf>
+						<Orgtr>
+							<Id>
+								<OrgId>
+									<AnyBIC>NWBKGB2L</AnyBIC>
+								</OrgId>
+							</Id>
+						</Orgtr>
+					</CxlStsRsnInf>
+				</TxInfAndSts>
+			</CxlDtls>
+		</RsltnOfInvstgtn>
+	</Document>
+</Envelope>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+====================================================================================================================================================================
+c.29.1.1Agent A Metro Bank sends a pacs.008 to Agent B ING Bucharest
+========================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
+	<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.04">
+		<Fr>
+			<FIId>
+				<FinInstnId>
+					<BICFI>MYMBGB2LXXX</BICFI>
+				</FinInstnId>
+			</FIId>
+		</Fr>
+		<To>
+			<FIId>
+				<FinInstnId>
+					<BICFI>INGBROBUXXX</BICFI>
+				</FinInstnId>
+			</FIId>
+		</To>
+		<BizMsgIdr>pcs008bzmsgidr-1</BizMsgIdr>
+		<MsgDefIdr>pacs.008.001.08</MsgDefIdr>
+		<BizSvc>swift.cbprplus.02</BizSvc>
+		<CreDt>2022-10-20T09:05:00+00:00</CreDt>
+	</AppHdr>
+	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.12">
+		<FIToFICstmrCdtTrf>
+			<GrpHdr>
+				<MsgId>pcs008bzmsgidr-1</MsgId>
+				<CreDtTm>2022-10-20T09:05:00+00:00</CreDtTm>
+				<NbOfTxs>1</NbOfTxs>
+				<SttlmInf>
+					<SttlmMtd>INDA</SttlmMtd>
+				</SttlmInf>
+			</GrpHdr>
+			<CdtTrfTxInf>
+				<PmtId>
+					<InstrId>pcs008bzmsgidr-1</InstrId>
+					<EndToEndId>E2E04044506271305</EndToEndId>
+					<UETR>174c245f-2682-4291-ad67-2a41e530cd27</UETR>
+				</PmtId>
+				<IntrBkSttlmAmt Ccy="RON">591636</IntrBkSttlmAmt>
+				<IntrBkSttlmDt>2022-10-20</IntrBkSttlmDt>
+				<ChrgBr>DEBT</ChrgBr>
+				<InstgAgt>
+					<FinInstnId>
+						<BICFI>MYMBGB2LXXX</BICFI>
+					</FinInstnId>
+				</InstgAgt>
+				<InstdAgt>
+					<FinInstnId>
+						<BICFI>INGBROBUXXX</BICFI>
+					</FinInstnId>
+				</InstdAgt>
+				<Dbtr>
+					<Nm>Debtor Co</Nm>
+					<PstlAdr>
+						<StrtNm>High Street</StrtNm>
+						<TwnNm>Epping</TwnNm>
+						<Ctry>GB</Ctry>
+					</PstlAdr>
+				</Dbtr>
+				<DbtrAcct>
+					<Id>
+						<Othr>
+							<Id>25698745</Id>
+						</Othr>
+					</Id>
+				</DbtrAcct>
+				<DbtrAgt>
+					<FinInstnId>
+						<BICFI>MYMBGB2LXXX</BICFI>
+					</FinInstnId>
+				</DbtrAgt>
+				<CdtrAgt>
+					<FinInstnId>
+						<BICFI>GEBABEBBXXX</BICFI>
+					</FinInstnId>
+				</CdtrAgt>
+				<Cdtr>
+					<Nm>Ardent Finance</Nm>
+					<PstlAdr>
+						<StrtNm>Main Street</StrtNm>
+						<TwnNm>Bucharest</TwnNm>
+						<Ctry>RO</Ctry>
+					</PstlAdr>
+				</Cdtr>
+				<CdtrAcct>
+					<Id>
+						<Othr>
+							<Id>65479512</Id>
+						</Othr>
+					</Id>
+				</CdtrAcct>
+			</CdtTrfTxInf>
+		</FIToFICstmrCdtTrf>
+	</Document>
+</Envelope>
