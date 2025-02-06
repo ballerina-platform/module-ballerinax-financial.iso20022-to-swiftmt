@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+====================================================================================================================================================================
+c.107.1.1Agent A Metro Bank sends a camt.107 to Agent B 
+============================================================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
+	<AppHdr xmlns:head="urn:iso:std:iso:20022:tech:xsd:head.001.001.02">
+		<Fr>
+			<FIId>
+				<FinInstnId>
+					<BICFI>MYMBGB2L</BICFI>
+				</FinInstnId>
+			</FIId>
+		</Fr>
+		<To>
+			<FIId>
+				<FinInstnId>
+					<BICFI>RBSSGBKC</BICFI>
+				</FinInstnId>
+			</FIId>
+		</To>
+		<BizMsgIdr>camt107bzmsgidr1</BizMsgIdr>
+		<MsgDefIdr>camt.107.001.01</MsgDefIdr>
+		<BizSvc>swift.cbprplus.01</BizSvc>
+		<CreDt>2022-10-20T09:05:00+00:00</CreDt>
+	</AppHdr>
+	<Document xmlns:camt="urn:iso:std:iso:20022:tech:xsd:camt.107.001.01">
+		<ChqPresntmntNtfctn>
+			<GrpHdr>
+				<MsgId>camt107bzmsgidr1</MsgId>
+				<CreDtTm>2022-10-20T09:05:00+00:00</CreDtTm>
+				<NbOfChqs>1</NbOfChqs>
+			</GrpHdr>
+			<Chq>
+				<InstrId>camt107bzmsgidr1</InstrId>
+				<ChqNb>102145</ChqNb>
+				<IsseDt>2022-10-20</IsseDt>
+				<Amt Ccy="GBP">25250</Amt>
+				<Pyer>
+					<Nm>Debtor Co</Nm>
+					<PstlAdr>
+						<StrtNm>High Street</StrtNm>
+						<TwnNm>Epping</TwnNm>
+						<Ctry>GB</Ctry>
+					</PstlAdr>
+				</Pyer>
+				<PyerAcct>
+					<Id>
+						<Othr>
+							<Id>60779854</Id>
+						</Othr>
+					</Id>
+				</PyerAcct>
+				<Pyee>
+					<Nm>Ardent Finance</Nm>
+					<PstlAdr>
+						<StrtNm>Main Street</StrtNm>
+						<TwnNm>London</TwnNm>
+						<Ctry>GB</Ctry>
+					</PstlAdr>
+				</Pyee>
+			</Chq>
+		</ChqPresntmntNtfctn>
+	</Document>
+</Envelope>

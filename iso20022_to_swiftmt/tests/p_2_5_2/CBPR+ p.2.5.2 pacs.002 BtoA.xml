@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+====================================================================================================================================================================
+p.2.5.2Debtor Agent RBS sends a pacs.002 to Creditor Agent Nordea Finland
+========================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
+	<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.04">
+		<Fr>
+			<FIId>
+				<FinInstnId>
+					<BICFI>RBOSGB2L</BICFI>
+				</FinInstnId>
+			</FIId>
+		</Fr>
+		<To>
+			<FIId>
+				<FinInstnId>
+					<BICFI>NDEAFIHH</BICFI>
+				</FinInstnId>
+			</FIId>
+		</To>
+		<BizMsgIdr>pacs002bizmsgidr001</BizMsgIdr>
+		<MsgDefIdr>pacs.002.001.10</MsgDefIdr>
+		<BizSvc>swift.cbprplus.02</BizSvc>
+		<CreDt>2022-10-20T11:35:00+00:00</CreDt>
+		<Rltd>
+			<Fr>
+				<FIId>
+					<FinInstnId>
+						<BICFI>NDEAFIHH</BICFI>
+					</FinInstnId>
+				</FIId>
+			</Fr>
+			<To>
+				<FIId>
+					<FinInstnId>
+						<BICFI>RBOSGB2L</BICFI>
+					</FinInstnId>
+				</FIId>
+			</To>
+			<BizMsgIdr>pc003bzmsgidr01</BizMsgIdr>
+			<MsgDefIdr>pacs.003.001.08</MsgDefIdr>
+			<BizSvc>swift.cbprplus.01</BizSvc>
+			<CreDt>2022-10-20T10:15:00+02:00</CreDt>
+		</Rltd>
+	</AppHdr>
+	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.14">
+		<FIToFIPmtStsRpt>
+			<GrpHdr>
+				<MsgId>pacs002bizmsgidr001</MsgId>
+				<CreDtTm>2022-10-20T11:35:00+00:00</CreDtTm>
+			</GrpHdr>
+			<TxInfAndSts>
+				<OrgnlGrpInf>
+					<OrgnlMsgId>pc003bzmsgidr01</OrgnlMsgId>
+					<OrgnlMsgNmId>pacs.003.001.08</OrgnlMsgNmId>
+				</OrgnlGrpInf>
+				<OrgnlInstrId>pc003bzmsgidr01</OrgnlInstrId>
+				<OrgnlEndToEndId>pain008EndToEndId-001</OrgnlEndToEndId>
+				<OrgnlUETR>7a562c67-ca16-48ba-b074-65581be6f001</OrgnlUETR>
+				<TxSts>RJCT</TxSts>
+				<StsRsnInf>
+					<Rsn>
+						<Cd>AC04</Cd>
+					</Rsn>
+				</StsRsnInf>
+				<InstgAgt>
+					<FinInstnId>
+						<BICFI>RBOSGB2L</BICFI>
+					</FinInstnId>
+				</InstgAgt>
+				<InstdAgt>
+					<FinInstnId>
+						<BICFI>NDEAFIHH</BICFI>
+					</FinInstnId>
+				</InstdAgt>
+			</TxInfAndSts>
+		</FIToFIPmtStsRpt>
+	</Document>
+</Envelope>

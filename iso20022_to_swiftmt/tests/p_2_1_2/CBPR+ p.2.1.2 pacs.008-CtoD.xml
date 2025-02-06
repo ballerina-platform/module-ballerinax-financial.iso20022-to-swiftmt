@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+====================================================================================================================================================================
+p.2.1.2Agent C American National sends a pacs.008 to Agent D Hilltop National Bank
+========================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
+	<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.04">
+		<Fr>
+			<FIId>
+				<FinInstnId>
+					<BICFI>ANBTUS44XXX</BICFI>
+				</FinInstnId>
+			</FIId>
+		</Fr>
+		<To>
+			<FIId>
+				<FinInstnId>
+					<BICFI>HNBAUS51XXX</BICFI>
+				</FinInstnId>
+			</FIId>
+		</To>
+		<BizMsgIdr>C2D0506272708</BizMsgIdr>
+		<MsgDefIdr>pacs.008.001.08</MsgDefIdr>
+		<BizSvc>swift.cbprplus.02</BizSvc>
+		<CreDt>2021-05-11T10:33:41.960+05:00</CreDt>
+	</AppHdr>
+	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.12">
+		<FIToFICstmrCdtTrf>
+			<GrpHdr>
+				<MsgId>C2D0506272708</MsgId>
+				<CreDtTm>2021-05-11T10:33:41.960+05:00</CreDtTm>
+				<NbOfTxs>1</NbOfTxs>
+				<SttlmInf>
+					<SttlmMtd>INDA</SttlmMtd>
+				</SttlmInf>
+			</GrpHdr>
+			<CdtTrfTxInf>
+				<PmtId>
+					<InstrId>C2D0506272708</InstrId>
+					<EndToEndId>E2E04044506271305</EndToEndId>
+					<UETR>174c245f-2682-4291-ad67-2a41e530cd27</UETR>
+				</PmtId>
+				<IntrBkSttlmAmt Ccy="USD">136480</IntrBkSttlmAmt>
+				<IntrBkSttlmDt>2021-05-11</IntrBkSttlmDt>
+				<InstdAmt Ccy="USD">136500</InstdAmt>
+				<ChrgBr>SHAR</ChrgBr>
+				<ChrgsInf>
+					<Amt Ccy="USD">10</Amt>
+					<Agt>
+						<FinInstnId>
+							<BICFI>ANBTUS44XXX</BICFI>
+						</FinInstnId>
+					</Agt>
+				</ChrgsInf>
+				<ChrgsInf>
+					<Amt Ccy="USD">10</Amt>
+					<Agt>
+						<FinInstnId>
+							<BICFI>CHASUS33XXX</BICFI>
+						</FinInstnId>
+					</Agt>
+				</ChrgsInf>
+				<InstgAgt>
+					<FinInstnId>
+						<BICFI>ANBTUS44XXX</BICFI>
+					</FinInstnId>
+				</InstgAgt>
+				<InstdAgt>
+					<FinInstnId>
+						<BICFI>HNBAUS51XXX</BICFI>
+					</FinInstnId>
+				</InstdAgt>
+				<Dbtr>
+					<Nm>GB Engineering </Nm>
+					<PstlAdr>
+						<StrtNm>Industrial Park</StrtNm>
+						<TwnNm>Cambridge</TwnNm>
+						<Ctry>GB</Ctry>
+					</PstlAdr>
+				</Dbtr>
+				<DbtrAcct>
+					<Id>
+						<Othr>
+							<Id>96325874</Id>
+						</Othr>
+					</Id>
+				</DbtrAcct>
+				<DbtrAgt>
+					<FinInstnId>
+						<BICFI>CHASGB2LXXX</BICFI>
+					</FinInstnId>
+				</DbtrAgt>
+				<CdtrAgt>
+					<FinInstnId>
+						<BICFI>HNBAUS51XXX</BICFI>
+					</FinInstnId>
+				</CdtrAgt>
+				<Cdtr>
+					<Nm>US Engines</Nm>
+					<PstlAdr>
+						<StrtNm>20 Main St</StrtNm>
+						<TwnNm>Casper WY</TwnNm>
+						<Ctry>US</Ctry>
+					</PstlAdr>
+				</Cdtr>
+				<CdtrAcct>
+					<Id>
+						<Othr>
+							<Id>254178963</Id>
+						</Othr>
+					</Id>
+				</CdtrAcct>
+			</CdtTrfTxInf>
+		</FIToFICstmrCdtTrf>
+	</Document>
+</Envelope>

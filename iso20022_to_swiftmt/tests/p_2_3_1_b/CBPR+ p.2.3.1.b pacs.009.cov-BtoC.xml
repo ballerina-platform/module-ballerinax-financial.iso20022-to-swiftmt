@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+====================================================================================================================================================================
+p.2.3.1.bAgent B HBOSsends a pacs.009 to Agent C Santander
+========================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_COV\Translator_envelope_cov.xsd">
+	<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.04">
+		<Fr>
+			<FIId>
+				<FinInstnId>
+					<BICFI>BOFSGB2L</BICFI>
+				</FinInstnId>
+			</FIId>
+		</Fr>
+		<To>
+			<FIId>
+				<FinInstnId>
+					<BICFI>BSCHESMM</BICFI>
+				</FinInstnId>
+			</FIId>
+		</To>
+		<BizMsgIdr>pacs9bizmsgidr02</BizMsgIdr>
+		<MsgDefIdr>pacs.009.001.08</MsgDefIdr>
+		<BizSvc>swift.cbprplus.cov.02</BizSvc>
+		<CreDt>2022-10-20T09:35:00+00:00</CreDt>
+	</AppHdr>
+	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.009.001.11">
+		<FICdtTrf>
+			<GrpHdr>
+				<MsgId>pacs9bizmsgidr02</MsgId>
+				<CreDtTm>2022-10-20T09:35:00+00:00</CreDtTm>
+				<NbOfTxs>1</NbOfTxs>
+				<SttlmInf>
+					<SttlmMtd>INDA</SttlmMtd>
+				</SttlmInf>
+			</GrpHdr>
+			<CdtTrfTxInf>
+				<PmtId>
+					<InstrId>pacs9bizmsgidr02</InstrId>
+					<EndToEndId>pacs008EndToEndId-001</EndToEndId>
+					<UETR>7a562c67-ca16-48ba-b074-65581be6f001</UETR>
+				</PmtId>
+				<IntrBkSttlmAmt Ccy="DKK">591636</IntrBkSttlmAmt>
+				<IntrBkSttlmDt>2022-10-20</IntrBkSttlmDt>
+				<InstgAgt>
+					<FinInstnId>
+						<BICFI>BOFSGB2L</BICFI>
+					</FinInstnId>
+				</InstgAgt>
+				<InstdAgt>
+					<FinInstnId>
+						<BICFI>BSCHESMM</BICFI>
+					</FinInstnId>
+				</InstdAgt>
+				<Dbtr>
+					<FinInstnId>
+						<BICFI>CLYDGB2S</BICFI>
+					</FinInstnId>
+				</Dbtr>
+				<DbtrAgt>
+					<FinInstnId>
+						<BICFI>BOFSGB2L</BICFI>
+					</FinInstnId>
+				</DbtrAgt>
+				<CdtrAgt>
+					<FinInstnId>
+						<BICFI>BSCHESMM</BICFI>
+					</FinInstnId>
+				</CdtrAgt>
+				<Cdtr>
+					<FinInstnId>
+						<BICFI>BSCHGB2L</BICFI>
+					</FinInstnId>
+				</Cdtr>
+				<UndrlygCstmrCdtTrf>
+					<Dbtr>
+						<Nm>A Debiter</Nm>
+						<PstlAdr>
+							<StrtNm>High Street</StrtNm>
+							<TwnNm>Epping London</TwnNm>
+							<Ctry>GB</Ctry>
+						</PstlAdr>
+					</Dbtr>
+					<DbtrAgt>
+						<FinInstnId>
+							<BICFI>CLYDGB2S</BICFI>
+						</FinInstnId>
+					</DbtrAgt>
+					<CdtrAgt>
+						<FinInstnId>
+							<BICFI>BSCHGB2L</BICFI>
+						</FinInstnId>
+					</CdtrAgt>
+					<Cdtr>
+						<Nm>B Creditor Co</Nm>
+						<PstlAdr>
+							<StrtNm>Las Ramblas</StrtNm>
+							<TwnNm>Barcelona</TwnNm>
+							<Ctry>ES</Ctry>
+						</PstlAdr>
+					</Cdtr>
+				</UndrlygCstmrCdtTrf>
+			</CdtTrfTxInf>
+		</FICdtTrf>
+	</Document>
+</Envelope>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+====================================================================================================================================================================
+p.2.1.2Agent D Hilltop National Bank sends a negative pacs.002 to Agent C American National
+========================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
+	<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.04">
+		<Fr>
+			<FIId>
+				<FinInstnId>
+					<BICFI>HNBAUS51XXX</BICFI>
+				</FinInstnId>
+			</FIId>
+		</Fr>
+		<To>
+			<FIId>
+				<FinInstnId>
+					<BICFI>ANBTUS44XXX</BICFI>
+				</FinInstnId>
+			</FIId>
+		</To>
+		<BizMsgIdr>P2D2C2007</BizMsgIdr>
+		<MsgDefIdr>pacs.002.001.10</MsgDefIdr>
+		<BizSvc>swift.cbprplus.02</BizSvc>
+		<CreDt>2021-05-11T11:43:41.960+05:00</CreDt>
+		<Rltd>
+			<Fr>
+				<FIId>
+					<FinInstnId>
+						<BICFI>ANBTUS44XXX</BICFI>
+					</FinInstnId>
+				</FIId>
+			</Fr>
+			<To>
+				<FIId>
+					<FinInstnId>
+						<BICFI>HNBAUS51XXX</BICFI>
+					</FinInstnId>
+				</FIId>
+			</To>
+			<BizMsgIdr>C2D0506272708</BizMsgIdr>
+			<MsgDefIdr>pacs.008.001.08</MsgDefIdr>
+			<BizSvc>swift.cbprplus.02</BizSvc>
+			<CreDt>2021-05-11T10:33:41.960+05:00</CreDt>
+		</Rltd>
+	</AppHdr>
+	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.14">
+		<FIToFIPmtStsRpt>
+			<GrpHdr>
+				<MsgId>P2D2C2007</MsgId>
+				<CreDtTm>2021-05-11T11:43:41.960+05:00</CreDtTm>
+			</GrpHdr>
+			<TxInfAndSts>
+				<OrgnlGrpInf>
+					<OrgnlMsgId>C2D0506272708</OrgnlMsgId>
+					<OrgnlMsgNmId>pacs.008.001.08</OrgnlMsgNmId>
+				</OrgnlGrpInf>
+				<OrgnlInstrId>C2D0506272708</OrgnlInstrId>
+				<OrgnlEndToEndId>E2E04044506271305</OrgnlEndToEndId>
+				<OrgnlUETR>174c245f-2682-4291-ad67-2a41e530cd27</OrgnlUETR>
+				<TxSts>RJCT</TxSts>
+				<StsRsnInf>
+					<Rsn>
+						<Cd>AC04</Cd>
+					</Rsn>
+				</StsRsnInf>
+				<InstgAgt>
+					<FinInstnId>
+						<BICFI>HNBAUS51XXX</BICFI>
+					</FinInstnId>
+				</InstgAgt>
+				<InstdAgt>
+					<FinInstnId>
+						<BICFI>ANBTUS44XXX</BICFI>
+					</FinInstnId>
+				</InstdAgt>
+			</TxInfAndSts>
+		</FIToFIPmtStsRpt>
+	</Document>
+</Envelope>

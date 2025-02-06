@@ -19,49 +19,39 @@ import ballerinax/financial.swift.mt as swiftmt;
 
 isolated function transformCamt057ToMt210(camtIsoRecord:Camt057Envelope envelope, string messageType) returns swiftmt:MT210Message|error => let
     camtIsoRecord:NotificationItem9 notificationItem = envelope.Document.NtfctnToRcv.Ntfctn.Itm[0],
-    swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? field50 = getField50Or50COr50L(notificationItem.Dbtr?.Pty),
+    swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50F? field50 = getField50(envelope.Document.NtfctnToRcv.Ntfctn.Dbtr, notificationItem.Dbtr, true),
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getField52(notificationItem.DbtrAgt?.FinInstnId),
-    swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(notificationItem.IntrmyAgt?.FinInstnId),
-    swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getField50a(notificationItem.Dbtr?.Pty)
+    swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(notificationItem.IntrmyAgt?.FinInstnId)
     in {
-        block1: {
-            applicationId:"F",
-            serviceId: "01",
-            logicalTerminal: envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI
-        },
-        block2: {
-            'type: "output",
-            messageType: messageType,
-            MIRLogicalTerminal: envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI,
-            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.NtfctnToRcv.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.NtfctnToRcv.GrpHdr.CreDtTm.substring(0, 10))}
-        },
+        block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+                envelope.Document.NtfctnToRcv.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.NtfctnToRcv.Ntfctn.Itm[0].UETR),
         block4: {
             MT20: {
                 name: MT20_NAME,
-                msgId: {content: envelope.Document.NtfctnToRcv.Ntfctn.Id, number: NUMBER1}
+                msgId: {content: getField20Content(envelope.Document.NtfctnToRcv.GrpHdr.MsgId), number: NUMBER1}
             },
             MT21: {
                 name: MT21_NAME,
-                Ref: {content: getField21(notificationItem.EndToEndId, id = notificationItem.Id), number: NUMBER1}
+                Ref: {content: notificationItem.EndToEndId is string ? truncate(notificationItem.EndToEndId, 16) : truncate(notificationItem.Id, 16), number: NUMBER1}
             },
             MT32B: {
                 name: MT32B_NAME,
                 Ccy: {content: notificationItem.Amt.Ccy, number: NUMBER1},
-                Amnt: {content: check convertToString(notificationItem.Amt.content), number: NUMBER2}
+                Amnt: {content: convertDecimalToSwiftDecimal(notificationItem.Amt.content), number: NUMBER2}
             },
             MT30: {
                 name: MT30_NAME,
                 Dt: {content: convertToSWIFTStandardDate(notificationItem.XpctdValDt), number: NUMBER1}
             },
-            MT25: getField25(notificationItem.Acct?.Id?.IBAN, notificationItem.Acct?.Id?.Othr?.Id),
+            MT25: getField25(envelope.Document.NtfctnToRcv.Ntfctn.Acct?.Id, notificationItem.Acct?.Id),
             MT52A: field52 is swiftmt:MT52A ? field52 : (),
             MT52D: field52 is swiftmt:MT52D ? field52 : (),
             MT56A: field56 is swiftmt:MT56A ? field56 : (),
             MT56D: field56 is swiftmt:MT56D ? field56 : (),
             MT50: field50 is swiftmt:MT50 ? field50 : (),
             MT50C: field50 is swiftmt:MT50C ? field50 : (),
-            MT50F: field50a is swiftmt:MT50F ? field50a : ()
+            MT50F: field50 is swiftmt:MT50F ? field50 : ()
         }
     };

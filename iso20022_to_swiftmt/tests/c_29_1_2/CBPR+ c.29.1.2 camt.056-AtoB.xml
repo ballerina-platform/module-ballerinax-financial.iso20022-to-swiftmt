@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+====================================================================================================================================================================
+c.29.1.2Agent A Metro Bank sends a camt.056 to Agent B ING Bucharest
+========================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
+	<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.04">
+		<Fr>
+			<FIId>
+				<FinInstnId>
+					<BICFI>MYMBGB2LXXX</BICFI>
+				</FinInstnId>
+			</FIId>
+		</Fr>
+		<To>
+			<FIId>
+				<FinInstnId>
+					<BICFI>INGBROBUXXX</BICFI>
+				</FinInstnId>
+			</FIId>
+		</To>
+		<BizMsgIdr>cmt056bizmsgidr-001</BizMsgIdr>
+		<MsgDefIdr>camt.056.001.08</MsgDefIdr>
+		<BizSvc>swift.cbprplus.02</BizSvc>
+		<CreDt>2022-10-20T11:35:00+00:00</CreDt>
+	</AppHdr>
+	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.056.001.11">
+		<FIToFIPmtCxlReq>
+			<Assgnmt>
+				<Id>cmt056bizmsgidr-001</Id>
+				<Assgnr>
+					<Agt>
+						<FinInstnId>
+							<BICFI>MYMBGB2LXXX</BICFI>
+						</FinInstnId>
+					</Agt>
+				</Assgnr>
+				<Assgne>
+					<Agt>
+						<FinInstnId>
+							<BICFI>INGBROBUXXX</BICFI>
+						</FinInstnId>
+					</Agt>
+				</Assgne>
+				<CreDtTm>2022-10-20T11:35:00+00:00</CreDtTm>
+			</Assgnmt>
+			<Undrlyg>
+				<TxInf>
+					<Case>
+						<Id>CASEMYMBGB2L</Id>
+						<Cretr>
+							<Agt>
+								<FinInstnId>
+									<BICFI>MYMBGB2LXXX</BICFI>
+								</FinInstnId>
+							</Agt>
+						</Cretr>
+					</Case>
+					<OrgnlGrpInf>
+						<OrgnlMsgId>pcs008bzmsgidr-1</OrgnlMsgId>
+						<OrgnlMsgNmId>pacs.008.001.08</OrgnlMsgNmId>
+						<OrgnlCreDtTm>2022-10-20T09:05:00+00:00</OrgnlCreDtTm>
+					</OrgnlGrpInf>
+					<OrgnlInstrId>pcs008bzmsgidr-1</OrgnlInstrId>
+					<OrgnlEndToEndId>E2E04044506271305</OrgnlEndToEndId>
+					<OrgnlUETR>174c245f-2682-4291-ad67-2a41e530cd27</OrgnlUETR>
+					<OrgnlIntrBkSttlmAmt Ccy="RON">591636</OrgnlIntrBkSttlmAmt>
+					<OrgnlIntrBkSttlmDt>2022-10-20</OrgnlIntrBkSttlmDt>
+					<CxlRsnInf>
+						<Orgtr>
+							<Nm>Debtor Co</Nm>
+							<PstlAdr>
+								<StrtNm>High Street</StrtNm>
+								<TwnNm>Epping</TwnNm>
+								<Ctry>GB</Ctry>
+							</PstlAdr>
+						</Orgtr>
+						<Rsn>
+							<Cd>CUST</Cd>
+						</Rsn>
+					</CxlRsnInf>
+				</TxInf>
+			</Undrlyg>
+		</FIToFIPmtCxlReq>
+	</Document>
+</Envelope>

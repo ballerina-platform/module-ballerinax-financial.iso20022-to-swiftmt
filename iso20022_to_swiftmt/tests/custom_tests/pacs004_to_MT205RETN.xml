@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+====================================================================================================================================================================
+p.2.1.2Agent C American National sends a pacs.004 to Agent B Chase New York
+========================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
+	<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.04">
+		<Fr>
+			<FIId>
+				<FinInstnId>
+					<BICFI>ANBTUS44XXX</BICFI>
+				</FinInstnId>
+			</FIId>
+		</Fr>
+		<To>
+			<FIId>
+				<FinInstnId>
+					<BICFI>CHASUS33XXX</BICFI>
+				</FinInstnId>
+			</FIId>
+		</To>
+		<BizMsgIdr>P4C2B-005</BizMsgIdr>
+		<MsgDefIdr>pacs.004.001.09</MsgDefIdr>
+		<BizSvc>swift.cbprplus.02</BizSvc>
+		<CreDt>2021-05-11T11:53:41.960+05:00</CreDt>
+		<Rltd>
+			<Fr>
+				<FIId>
+					<FinInstnId>
+						<BICFI>CHASUS33XXX</BICFI>
+					</FinInstnId>
+				</FIId>
+			</Fr>
+			<To>
+				<FIId>
+					<FinInstnId>
+						<BICFI>ANBTUS44XXX</BICFI>
+					</FinInstnId>
+				</FIId>
+			</To>
+			<BizMsgIdr>B2C0506272708</BizMsgIdr>
+			<MsgDefIdr>pacs.008.001.08</MsgDefIdr>
+			<BizSvc>swift.cbprplus.02</BizSvc>
+			<CreDt>2021-05-11T10:23:41.960+05:00</CreDt>
+		</Rltd>
+	</AppHdr>
+	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.004.001.13">
+		<PmtRtr>
+			<GrpHdr>
+				<MsgId>P4C2B-005</MsgId>
+				<CreDtTm>2021-05-11T11:53:41.960+05:00</CreDtTm>
+				<NbOfTxs>1</NbOfTxs>
+				<SttlmInf>
+					<SttlmMtd>INDA</SttlmMtd>
+				</SttlmInf>
+			</GrpHdr>
+			<TxInf>
+				<OrgnlGrpInf>
+					<OrgnlMsgId>B2C0506272708</OrgnlMsgId>
+					<OrgnlMsgNmId>MT205</OrgnlMsgNmId>
+				</OrgnlGrpInf>
+				<OrgnlInstrId>B2C0506272708</OrgnlInstrId>
+				<OrgnlEndToEndId>E2E04044506271305</OrgnlEndToEndId>
+				<OrgnlUETR>174c245f-2682-4291-ad67-2a41e530cd27</OrgnlUETR>
+				<OrgnlIntrBkSttlmAmt Ccy="USD">136480</OrgnlIntrBkSttlmAmt>
+				<OrgnlIntrBkSttlmDt>2021-05-11</OrgnlIntrBkSttlmDt>
+				<RtrdIntrBkSttlmAmt Ccy="USD">136480</RtrdIntrBkSttlmAmt>
+				<IntrBkSttlmDt>2021-05-11</IntrBkSttlmDt>
+				<RtrdInstdAmt Ccy="USD">136480</RtrdInstdAmt>
+				<ChrgBr>SHAR</ChrgBr>
+				<InstgAgt>
+					<FinInstnId>
+						<BICFI>ANBTUS44XXX</BICFI>
+					</FinInstnId>
+				</InstgAgt>
+				<InstdAgt>
+					<FinInstnId>
+						<BICFI>CHASUS33XXX</BICFI>
+					</FinInstnId>
+				</InstdAgt>
+				<RtrChain>
+					<Dbtr>
+						<Agt>
+							<FinInstnId>
+								<BICFI>ANBTUS44XXX</BICFI>
+							</FinInstnId>
+						</Agt>
+					</Dbtr>
+					<DbtrAgt>
+						<FinInstnId>
+							<BICFI>CHASUS33XXX</BICFI>
+						</FinInstnId>
+					</DbtrAgt>
+					<CdtrAgt>
+						<FinInstnId>
+							<BICFI>CHASGB2LXXX</BICFI>
+						</FinInstnId>
+					</CdtrAgt>
+					<Cdtr>
+						<Agt>
+							<FinInstnId>
+								<BICFI>BSCHGB2L</BICFI>
+							</FinInstnId>
+						</Agt>
+					</Cdtr>
+				</RtrChain>
+				<RtrRsnInf>
+					<Rsn>
+						<Cd>AC04</Cd>
+					</Rsn>
+				</RtrRsnInf>
+			</TxInf>
+		</PmtRtr>
+	</Document>
+</Envelope>
