@@ -35,13 +35,24 @@ isolated function transformCamt055ToMtn92(camtIsoRecord:Camt055Envelope envelope
             },
             MT21: {
                 name: MT21_NAME,
-                Ref: {content: getField21Content((check getOrginalPaymentInfo(undrlygTransaction.OrgnlPmtInfAndCxl)).OrgnlPmtInfId), number: NUMBER1}
+                Ref: {content: truncate((check getOrginalPaymentInfoFromCamt055(undrlygTransaction.OrgnlPmtInfAndCxl)).OrgnlPmtInfId, 16), number: NUMBER1}
             },
             MT11S: {
                 name: MT11S_NAME,
                 Dt: {content: convertToSWIFTStandardDate(undrlygTransaction.OrgnlGrpInfAndCxl?.OrgnlCreDtTm), number: NUMBER2},
                 MtNum: {content: getOrignalMessageName(undrlygTransaction.OrgnlGrpInfAndCxl?.OrgnlMsgNmId), number: NUMBER1}
             },
-            MT79: getCamt055Field79((check getOrginalPaymentInfo(undrlygTransaction.OrgnlPmtInfAndCxl)).CxlRsnInf)
+            MT79: getCamt055Field79((check getOrginalPaymentInfoFromCamt055(undrlygTransaction.OrgnlPmtInfAndCxl)).CxlRsnInf)
         }
     };
+
+# Get the original payment information.
+#
+# + orgnlPmtInfo - Original payment information array
+# + return - return original payment information or an error
+isolated function getOrginalPaymentInfoFromCamt055(camtIsoRecord:OriginalPaymentInstruction49[]? orgnlPmtInfo) returns camtIsoRecord:OriginalPaymentInstruction49|error {
+    if orgnlPmtInfo is camtIsoRecord:OriginalPaymentInstruction49[] {
+        return orgnlPmtInfo[0];
+    }
+    return error("Transaction Information is required to transform this ISO 20022 message to SWIFT message.");
+}

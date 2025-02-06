@@ -22,13 +22,13 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + envelope - The Pain001 envelope containing the corresponding document to be transformed.
 # + messageType - The SWIFT message type
 # + return - The MT101 message or an error if the transformation fails
-isolated function transformPain001DocumentToMT101(painIsoRecord:Pain001Envelope envelope, string messageType) returns swiftmt:MT101Message|error => let 
+isolated function transformPain001DocumentToMT101(painIsoRecord:Pain001Envelope envelope, string messageType) returns swiftmt:MT101Message|error => let
     swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getField50Or50COr50L(envelope.Document.CstmrCdtTrfInitn.GrpHdr.InitgPty),
     swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getMT101OrderingCustomerFromPain001Document(envelope.Document.CstmrCdtTrfInitn.PmtInf),
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getMT101AccountServicingInstitutionFromPain001Document(envelope.Document.CstmrCdtTrfInitn.PmtInf) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
-            envelope.Document.CstmrCdtTrfInitn.GrpHdr.CreDtTm),
+                envelope.Document.CstmrCdtTrfInitn.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
             MT20: {
@@ -88,18 +88,18 @@ isolated function generateMT101Transactions(
             MT21: {
                 name: MT21_NAME,
                 Ref: {
-                    content: getField21Content(creditTransferTransaction.PmtId.EndToEndId),
+                    content: truncate(creditTransferTransaction.PmtId.EndToEndId, 16),
                     number: NUMBER1
                 }
             },
             MT32B: {
                 name: MT32B_NAME,
                 Ccy: {
-                    content: getActiveOrHistoricCurrencyAndAmountCcy(creditTransferTransaction.Amt.InstdAmt),
+                    content: creditTransferTransaction.Amt.InstdAmt?.Ccy ?: "",
                     number: NUMBER1
                 },
                 Amnt: {
-                    content: getActiveOrHistoricCurrencyAndAmountValue(creditTransferTransaction.Amt.InstdAmt),
+                    content: convertDecimalToSwiftDecimal(creditTransferTransaction.Amt.InstdAmt?.content),
                     number: NUMBER2
                 }
             },
@@ -112,7 +112,7 @@ isolated function generateMT101Transactions(
             MT50F: field50a is swiftmt:MT50F ? field50a : (),
             MT50G: field50a is swiftmt:MT50G ? field50a : (),
             MT50H: field50a is swiftmt:MT50H ? field50a : (),
-    
+
             MT52A: field52 is swiftmt:MT52A ? field52 : (),
             MT52C: field52 is swiftmt:MT52C ? field52 : (),
 
@@ -139,4 +139,54 @@ isolated function generateMT101Transactions(
     }
 
     return transactions;
+}
+
+# Get the account servicing institution from the Pain001 document.
+#
+# + payments - The array of payment instructions.
+# + transaxion - The payment instruction of the mapping transaction
+# + isTransaction - The flag to identify whether it is a transaction or common field
+# + return - The account servicing institution or an empty record
+isolated function getMT101AccountServicingInstitutionFromPain001Document(painIsoRecord:PaymentInstruction44[] payments, painIsoRecord:PaymentInstruction44? transaxion = (), boolean isTransaction = false)
+returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D?|error {
+    [string?, string?, string?, string?] [iban, bban, identifierCode, partyIdentifier] = [payments[0].DbtrAgtAcct?.Id?.IBAN, payments[0].DbtrAgtAcct?.Id?.Othr?.Id, payments[0].DbtrAgt?.FinInstnId?.BICFI, payments[0].DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd];
+    foreach int i in 1 ... payments.length() - 1 {
+        if iban != payments[i].DbtrAgtAcct?.Id?.IBAN || bban != payments[i].DbtrAgtAcct?.Id?.Othr?.Id || identifierCode != payments[i].DbtrAgt?.FinInstnId?.BICFI || partyIdentifier != payments[i].DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd {
+            return getField52(transaxion?.DbtrAgt?.FinInstnId, transaxion?.DbtrAgtAcct?.Id, isOptionCPresent = true);
+        }
+    }
+    if isTransaction {
+        return ();
+    }
+    return getField52(payments[0].DbtrAgt?.FinInstnId, payments[0].DbtrAgtAcct?.Id, isOptionCPresent = true);
+}
+
+# Get the ordering customer from the Pain001 document.
+#
+# + payments - The array of payment instructions.
+# + transaxion - The payment instruction of the mapping transaction
+# + isTransaction - The flag to identify whether it is a transaction or common field
+# + return - The ordering customer or an empty record
+isolated function getMT101OrderingCustomerFromPain001Document(painIsoRecord:PaymentInstruction44[] payments, painIsoRecord:PaymentInstruction44? transaxion = (), boolean isTransaction = false)
+returns swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F?|error {
+    string? partyIdentifier = ();
+    painIsoRecord:GenericPersonIdentification2[]? otherId = payments[0].Dbtr.Id?.PrvtId?.Othr;
+    if otherId is painIsoRecord:GenericPersonIdentification2[] {
+        partyIdentifier = otherId[0].Id;
+    }
+    [string?, string?, string?] [iban, bban, identifierCode] = [payments[0].DbtrAcct?.Id?.IBAN, payments[0].DbtrAcct?.Id?.Othr?.Id, payments[0].Dbtr.Id?.OrgId?.AnyBIC];
+    foreach int i in 1 ... payments.length() - 1 {
+        string? partyIdentifier2 = ();
+        painIsoRecord:GenericPersonIdentification2[]? otherId2 = payments[i].Dbtr.Id?.PrvtId?.Othr;
+        if otherId2 is painIsoRecord:GenericPersonIdentification2[] {
+            partyIdentifier2 = otherId2[0].Id;
+        }
+        if iban != payments[i].DbtrAcct?.Id?.IBAN || bban != payments[i].DbtrAcct?.Id?.Othr?.Id || identifierCode != payments[i].Dbtr.Id?.OrgId?.AnyBIC || partyIdentifier != partyIdentifier2 {
+            return getField50a(transaxion?.Dbtr, transaxion?.DbtrAcct?.Id, true);
+        }
+    }
+    if isTransaction {
+        return ();
+    }
+    return getField50a(payments[0].Dbtr, payments[0].DbtrAcct?.Id, true);
 }

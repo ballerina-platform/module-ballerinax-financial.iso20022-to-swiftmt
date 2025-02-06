@@ -38,7 +38,7 @@ isolated function transformPacs002DocumentToMTn99(pacsIsoRecord:Pacs002Envelope 
             MT21: {
                 name: MT21_NAME,
                 Ref: {
-                    content: getField21Content(transactionInfo.OrgnlInstrId),
+                    content: truncate(transactionInfo.OrgnlInstrId, 16),
                     number: NUMBER1
                 }
             },

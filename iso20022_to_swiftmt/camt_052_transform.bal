@@ -85,8 +85,8 @@ isolated function transformCamt052ToMt941(camtIsoRecord:Camt052Envelope envelope
             MT62F: field62F,
             MT65: field65.length() == 0 ? () : field65,
             MT64: field64.length() == 0 ? () : field64,
-            MT90D: check getField90D(envelope.Document.BkToCstmrAcctRpt.Rpt[0].TxsSummry?.TtlDbtNtries),
-            MT90C: check getField90C(envelope.Document.BkToCstmrAcctRpt.Rpt[0].TxsSummry?.TtlCdtNtries)
+            MT90D: check getField90(envelope.Document.BkToCstmrAcctRpt.Rpt[0].TxsSummry?.TtlDbtNtries, false),
+            MT90C: check getField90(envelope.Document.BkToCstmrAcctRpt.Rpt[0].TxsSummry?.TtlCdtNtries, true)
         }
     };
 
@@ -113,8 +113,8 @@ isolated function transformCamt052ToMt942(camtIsoRecord:Camt052Envelope envelope
             MT13D: check getField13DforCamt(envelope.Document.BkToCstmrAcctRpt),
             MT34F: getField34FforCamt052(report.Acct?.Ccy),
             MT61: check getField61(report.Ntry),
-            MT90D: check getField90D(report.TxsSummry?.TtlDbtNtries),
-            MT90C: check getField90C(report.TxsSummry?.TtlCdtNtries)
+            MT90D: check getField90(report.TxsSummry?.TtlDbtNtries, false),
+            MT90C: check getField90(report.TxsSummry?.TtlCdtNtries, true)
         }
     };
 
@@ -130,7 +130,7 @@ isolated function getSequenceNumber(camtIsoRecord:Pagination1? pagntn) returns d
 }
 
 # Get field 13D.
-# 
+#
 # + bkToCstmrAcctRpt - bank to customer account report
 # + return - MT13D field or an error
 isolated function getField13DforCamt(camtIsoRecord:BankToCustomerAccountReportV12 bkToCstmrAcctRpt) returns swiftmt:MT13D|error {
@@ -147,7 +147,7 @@ isolated function getField13DforCamt(camtIsoRecord:BankToCustomerAccountReportV1
 isolated function getField34FforCamt052(camtIsoRecord:ActiveOrHistoricCurrencyCode? currency) returns swiftmt:MT34F[] {
     swiftmt:MT34F[] field34F = [];
     if currency is camtIsoRecord:ActiveOrHistoricCurrencyCode {
-        field34F.push({name: MT34F_NAME, Ccy: {content: currency, number: NUMBER1}, Amnt: {content: "0,", number: NUMBER3}});
+        field34F.push({name: MT34F_NAME, Ccy: {content: currency, number: NUMBER1}, Amnt: {content: convertDecimalToSwiftDecimal(0), number: NUMBER3}});
     }
     return field34F;
 }

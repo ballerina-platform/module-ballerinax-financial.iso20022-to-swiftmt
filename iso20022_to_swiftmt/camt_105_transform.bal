@@ -29,10 +29,10 @@ isolated function transformCamt105ToMtn90(camtIsoRecord:Camt105Envelope envelope
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.ChrgsPmtNtfctn.GrpHdr.CreDtTm),
-        block3: createMtBlock3(getBlock3ContentForCamt(charges?.Rcrd)),
+        block3: createMtBlock3(getUETRfromUnderlyingTx(charges?.Rcrd)),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(charges?.ChrgsId.toString()), number: NUMBER1}},
-            MT21: {name: MT21_NAME, Ref: {content: getField21Content(getField21ForCamt105(charges?.Rcrd)), number: NUMBER1}},
+            MT21: {name: MT21_NAME, Ref: {content: getField21ForCamt105(charges?.Rcrd), number: NUMBER1}},
             MT25: {
                 name: MT25_NAME,
                 Acc: {
@@ -74,16 +74,16 @@ isolated function getField21ForCamt105(camtIsoRecord:ChargesPerTransactionRecord
             recordsArray[0].UndrlygTx?.AcctSvcrRef
         ];
         if instrId is string {
-            return instrId;
+            return truncate(instrId, 16);
         }
         if endToEndId is string {
-            return endToEndId;
+            return truncate(endToEndId, 16);
         }
         if msgId is string {
-            return msgId;
+            return truncate(msgId, 16);
         }
         if acctSvcrRef is string {
-            return acctSvcrRef;
+            return truncate(acctSvcrRef, 16);
         }
     }
     return "NOTPROVIDED";
@@ -113,7 +113,7 @@ isolated function getField32aForCamt105(camtIsoRecord:ChargesPerTransactionRecor
                 Dt: {content: convertToSWIFTStandardDate(recordsArray[0].ValDt?.Dt), number: NUMBER1},
                 Ccy: {content: recordsArray[0].TtlChrgsPerRcrd?.TtlChrgsAmt?.Ccy.toString(), number: NUMBER2},
                 Amnt: {
-                    content: convertDecimalNumberToSwiftDecimal(recordsArray[0].TtlChrgsPerRcrd?.TtlChrgsAmt?.content),
+                    content: convertDecimalToSwiftDecimal(recordsArray[0].TtlChrgsPerRcrd?.TtlChrgsAmt?.content),
                     number: NUMBER3
                 }
             };
@@ -124,7 +124,7 @@ isolated function getField32aForCamt105(camtIsoRecord:ChargesPerTransactionRecor
                 Dt: {content: convertToSWIFTStandardDate(recordsArray[0].ValDt?.Dt), number: NUMBER1},
                 Ccy: {content: recordsArray[0].TtlChrgsPerRcrd?.TtlChrgsAmt?.Ccy.toString(), number: NUMBER2},
                 Amnt: {
-                    content: convertDecimalNumberToSwiftDecimal(recordsArray[0].TtlChrgsPerRcrd?.TtlChrgsAmt?.content),
+                    content: convertDecimalToSwiftDecimal(recordsArray[0].TtlChrgsPerRcrd?.TtlChrgsAmt?.content),
                     number: NUMBER3
                 }
             };
@@ -141,6 +141,17 @@ isolated function getField32aForCamt105(camtIsoRecord:ChargesPerTransactionRecor
 isolated function getField72ForCamt105(string? bic) returns swiftmt:MT72? {
     if bic is string {
         return {name: MT72_NAME, Cd: {content: "/CHRQ/" + bic, number: NUMBER1}};
+    }
+    return ();
+}
+
+# Get UETR from underlying transaction.
+#
+# + recordsArray - Charges per transaction records.
+# + return - return UETR.
+isolated function getUETRfromUnderlyingTx(camtIsoRecord:ChargesPerTransactionRecord3[]|camtIsoRecord:ChargesPerTransactionRecord4[]? recordsArray) returns string? {
+    if recordsArray is camtIsoRecord:ChargesPerTransactionRecord3[]|camtIsoRecord:ChargesPerTransactionRecord4[] {
+        return recordsArray[0].UndrlygTx?.UETR;
     }
     return ();
 }

@@ -24,9 +24,9 @@ isolated function transformPacs009ToMt200(pacsIsoRecord:Pacs009Envelope envelope
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id, true)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+                        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
+                        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
             MT20: {
@@ -47,7 +47,7 @@ isolated function transformPacs009ToMt200(pacsIsoRecord:Pacs009Envelope envelope
                     number: NUMBER2
                 },
                 Amnt: {
-                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.content),
+                    content: convertDecimalToSwiftDecimal(creditTransfer.IntrBkSttlmAmt.content),
                     number: NUMBER3
                 }
             },
@@ -65,16 +65,16 @@ isolated function transformPacs009ToMt201(pacsIsoRecord:Pacs009Envelope envelope
     pacsIsoRecord:CreditTransferTransaction62 creditTransfer = envelope.Document.FICdtTrf.CdtTrfTxInf[0],
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(creditTransfer.Dbtr.FinInstnId, creditTransfer.DbtrAcct?.Id, true) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+                        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
+                        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
             MT30: {name: MT30_NAME, Dt: {content: convertToSWIFTStandardDate(creditTransfer.IntrBkSttlmDt), number: NUMBER1}},
             MT53B: field53 is swiftmt:MT53B ? field53 : (),
             MT72: getField72ForPacs009(creditTransfer),
             Transaction: check getMT201Transaction(envelope.Document.FICdtTrf.CdtTrfTxInf),
-            MT19: {name: MT19_NAME, Amnt: {content: check convertToString(envelope.Document.FICdtTrf.GrpHdr.CtrlSum), number: NUMBER1}}
+            MT19: {name: MT19_NAME, Amnt: {content: convertDecimalToSwiftDecimal(envelope.Document.FICdtTrf.GrpHdr.CtrlSum), number: NUMBER1}}
         }
     };
 
@@ -98,7 +98,7 @@ isolated function getMT201Transaction(pacsIsoRecord:CreditTransferTransaction62[
                     number: NUMBER1
                 },
                 Amnt: {
-                    content: check convertToString(transaxion.IntrBkSttlmAmt?.content),
+                    content: convertDecimalToSwiftDecimal(transaxion.IntrBkSttlmAmt?.content),
                     number: NUMBER2
                 }
             },
@@ -123,9 +123,9 @@ isolated function transformPacs009ToMt202(pacsIsoRecord:Pacs009Envelope envelope
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.CdtrAgt?.FinInstnId, creditTransfer.CdtrAgtAcct?.Id, true),
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+                        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2("202", getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
+                        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
             MT13C: getFieldMt13C(creditTransfer.SttlmTmReq?.CLSTm, creditTransfer.SttlmTmIndctn?.CdtDtTm, creditTransfer.SttlmTmIndctn?.DbtDtTm),
@@ -139,7 +139,7 @@ isolated function transformPacs009ToMt202(pacsIsoRecord:Pacs009Envelope envelope
             MT21: {
                 name: MT21_NAME,
                 Ref: {
-                    content: getField21Content(creditTransfer.PmtId.EndToEndId),
+                    content: truncate(creditTransfer.PmtId.EndToEndId, 16),
                     number: NUMBER1
                 }
             },
@@ -154,7 +154,7 @@ isolated function transformPacs009ToMt202(pacsIsoRecord:Pacs009Envelope envelope
                     number: NUMBER2
                 },
                 Amnt: {
-                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.content),
+                    content: convertDecimalToSwiftDecimal(creditTransfer.IntrBkSttlmAmt.content),
                     number: NUMBER3
                 }
             },
@@ -175,7 +175,7 @@ isolated function transformPacs009ToMt202(pacsIsoRecord:Pacs009Envelope envelope
             MT58D: field58 is swiftmt:MT58D ? field58 : (),
             MT72: getField72ForPacs009(creditTransfer)
         }
-};
+    };
 
 isolated function transformPacs009ToMt202COV(pacsIsoRecord:Pacs009Envelope envelope, string messageType) returns swiftmt:MT202COVMessage|error => let
     pacsIsoRecord:CreditTransferTransaction62 creditTransfer = envelope.Document.FICdtTrf.CdtTrfTxInf[0],
@@ -187,9 +187,9 @@ isolated function transformPacs009ToMt202COV(pacsIsoRecord:Pacs009Envelope envel
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.CdtrAgt?.FinInstnId, creditTransfer.CdtrAgtAcct?.Id, true),
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+                        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2("202", getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
+                        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR, VALIDATION_FLAG_COV),
         block4: {
             MT13C: getFieldMt13C(creditTransfer.SttlmTmReq?.CLSTm, creditTransfer.SttlmTmIndctn?.CdtDtTm, creditTransfer.SttlmTmIndctn?.DbtDtTm),
@@ -203,7 +203,7 @@ isolated function transformPacs009ToMt202COV(pacsIsoRecord:Pacs009Envelope envel
             MT21: {
                 name: MT21_NAME,
                 Ref: {
-                    content: getField21Content(creditTransfer.PmtId.EndToEndId),
+                    content: truncate(creditTransfer.PmtId.EndToEndId, 16),
                     number: NUMBER1
                 }
             },
@@ -218,7 +218,7 @@ isolated function transformPacs009ToMt202COV(pacsIsoRecord:Pacs009Envelope envel
                     number: NUMBER2
                 },
                 Amnt: {
-                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.content),
+                    content: convertDecimalToSwiftDecimal(creditTransfer.IntrBkSttlmAmt.content),
                     number: NUMBER3
                 }
             },
@@ -240,7 +240,7 @@ isolated function transformPacs009ToMt202COV(pacsIsoRecord:Pacs009Envelope envel
             MT72: getField72ForPacs009(creditTransfer),
             UndrlygCstmrCdtTrf: check getUnderlyingCustomerTransaction(creditTransfer)
         }
-};
+    };
 
 isolated function getUnderlyingCustomerTransaction(pacsIsoRecord:CreditTransferTransaction62 creditTransfer) returns swiftmt:UndrlygCstmrCdtTrf|error {
     swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getField50a(creditTransfer.UndrlygCstmrCdtTrf?.Dbtr, creditTransfer.UndrlygCstmrCdtTrf?.DbtrAcct?.Id);
@@ -265,11 +265,11 @@ isolated function getUnderlyingCustomerTransaction(pacsIsoRecord:CreditTransferT
         MT59F: field59 is swiftmt:MT59F ? field59 : (),
         MT70: getField70(creditTransfer.UndrlygCstmrCdtTrf?.RmtInf?.Ustrd),
         MT72: getField72(creditTransfer.UndrlygCstmrCdtTrf?.InstrForCdtrAgt, creditTransfer.UndrlygCstmrCdtTrf?.InstrForNxtAgt,
-            creditTransfer.UndrlygCstmrCdtTrf?.PrvsInstgAgt1, (),
-            prvsInstgAgt2 = creditTransfer.UndrlygCstmrCdtTrf?.PrvsInstgAgt2,
-            prvsInstgAgt3 = creditTransfer.UndrlygCstmrCdtTrf?.PrvsInstgAgt3,
-            intrmyAgt2 = creditTransfer.UndrlygCstmrCdtTrf?.IntrmyAgt2,
-            intrmyAgt3 = creditTransfer.UndrlygCstmrCdtTrf?.IntrmyAgt3)
+                creditTransfer.UndrlygCstmrCdtTrf?.PrvsInstgAgt1, (),
+                prvsInstgAgt2 = creditTransfer.UndrlygCstmrCdtTrf?.PrvsInstgAgt2,
+                prvsInstgAgt3 = creditTransfer.UndrlygCstmrCdtTrf?.PrvsInstgAgt3,
+                intrmyAgt2 = creditTransfer.UndrlygCstmrCdtTrf?.IntrmyAgt2,
+                intrmyAgt3 = creditTransfer.UndrlygCstmrCdtTrf?.IntrmyAgt3)
     };
 }
 
@@ -280,12 +280,12 @@ isolated function transformPacs009ToMt203(pacsIsoRecord:Pacs009Envelope envelope
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(settlementInfo.InstgRmbrsmntAgt?.FinInstnId, settlementInfo.InstgRmbrsmntAgtAcct?.Id, true),
     swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? field54 = getField54(settlementInfo.InstdRmbrsmntAgt?.FinInstnId, settlementInfo.InstdRmbrsmntAgtAcct?.Id, true) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+                        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
+                        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
-            MT19: {name: MT19_NAME, Amnt: {content: check convertToString(envelope.Document.FICdtTrf.GrpHdr.CtrlSum), number: NUMBER1}},
+            MT19: {name: MT19_NAME, Amnt: {content: convertDecimalToSwiftDecimal(envelope.Document.FICdtTrf.GrpHdr.CtrlSum), number: NUMBER1}},
             MT30: {
                 name: MT30_NAME,
                 Dt: {content: convertToSWIFTStandardDate(creditTransfer.IntrBkSttlmDt), number: NUMBER1}
@@ -297,7 +297,7 @@ isolated function transformPacs009ToMt203(pacsIsoRecord:Pacs009Envelope envelope
             MT53D: field53 is swiftmt:MT53D ? field53 : (),
             MT54A: field54 is swiftmt:MT54A ? field54 : (),
             MT54B: field54 is swiftmt:MT54B ? field54 : (),
-            MT72:getField72ForPacs009(creditTransfer),
+            MT72: getField72ForPacs009(creditTransfer),
             Transaction: check getMT203Transaction(envelope.Document.FICdtTrf.CdtTrfTxInf)
         }
     };
@@ -316,7 +316,7 @@ isolated function getMT203Transaction(pacsIsoRecord:CreditTransferTransaction62[
                     number: NUMBER1
                 }
             },
-            MT21: {name: MT21_NAME, Ref: {content: getField21Content(transaxion.PmtId.EndToEndId), number: NUMBER1}},
+            MT21: {name: MT21_NAME, Ref: {content: truncate(transaxion.PmtId.EndToEndId, 16), number: NUMBER1}},
             MT32B: {
                 name: MT32B_NAME,
                 Ccy: {
@@ -324,7 +324,7 @@ isolated function getMT203Transaction(pacsIsoRecord:CreditTransferTransaction62[
                     number: NUMBER1
                 },
                 Amnt: {
-                    content: check convertToString(transaxion.IntrBkSttlmAmt?.content),
+                    content: convertDecimalToSwiftDecimal(transaxion.IntrBkSttlmAmt?.content),
                     number: NUMBER2
                 }
             },
@@ -350,9 +350,9 @@ isolated function transformPacs009ToMt205(pacsIsoRecord:Pacs009Envelope envelope
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.CdtrAgt?.FinInstnId, creditTransfer.CdtrAgtAcct?.Id, true),
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+                        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
+                        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
             MT13C: getFieldMt13C(creditTransfer.SttlmTmReq?.CLSTm, creditTransfer.SttlmTmIndctn?.CdtDtTm, creditTransfer.SttlmTmIndctn?.DbtDtTm),
@@ -366,7 +366,7 @@ isolated function transformPacs009ToMt205(pacsIsoRecord:Pacs009Envelope envelope
             MT21: {
                 name: MT21_NAME,
                 Ref: {
-                    content: getField21Content(creditTransfer.PmtId.EndToEndId),
+                    content: truncate(creditTransfer.PmtId.EndToEndId, 16),
                     number: NUMBER1
                 }
             },
@@ -381,7 +381,7 @@ isolated function transformPacs009ToMt205(pacsIsoRecord:Pacs009Envelope envelope
                     number: NUMBER2
                 },
                 Amnt: {
-                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.content),
+                    content: convertDecimalToSwiftDecimal(creditTransfer.IntrBkSttlmAmt.content),
                     number: NUMBER3
                 }
             },
@@ -398,7 +398,7 @@ isolated function transformPacs009ToMt205(pacsIsoRecord:Pacs009Envelope envelope
             MT58D: field58 is swiftmt:MT58D ? field58 : (),
             MT72: getField72ForPacs009(creditTransfer)
         }
-};
+    };
 
 isolated function transformPacs009ToMt205COV(pacsIsoRecord:Pacs009Envelope envelope, string messageType) returns swiftmt:MT205COVMessage|error => let
     pacsIsoRecord:CreditTransferTransaction62 creditTransfer = envelope.Document.FICdtTrf.CdtTrfTxInf[0],
@@ -409,9 +409,9 @@ isolated function transformPacs009ToMt205COV(pacsIsoRecord:Pacs009Envelope envel
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.CdtrAgt?.FinInstnId, creditTransfer.CdtrAgtAcct?.Id, true),
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+                        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2("205", getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
+                        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR, VALIDATION_FLAG_COV),
         block4: {
             MT13C: getFieldMt13C(creditTransfer.SttlmTmReq?.CLSTm, creditTransfer.SttlmTmIndctn?.CdtDtTm, creditTransfer.SttlmTmIndctn?.DbtDtTm),
@@ -425,7 +425,7 @@ isolated function transformPacs009ToMt205COV(pacsIsoRecord:Pacs009Envelope envel
             MT21: {
                 name: MT21_NAME,
                 Ref: {
-                    content: getField21Content(creditTransfer.PmtId.EndToEndId),
+                    content: truncate(creditTransfer.PmtId.EndToEndId, 16),
                     number: NUMBER1
                 }
             },
@@ -440,7 +440,7 @@ isolated function transformPacs009ToMt205COV(pacsIsoRecord:Pacs009Envelope envel
                     number: NUMBER2
                 },
                 Amnt: {
-                    content: check convertToString(creditTransfer.IntrBkSttlmAmt.content),
+                    content: convertDecimalToSwiftDecimal(creditTransfer.IntrBkSttlmAmt.content),
                     number: NUMBER3
                 }
             },
@@ -459,4 +459,4 @@ isolated function transformPacs009ToMt205COV(pacsIsoRecord:Pacs009Envelope envel
             MT72: getField72ForPacs009(creditTransfer),
             UndrlygCstmrCdtTrf: check getUnderlyingCustomerTransaction(creditTransfer)
         }
-};
+    };

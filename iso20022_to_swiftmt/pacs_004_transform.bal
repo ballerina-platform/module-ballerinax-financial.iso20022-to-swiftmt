@@ -55,18 +55,18 @@ isolated function generateMT103RETNBlock4(pacsIsoRecord:Pacs004Envelope envelope
         }
     };
 
-    swiftmt:MT23B MT23B = getField23B(transactionInfo.PmtTpInf?.LclInstrm?.Prtry);
+    swiftmt:MT23B MT23B = check getField23(transactionInfo.PmtTpInf?.LclInstrm?.Prtry, true).ensureType();
 
     swiftmt:MT32A MT32A = {
         name: MT32A_NAME,
         Dt: {content: convertToSWIFTStandardDate(transactionInfo.IntrBkSttlmDt), number: NUMBER1},
         Ccy: {content: getMandatoryField(transactionInfo.RtrdIntrBkSttlmAmt?.Ccy), number: NUMBER2},
-        Amnt: {content: check convertToString(transactionInfo.RtrdIntrBkSttlmAmt?.content), number: NUMBER3}
+        Amnt: {content: convertDecimalToSwiftDecimal(transactionInfo.RtrdIntrBkSttlmAmt?.content), number: NUMBER3}
     };
 
-    swiftmt:MT33B? MT33B = check getField33B(transactionInfo.RtrdInstdAmt, (), true);
+    swiftmt:MT33B? MT33B = getField33B(transactionInfo.RtrdInstdAmt, (), true);
 
-    swiftmt:MT36? MT36 = check getField36(transactionInfo.XchgRate);
+    swiftmt:MT36? MT36 = getField36(transactionInfo.XchgRate);
 
     swiftmt:MT50A? MT50A = field50a is swiftmt:MT50A ? field50a : ();
     swiftmt:MT50F? MT50F = field50a is swiftmt:MT50F ? field50a : ();
@@ -186,14 +186,14 @@ isolated function generateMT202RETNBlock4(pacsIsoRecord:Pacs004Envelope envelope
 
     swiftmt:MT21 MT21 = {
         name: MT21_NAME,
-        Ref: {content: getField21Content(transactionInfo.OrgnlEndToEndId), number: NUMBER1}
+        Ref: {content: truncate(transactionInfo.OrgnlEndToEndId, 16), number: NUMBER1}
     };
 
     swiftmt:MT32A MT32A = {
         name: MT32A_NAME,
         Dt: {content: convertToSWIFTStandardDate(transactionInfo.IntrBkSttlmDt), number: NUMBER1},
         Ccy: {content: getMandatoryField(transactionInfo.RtrdIntrBkSttlmAmt?.Ccy), number: NUMBER2},
-        Amnt: {content: check convertToString(transactionInfo.RtrdIntrBkSttlmAmt?.content), number: NUMBER3}
+        Amnt: {content: convertDecimalToSwiftDecimal(transactionInfo.RtrdIntrBkSttlmAmt?.content), number: NUMBER3}
     };
 
     swiftmt:MT52A? MT52A = field52 is swiftmt:MT52A ? field52 : ();
@@ -231,4 +231,15 @@ isolated function generateMT202RETNBlock4(pacsIsoRecord:Pacs004Envelope envelope
         MT72
     };
     return MT202Block4;
+}
+
+# Get the transaction information for a PACS004 document
+#
+# + transactionInfo - transaction information array
+# + return - return the first transaction information or an error if the transaction information is not present
+isolated function getTransactionInfoForPacs004(pacsIsoRecord:PaymentTransaction159[]? transactionInfo) returns pacsIsoRecord:PaymentTransaction159|error {
+    if transactionInfo is pacsIsoRecord:PaymentTransaction159[] {
+        return transactionInfo[0];
+    }
+    return error("Cannot be mapped to SWIFT MT 103 message: transaction information is not preset.");
 }

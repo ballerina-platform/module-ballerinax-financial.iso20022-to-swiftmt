@@ -26,7 +26,7 @@ isolated function transformCamt056ToMtn92(camtIsoRecord:Camt056Envelope envelope
     returns swiftmt:MTn92Message|error =>
     
     let camtIsoRecord:PaymentTransaction155[] transactionInfo =
-        check getTransactionInfo(envelope.Document.FIToFIPmtCxlReq.Undrlyg[0].TxInf)
+        check getTransactionInfoFromCamt056(envelope.Document.FIToFIPmtCxlReq.Undrlyg[0].TxInf)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FIToFIPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
@@ -40,7 +40,7 @@ isolated function transformCamt056ToMtn92(camtIsoRecord:Camt056Envelope envelope
             },
             MT21: {
                 name: MT21_NAME,
-                Ref: {content: getField21Content(transactionInfo[0].OrgnlInstrId), number: NUMBER1}
+                Ref: {content: truncate(transactionInfo[0].OrgnlInstrId, 16), number: NUMBER1}
             },
             MT11S: {
                 name: MT11S_NAME,
@@ -65,9 +65,20 @@ isolated function getMessageCopyForCamt056(camtIsoRecord:ISODateTime? dateTime, 
                 name: MT32A_NAME,
                 Dt: {content: convertToSWIFTStandardDate(dateTime), number: NUMBER1},
                 Ccy: {content: amount.Ccy, number: NUMBER2},
-                Amnt: {content: check convertToString(amount.content), number: NUMBER3}
+                Amnt: {content: convertDecimalToSwiftDecimal(amount.content), number: NUMBER3}
             }
         };
     }
     return {};
 };
+
+# Get transaction information.
+#
+# + transactionInfo - camt.056 transaction information array
+# + return - return transaction information or error
+isolated function getTransactionInfoFromCamt056(camtIsoRecord:PaymentTransaction155[]? transactionInfo) returns camtIsoRecord:PaymentTransaction155[]|error {
+    if transactionInfo is camtIsoRecord:PaymentTransaction155[] {
+        return transactionInfo;
+    }
+    return error("Transaction Information is required to transform this ISO 20022 message to SWIFT message.");
+}

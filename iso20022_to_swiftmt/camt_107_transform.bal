@@ -53,12 +53,12 @@ isolated function getAdvicesOfCheque(camtIsoRecord:Cheque17[] cheques) returns s
                     name: MT32A_NAME,
                     Dt: {content: convertToSWIFTStandardDate(cheque.ValDt?.Dt), number: NUMBER1},
                     Ccy: {content: cheque.Amt.Ccy, number: NUMBER2},
-                    Amnt: {content: convertDecimalNumberToSwiftDecimal(cheque.Amt.content), number: NUMBER3}
+                    Amnt: {content: convertDecimalToSwiftDecimal(cheque.Amt.content), number: NUMBER3}
                 } : (),
             MT32B: cheque.ValDt?.Dt !is string ? {
                     name: MT32B_NAME,
                     Ccy: {content: cheque.Amt.Ccy, number: NUMBER1},
-                    Amnt: {content: convertDecimalNumberToSwiftDecimal(cheque.Amt.content), number: NUMBER2}
+                    Amnt: {content: convertDecimalToSwiftDecimal(cheque.Amt.content), number: NUMBER2}
                 } : (),
             MT50A: field50a is swiftmt:MT50A ? field50a : (),
             MT50F: field50a is swiftmt:MT50F ? field50a : (),

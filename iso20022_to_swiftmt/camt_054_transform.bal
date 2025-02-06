@@ -37,14 +37,14 @@ swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getF
                 name: MT32A_NAME,
                 Dt: {content: extractDate(entry), number: NUMBER1},
                 Ccy: {content: getMandatoryField(entry?.Amt?.Ccy), number: NUMBER2},
-                Amnt: {content: check convertToString(entry?.Amt?.content), number: NUMBER3}
+                Amnt: {content: convertDecimalToSwiftDecimal(entry?.Amt?.content), number: NUMBER3}
             },
             MT13D: getField13D(entry?.BookgDt?.DtTm),
             MT25: field25a is swiftmt:MT25A ? field25a : (),
             MT25P: field25a is swiftmt:MT25P ? field25a : (),
             MT52A: field52 is swiftmt:MT52A ? field52 : (),
             MT52D: field52 is swiftmt:MT52D ? field52 : (),
-            MT72: getField72ForMt900Or910(transactionDetails?.AddtlTxInf)
+            MT72: getField72FromNarrative(transactionDetails?.AddtlTxInf)
         }
     };
 
@@ -70,7 +70,7 @@ swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(transact
                 name: MT32A_NAME,
                 Dt: {content: extractDate(entry), number: NUMBER1},
                 Ccy: {content: getMandatoryField(entry?.Amt?.Ccy), number: NUMBER2},
-                Amnt: {content: check convertToString(entry?.Amt?.content), number: NUMBER3}
+                Amnt: {content: convertDecimalToSwiftDecimal(entry?.Amt?.content), number: NUMBER3}
             },
             MT13D: getField13D(entry?.BookgDt?.DtTm),
             MT25: field25a is swiftmt:MT25A ? field25a : (),
@@ -82,7 +82,7 @@ swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(transact
             MT52D: field52 is swiftmt:MT52D ? field52 : getdefaultField52(field52),
             MT56A: field56 is swiftmt:MT56A ? field56 : (),
             MT56D: field56 is swiftmt:MT56D ? field56 : (),
-            MT72: getField72ForMt900Or910(transactionDetails?.AddtlTxInf)
+            MT72: getField72FromNarrative(transactionDetails?.AddtlTxInf)
         }
     };
 
@@ -113,4 +113,59 @@ isolated function getdefaultField52(swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?
         return {name: MT52D_NAME, Nm: [], AdrsLine: [], PrtyIdn: {content: "NOTPROVIDED", number: NUMBER3}};
     }
     return ();
+}
+
+# Extract report entry from the camt.054 message.
+#
+# + entryArray - entry array
+# + return - return the report entry
+isolated function getEntry(camtIsoRecord:ReportEntry14[]? entryArray) returns camtIsoRecord:ReportEntry14? {
+    if entryArray is camtIsoRecord:ReportEntry14[] {
+        return entryArray[0];
+    }
+    return ();
+}
+
+# Get message reference.
+#
+# + refs - transaction references
+# + return - return message reference
+isolated function getMessageReference(camtIsoRecord:TransactionReferences6? refs) returns string {
+
+    if refs?.InstrId is string {
+        return getMxToMTReference(refs?.InstrId.toString());
+    } else if refs?.EndToEndId is string {
+        return getMxToMTReference(refs?.EndToEndId.toString());
+    } else if refs?.TxId is string {
+        return getMxToMTReference(refs?.TxId.toString());
+    } else {
+        return "NOTPROVIDED";
+    }
+}
+
+# Get transaction details from the entry array.
+#
+# + entryArray - entry array
+# + return - return the transaction details
+isolated function getTransactionDetails(camtIsoRecord:EntryDetails13[]? entryArray) returns camtIsoRecord:EntryTransaction14? {
+    if entryArray is camtIsoRecord:EntryDetails13[] {
+        camtIsoRecord:EntryTransaction14[]? transactionArray = entryArray[0].TxDtls;
+        if transactionArray is camtIsoRecord:EntryTransaction14[] {
+            return transactionArray[0];
+        }
+    }
+    return ();
+}
+
+# Get debtor agent for MT910.
+#
+# + agent1 - agent 1
+# + agent2 - agent 2
+# + account - account
+# + return - return swift field 52
+isolated function getDebtorAgentForMt910(camtIsoRecord:BranchAndFinancialInstitutionIdentification8? agent1, camtIsoRecord:BranchAndFinancialInstitutionIdentification8? agent2, camtIsoRecord:CashAccount40? account) returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D?|error {
+    if agent1 is camtIsoRecord:BranchAndFinancialInstitutionIdentification8 {
+        return getField52(agent1.FinInstnId, ());
+    }
+    return getField52(agent2?.FinInstnId, account?.Id);
 }

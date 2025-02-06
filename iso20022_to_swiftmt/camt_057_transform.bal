@@ -34,12 +34,12 @@ isolated function transformCamt057ToMt210(camtIsoRecord:Camt057Envelope envelope
             },
             MT21: {
                 name: MT21_NAME,
-                Ref: {content: getField21Content(notificationItem.EndToEndId, id2 = notificationItem.Id), number: NUMBER1}
+                Ref: {content: notificationItem.EndToEndId is string ? truncate(notificationItem.EndToEndId, 16) : truncate(notificationItem.Id, 16), number: NUMBER1}
             },
             MT32B: {
                 name: MT32B_NAME,
                 Ccy: {content: notificationItem.Amt.Ccy, number: NUMBER1},
-                Amnt: {content: check convertToString(notificationItem.Amt.content), number: NUMBER2}
+                Amnt: {content: convertDecimalToSwiftDecimal(notificationItem.Amt.content), number: NUMBER2}
             },
             MT30: {
                 name: MT30_NAME,

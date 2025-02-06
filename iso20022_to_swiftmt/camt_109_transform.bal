@@ -36,12 +36,12 @@ isolated function transformCamt109ToMt112(camtIsoRecord:Camt109Envelope envelope
                     name: MT32A_NAME,
                     Dt: {content: convertToSWIFTStandardDate(cheque.FctvDt?.Dt), number: NUMBER1},
                     Ccy: {content: cheque.Amt.Ccy, number: NUMBER2},
-                    Amnt: {content: convertDecimalNumberToSwiftDecimal(cheque.Amt.content), number: NUMBER3}
+                    Amnt: {content: convertDecimalToSwiftDecimal(cheque.Amt.content), number: NUMBER3}
                 } : (),
             MT32B: cheque.FctvDt?.Dt !is string ? {
                     name: MT32B_NAME,
                     Ccy: {content: cheque.Amt.Ccy, number: NUMBER1},
-                    Amnt: {content: convertDecimalNumberToSwiftDecimal(cheque.Amt.content), number: NUMBER2}
+                    Amnt: {content: convertDecimalToSwiftDecimal(cheque.Amt.content), number: NUMBER2}
                 } : (),
             MT52A: field52a is swiftmt:MT52A ? field52a : (),
             MT52B: field52a is swiftmt:MT52B ? field52a : (),

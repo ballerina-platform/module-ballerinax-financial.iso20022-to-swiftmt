@@ -36,12 +36,12 @@ isolated function transformCamt108ToMt111(camtIsoRecord:Camt108Envelope envelope
                     name: MT32A_NAME,
                     Dt: {content: convertToSWIFTStandardDate(cheque.FctvDt?.Dt), number: NUMBER1},
                     Ccy: {content: cheque.Amt.Ccy, number: NUMBER2},
-                    Amnt: {content: convertDecimalNumberToSwiftDecimal(cheque.Amt.content), number: NUMBER3}
+                    Amnt: {content: convertDecimalToSwiftDecimal(cheque.Amt.content), number: NUMBER3}
                 } : (),
             MT32B: cheque.FctvDt?.Dt !is string ? {
                     name: MT32B_NAME,
                     Ccy: {content: cheque.Amt.Ccy, number: NUMBER1},
-                    Amnt: {content: convertDecimalNumberToSwiftDecimal(cheque.Amt.content), number: NUMBER2}
+                    Amnt: {content: convertDecimalToSwiftDecimal(cheque.Amt.content), number: NUMBER2}
                 } : (),
             MT52A: field52a is swiftmt:MT52A ? field52a : (),
             MT52B: field52a is swiftmt:MT52B ? field52a : (),
@@ -100,7 +100,7 @@ isolated function getField75ForCamt108(camtIsoRecord:ChequeCancellationReason1? 
         if reason is string {
             narration = "/" + reason + "/";
             if cancelReason.AddtlInf is string {
-                narration = getNarration(cancelReason.AddtlInf.toString(), narration, 0)[0];
+                narration = appendContentToNarration(cancelReason.AddtlInf.toString(), narration, 0)[0];
             }
             return {name: MT75_NAME, Nrtv: {content: narration, number: NUMBER1}};
         }

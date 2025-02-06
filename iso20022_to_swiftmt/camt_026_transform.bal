@@ -35,7 +35,7 @@ isolated function transformCamt026ToMtn95(camtIsoRecord:Camt026Envelope envelope
             MT21: {
                 name: MT21_NAME,
                 Ref: {
-                    content: getField21Content(envelope.Document.UblToApply.Undrlyg.Initn?.OrgnlInstrId),
+                    content: truncate(envelope.Document.UblToApply.Undrlyg.Initn?.OrgnlInstrId, 16),
                     number: NUMBER1
                 }
             },

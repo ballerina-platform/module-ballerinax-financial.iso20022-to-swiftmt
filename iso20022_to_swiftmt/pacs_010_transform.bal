@@ -22,14 +22,14 @@ isolated function transformPacs010ToMt204(pacsIsoRecord:Pacs010Envelope envelope
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(debitTransfer.CdtrAgt?.FinInstnId, debitTransfer.CdtrAgtAcct?.Id, true),
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(debitTransfer.Cdtr?.FinInstnId, debitTransfer.CdtrAcct?.Id) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FIDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+                        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
-            envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FIDrctDbt.GrpHdr.CreDtTm),
+                        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FIDrctDbt.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FIDrctDbt.CdtInstr[0].DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
             MT19: {
                 name: MT19_NAME,
-                Amnt: {content: check convertToString(envelope.Document.FIDrctDbt.GrpHdr.CtrlSum), number: NUMBER1}
+                Amnt: {content: convertDecimalToSwiftDecimal(envelope.Document.FIDrctDbt.GrpHdr.CtrlSum), number: NUMBER1}
             },
             MT20: {
                 name: MT20_NAME,
@@ -60,7 +60,7 @@ isolated function getMT204Transaction(pacsIsoRecord:DirectDebitTransactionInform
                     number: NUMBER1
                 }
             },
-            MT21: {name: MT21_NAME, Ref: {content: getField21Content(transaxion.PmtId.EndToEndId), number: NUMBER1}},
+            MT21: {name: MT21_NAME, Ref: {content: truncate(transaxion.PmtId.EndToEndId, 16), number: NUMBER1}},
             MT32B: {
                 name: MT32B_NAME,
                 Ccy: {
@@ -68,7 +68,7 @@ isolated function getMT204Transaction(pacsIsoRecord:DirectDebitTransactionInform
                     number: NUMBER1
                 },
                 Amnt: {
-                    content: check convertToString(transaxion.IntrBkSttlmAmt?.content),
+                    content: convertDecimalToSwiftDecimal(transaxion.IntrBkSttlmAmt?.content),
                     number: NUMBER2
                 }
             },
