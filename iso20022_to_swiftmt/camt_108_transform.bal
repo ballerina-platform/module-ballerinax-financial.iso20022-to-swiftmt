@@ -51,6 +51,11 @@ isolated function transformCamt108ToMt111(camtIsoRecord:Camt108Envelope envelope
         }
     };
 
+# Get field 59 for camt 108 or 109.
+#
+# + creditor - The creditor information.
+# + account - The account information.
+# + return - The transformed SWIFT MT59 message or an error.
 isolated function getField59aForCamt108Or109(camtIsoRecord:PartyIdentification272? creditor, camtIsoRecord:AccountIdentification4Choice? account) returns swiftmt:MT59? {
     [string?, camtIsoRecord:Max70Text[]?, string?, string?, string?, string?]
         [name, address, iban, bban, townName, countryCode] = [
@@ -84,6 +89,10 @@ isolated function getField59aForCamt108Or109(camtIsoRecord:PartyIdentification27
     return ();
 }
 
+# Get field 75 for camt 108.
+#
+# + cancelReason - The cheque cancellation reason.
+# + return - return swift field 75.
 isolated function getField75ForCamt108(camtIsoRecord:ChequeCancellationReason1? cancelReason) returns swiftmt:MT75? {
     if cancelReason is camtIsoRecord:ChequeCancellationReason1 {
         string? reason = chequeCancelReasonCode[cancelReason.Rsn.Cd.toString()];

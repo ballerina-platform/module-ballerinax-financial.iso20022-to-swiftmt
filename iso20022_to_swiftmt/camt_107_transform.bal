@@ -36,6 +36,10 @@ isolated function transformCamt107ToMt110(camtIsoRecord:Camt107Envelope envelope
         }
     };
 
+# Get advice of cheques.
+#
+# + cheques - The list of cheques to be transformed.
+# + return - The transformed SWIFT Cheques message or an error.
 isolated function getAdvicesOfCheque(camtIsoRecord:Cheque17[] cheques) returns swiftmt:Cheques[]|error {
     swiftmt:Cheques[] chequeArray = [];
     foreach camtIsoRecord:Cheque17 cheque in cheques {
@@ -69,6 +73,11 @@ isolated function getAdvicesOfCheque(camtIsoRecord:Cheque17[] cheques) returns s
     return chequeArray;
 }
 
+# Get field 59a for camt.107.
+#
+# + creditor - The creditor details.
+# + account - The account details.
+# + return - return field 59 or field 59F.
 isolated function getField59aForCamt107(camtIsoRecord:PartyIdentification272? creditor, camtIsoRecord:AccountIdentification4Choice? account) returns swiftmt:MT59?|swiftmt:MT59F? {
     [string?, camtIsoRecord:Max70Text[]?, string?, string?, string?, string?]
         [name, address, iban, bban, townName, countryCode] = [

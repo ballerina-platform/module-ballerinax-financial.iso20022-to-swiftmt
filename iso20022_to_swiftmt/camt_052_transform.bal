@@ -118,6 +118,10 @@ isolated function transformCamt052ToMt942(camtIsoRecord:Camt052Envelope envelope
         }
     };
 
+# Get sequence number from pagination.
+#
+# + pagntn - pagination
+# + return - decimal sequence number or an error
 isolated function getSequenceNumber(camtIsoRecord:Pagination1? pagntn) returns decimal|error {
     if pagntn is camtIsoRecord:Pagination1 {
         return decimal:fromString(pagntn.PgNb.toString());
@@ -125,6 +129,10 @@ isolated function getSequenceNumber(camtIsoRecord:Pagination1? pagntn) returns d
     return 1;
 }
 
+# Get field 13D.
+# 
+# + bkToCstmrAcctRpt - bank to customer account report
+# + return - MT13D field or an error
 isolated function getField13DforCamt(camtIsoRecord:BankToCustomerAccountReportV12 bkToCstmrAcctRpt) returns swiftmt:MT13D|error {
     if bkToCstmrAcctRpt.Rpt[0].CreDtTm !is () {
         return getField13D(bkToCstmrAcctRpt.Rpt[0].CreDtTm).ensureType();
@@ -132,6 +140,10 @@ isolated function getField13DforCamt(camtIsoRecord:BankToCustomerAccountReportV1
     return getField13D(bkToCstmrAcctRpt.GrpHdr.CreDtTm).ensureType();
 }
 
+# Get field 34F.
+#
+# + currency - currency
+# + return - MT34F field array
 isolated function getField34FforCamt052(camtIsoRecord:ActiveOrHistoricCurrencyCode? currency) returns swiftmt:MT34F[] {
     swiftmt:MT34F[] field34F = [];
     if currency is camtIsoRecord:ActiveOrHistoricCurrencyCode {

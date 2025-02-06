@@ -86,6 +86,10 @@ swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(transact
         }
     };
 
+# Extract date from report entry.
+#
+# + reportEntry - report entry
+# + return - return swift standard date
 isolated function extractDate(camtIsoRecord:ReportEntry14? reportEntry) returns string {
     string date = "";
     if getTransactionDetails(reportEntry?.NtryDtls)?.RltdDts?.IntrBkSttlmDt is string {
@@ -100,6 +104,10 @@ isolated function extractDate(camtIsoRecord:ReportEntry14? reportEntry) returns 
     return convertToSWIFTStandardDate(date);
 }
 
+# Get default field 52.
+#
+# + field52 - field 52
+# + return - return swift field 52 D or nill
 isolated function getdefaultField52(swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52) returns ()|swiftmt:MT52D {
     if field52 !is swiftmt:MT52A && field52 !is swiftmt:MT52D {
         return {name: MT52D_NAME, Nm: [], AdrsLine: [], PrtyIdn: {content: "NOTPROVIDED", number: NUMBER3}};

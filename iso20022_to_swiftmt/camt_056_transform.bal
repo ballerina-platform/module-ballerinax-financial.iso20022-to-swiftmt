@@ -52,6 +52,11 @@ isolated function transformCamt056ToMtn92(camtIsoRecord:Camt056Envelope envelope
         }
     };
 
+# Get message copy field.
+#
+# + dateTime - iso date time
+# + amount - amount
+# + return - return message copy field
 isolated function getMessageCopyForCamt056(camtIsoRecord:ISODateTime? dateTime, camtIsoRecord:ActiveOrHistoricCurrencyAndAmount? amount) returns swiftmt:MessageCopy|error {
 
     if (dateTime is camtIsoRecord:ISODateTime && amount is camtIsoRecord:ActiveOrHistoricCurrencyAndAmount) {

@@ -51,6 +51,10 @@ isolated function transformCamt109ToMt112(camtIsoRecord:Camt109Envelope envelope
         }
     };
 
+# Get field 59 for camt 108 or 109.
+#
+# + cancelStatus - The cheque cancellation status.
+# + return - return the transformed SWIFT MT76 message or an error.
 isolated function getField76ForCamt109(camtIsoRecord:ChequeCancellationStatus1? cancelStatus) returns swiftmt:MT76 {
     if cancelStatus is camtIsoRecord:ChequeCancellationStatus1 {
         // string? code = chequeCancelReasonCode[cancelStatus.Sts.Cd.toString()];
