@@ -29,7 +29,7 @@ isolated function testCustom(xml mx, string mt) returns error? {
 
 function dataGenCustom() returns map<[xml, string]>|error {
     map<[xml, string]> dataSet = {
-        "pacs004_to_205RETN": [check io:fileReadXml("./tests/custom_tests/pacs004_to_MT205RETN"), finMessage_pacs004_to_205RETN]
+        "pacs004_to_205RETN": [check io:fileReadXml("./tests/custom_tests/pacs004_to_MT205RETN.xml"), finMessage_pacs004_to_205RETN]
     };
     return dataSet;
 }
@@ -47,14 +47,3 @@ string finMessage_pacs004_to_205RETN = "{1:F01CHASUS33XXXX0000000000}{2:O2051153
     "/TREF/E2E040445062713+\r\n" +
     "-}";
 
-string finMessage_pacs009_to_202 = "{1:F01NWBKGB2LXXXX0000000000}{2:O2021500210427TDOMUS33XXXX00000000002104271500N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
-    ":20:pacs9bizmsgidr01\r\n" +
-    ":21:pacs9AdvEndToEn+\r\n" +
-    ":32A:210427CAD2565972,\r\n" +
-    ":52A:HKBCCATTCLS\r\n" +
-    ":53A:TDOMCATT\r\n" +
-    ":54A:ROYCCAT2\r\n" +
-    ":57A:NWBKGB2L\r\n" +
-    ":58A:RBOSGB2L\r\n" +
-    ":72:/INS/TDOMUS33\r\n" +
-    "-}";
