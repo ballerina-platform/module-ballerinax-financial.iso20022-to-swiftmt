@@ -25,14 +25,14 @@ import ballerinax/financial.swift.mt as swiftmt;
 isolated function transformCamt105ToMtn90(camtIsoRecord:Camt105Envelope envelope, string messageType) returns swiftmt:MTn90Message|error => let
     camtIsoRecord:ChargesPerTransaction4? charges = envelope.Document.ChrgsPmtNtfctn.Chrgs.PerTx,
     swiftmt:MT32A? field32a = getField32aForCamt105(charges?.Rcrd),
-    swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52D? field52a = check getDebtorAgtDtlsForCamt105(charges?.Rcrd) in {
+    swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52D? field52a = check getDebtorAgtDtlsForCamt105Or106(charges?.Rcrd) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.ChrgsPmtNtfctn.GrpHdr.CreDtTm),
         block3: createMtBlock3(getUETRfromUnderlyingTx(charges?.Rcrd)),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(charges?.ChrgsId.toString()), number: NUMBER1}},
-            MT21: {name: MT21_NAME, Ref: {content: getField21ForCamt105(charges?.Rcrd), number: NUMBER1}},
+            MT21: {name: MT21_NAME, Ref: {content: getField21ForCamt105Or106(charges?.Rcrd), number: NUMBER1}},
             MT25: {
                 name: MT25_NAME,
                 Acc: {
@@ -54,7 +54,9 @@ isolated function transformCamt105ToMtn90(camtIsoRecord:Camt105Envelope envelope
 #
 # + rec - Charges per transaction record.
 # + return - return charges breakdown.
-isolated function getChargesBreakdown(camtIsoRecord:ChargesPerTransactionRecord3[]|camtIsoRecord:ChargesPerTransactionRecord4[]? rec) returns camtIsoRecord:ChargesBreakdown1[]? {
+isolated function getChargesBreakdown(
+    camtIsoRecord:ChargesPerTransactionRecord3[]?|camtIsoRecord:ChargesPerTransactionRecord4[]? rec)
+    returns camtIsoRecord:ChargesBreakdown1[]? {
     if rec is camtIsoRecord:ChargesPerTransactionRecord3[]|camtIsoRecord:ChargesPerTransactionRecord4[] {
         return rec[0].ChrgsBrkdwn;
     }
@@ -65,8 +67,10 @@ isolated function getChargesBreakdown(camtIsoRecord:ChargesPerTransactionRecord3
 #
 # + recordsArray - Charges per transaction records.
 # + return - return field 21 content.
-isolated function getField21ForCamt105(camtIsoRecord:ChargesPerTransactionRecord4[]? recordsArray) returns string {
-    if recordsArray is camtIsoRecord:ChargesPerTransactionRecord4[] {
+isolated function getField21ForCamt105Or106(
+    camtIsoRecord:ChargesPerTransactionRecord4[]?|camtIsoRecord:ChargesPerTransactionRecord3[]? recordsArray)
+    returns string {
+    if recordsArray is camtIsoRecord:ChargesPerTransactionRecord4[]|camtIsoRecord:ChargesPerTransactionRecord3[] {
         [string?, string?, string?, string?] [instrId, endToEndId, msgId, acctSvcrRef] = [
             recordsArray[0].UndrlygTx?.InstrId,
             recordsArray[0].UndrlygTx?.EndToEndId,
@@ -93,20 +97,21 @@ isolated function getField21ForCamt105(camtIsoRecord:ChargesPerTransactionRecord
 #
 # + recordsArray - Charges per transaction records.
 # + return - return field 52.
-isolated function getDebtorAgtDtlsForCamt105(camtIsoRecord:ChargesPerTransactionRecord4[]? recordsArray)
-    returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D?|error {
-    if recordsArray is camtIsoRecord:ChargesPerTransactionRecord4[] {
-        return getField52(recordsArray[0].DbtrAgt?.FinInstnId, recordsArray[0].DbtrAgtAcct?.Id);
-    }
-    return ();
+isolated function getDebtorAgtDtlsForCamt105Or106(
+        camtIsoRecord:ChargesPerTransactionRecord4[]?|camtIsoRecord:ChargesPerTransactionRecord3[]? recordsArray)
+        returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D?|error {
+            if recordsArray is camtIsoRecord:ChargesPerTransactionRecord4[]|camtIsoRecord:ChargesPerTransactionRecord3[]{
+                return getField52(recordsArray[0].DbtrAgt?.FinInstnId, recordsArray[0].DbtrAgtAcct?.Id);
+            }
+            return ();
 }
 
 # Get field 32a for camt 105.
 #
 # + recordsArray - Charges per transaction records.
 # + return - return field 32a.
-isolated function getField32aForCamt105(camtIsoRecord:ChargesPerTransactionRecord4[]? recordsArray) returns swiftmt:MT32A? {
-    if recordsArray is camtIsoRecord:ChargesPerTransactionRecord4[] {
+isolated function getField32aForCamt105(camtIsoRecord:ChargesPerTransactionRecord4[]?|camtIsoRecord:ChargesPerTransactionRecord3[]? recordsArray) returns swiftmt:MT32A? {
+    if recordsArray is camtIsoRecord:ChargesPerTransactionRecord4[]|camtIsoRecord:ChargesPerTransactionRecord3[] {
         if recordsArray[0].TtlChrgsPerRcrd?.CdtDbtInd.toString() == "CRDT" {
             return {
                 name: MT32C_NAME,
