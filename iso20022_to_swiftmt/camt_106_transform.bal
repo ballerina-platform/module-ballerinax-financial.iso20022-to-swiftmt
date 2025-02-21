@@ -1,4 +1,4 @@
-// Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+// Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -44,54 +44,118 @@ isolated function transformCamt106ToMtn91(camtIsoRecord:Camt106Envelope envelope
                 MT72: getField72ForCamt106(chargesRecord,
                     envelope.Document.ChrgsPmtReq.GrpHdr.ChrgsRqstr?.FinInstnId?.BICFI),
                 MT32B: chargesRecord is camtIsoRecord:ChargesPerTransactionRecord3[] ? {
-                    Ccy: {content: chargesRecord[0].TtlChrgsPerRcrd?.TtlChrgsAmt?.Ccy.toString(), number: "1"}, 
+                    Ccy: {content: chargesRecord[0].TtlChrgsPerRcrd?.TtlChrgsAmt?.Ccy.toString(), number: NUMBER1}, 
                     Amnt: {content: convertDecimalToSwiftDecimal(chargesRecord[0].TtlChrgsPerRcrd?.TtlChrgsAmt?.content),
-                        number: "2"}} : {Ccy: {content: "", number: "1"}, Amnt: {content: "NOTPROVIDED", number: "2"}}}
+                        number: NUMBER2}} : {Ccy: {content: "", number: NUMBER1}, 
+                        Amnt: {content: "NOTPROVIDED", number: NUMBER2}}}
         };
 
-# Get field 72 for camt 105.
+# Creates MT72 field for CAMT.106 message
 #
-# + chargesRecord - charges per transaction record.
-# + bic - BIC of the financial institution.
-# + return - return field 72.
-isolated function getField72ForCamt106(camtIsoRecord:ChargesPerTransactionRecord3[]? chargesRecord, string? bic)
-    returns swiftmt:MT72? {
-        string narration = "";
-        if chargesRecord is camtIsoRecord:ChargesPerTransactionRecord3[] {
-            camtIsoRecord:InstructionForInstructedAgent1? instruction= chargesRecord[0].InstrForInstdAgt;
-            if instruction is camtIsoRecord:InstructionForInstructedAgent1 {
-                string? instructionInfo = instruction.InstrInf;
-                if instruction.Cd is string {
-                    narration = "/" + instruction.Cd.toString() + "/";
-                    if instructionInfo is string {
-                        foreach int i in 0 ... instructionInfo.length() - 1 {
-                            if narration.length() % 35 == 0 {
-                                narration = narration + "\n";
-                            }
-                            narration += instructionInfo[i];
-                        }
-                    }
-                    if bic is string {
-                        return {name: MT72_NAME, Cd: {content: narration + "\n/CHRQ/" + bic, number: NUMBER1}};
-                    }
-                }
-                if bic is string {
-                    narration = narration + "/CHRQ/" + bic;
-                }
-                if instructionInfo is string {
-                    narration += "\n/";
-                    foreach int i in 0 ... instructionInfo.length() - 1 {
-                        if narration.length() % 35 == 0 {
-                            narration = narration + "\n";
-                        }
-                        narration = narration + instructionInfo[i];
-                    }
-                }
-                return {name: MT72_NAME, Cd: {content: narration, number: NUMBER1}};
-            }
-        }
+# + chargesRecord - Array of charge transaction records
+# + bic - BIC code
+# + return - MT72 field or null if no data
+isolated function getField72ForCamt106(
+    camtIsoRecord:ChargesPerTransactionRecord3[]? chargesRecord, 
+    string? bic
+) returns swiftmt:MT72? {
+    if chargesRecord is () {
+        return createMT72WithBIC(bic);
+    }
+
+    camtIsoRecord:InstructionForInstructedAgent1? instruction = chargesRecord[0].InstrForInstdAgt;
+    if instruction is () {
+        return createMT72WithBIC(bic);
+    }
+
+    return createMT72WithInstruction(instruction, bic);
+}
+
+# Creates MT72 with instruction information
+#
+# + instruction - Instruction for agent
+# + bic - BIC code
+# + return - MT72 field
+isolated function createMT72WithInstruction(
+    camtIsoRecord:InstructionForInstructedAgent1 instruction, 
+    string? bic
+) returns swiftmt:MT72 {
+    string narration = "";
+    
+    if instruction.Cd is string {
+        narration = formatInstructionCode(instruction);
         if bic is string {
-            return {name: MT72_NAME, Cd: {content: "/CHRQ/" + bic, number: NUMBER1}};
+            return {
+                name: MT72_NAME, 
+                Cd: {
+                    content: narration + "\n" + CHARGE_REQUEST_PREFIX + bic, 
+                    number: NUMBER1
+                }
+            };
         }
-        return ();
+    }
+
+    if bic is string {
+        narration += CHARGE_REQUEST_PREFIX + bic;
+    }
+
+    string? instructionInfo = instruction.InstrInf;
+    if instructionInfo is string {
+        narration = formatInstructionInfo(narration, instructionInfo);
+    }
+
+    return {name: MT72_NAME, Cd: {content: narration, number: NUMBER1}};
+}
+
+# Formats instruction code
+#
+# + instruction - Instruction for agent
+# + return - Formatted instruction code
+isolated function formatInstructionCode(camtIsoRecord:InstructionForInstructedAgent1 instruction) returns string {
+    string narration = INSTRUCTION_CODE_PREFIX + instruction.Cd.toString() + INSTRUCTION_CODE_PREFIX;
+    
+    string? instructionInfo = instruction.InstrInf;
+    if instructionInfo is string {
+        narration = formatInstructionInfo(narration, instructionInfo);
+    }
+    
+    return narration;
+}
+
+# Formats instruction information with line breaks
+#
+# + baseText - Base text to append to
+# + info - Instruction information
+# + return - Formatted instruction information
+isolated function formatInstructionInfo(string baseText, string info) returns string {
+    string result = baseText;
+    if !result.endsWith(INSTRUCTION_CODE_PREFIX) {
+        result += "\n" + INSTRUCTION_CODE_PREFIX;
+    }
+
+    foreach int i in 0 ... info.length() - 1 {
+        if result.length() % LINE_LENGTH == 0 {
+            result += "\n";
+        }
+        result += info[i];
+    }
+    
+    return result;
+}
+
+# Creates MT72 with only BIC
+#
+# + bic - BIC code
+# + return - MT72 field or null if no BIC
+isolated function createMT72WithBIC(string? bic) returns swiftmt:MT72? {
+    if bic is string {
+        return {
+            name: MT72_NAME, 
+            Cd: {
+                content: CHARGE_REQUEST_PREFIX + bic, 
+                number: NUMBER1
+            }
+        };
+    }
+    return ();
 }
