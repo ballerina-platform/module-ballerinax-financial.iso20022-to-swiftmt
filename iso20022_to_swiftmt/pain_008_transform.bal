@@ -22,31 +22,22 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + envelope - The Pain008 envelope containing the corresponding document to be transformed.
 # + messageType - The SWIFT message type
 # + return - The MT104 message or an error if the transformation fails
-function transformPain008DocumentToMT104(painIsoRecord:Pain008Envelope envelope, string messageType) returns swiftmt:MT104Message|error => let
-    swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT104InstructionPartyFromPain008Document(envelope.Document),
+isolated function transformPain008DocumentToMT104(painIsoRecord:Pain008Envelope envelope, string messageType) returns swiftmt:MT104Message|error => let
+    swiftmt:MT50C?|swiftmt:MT50L? instructingParty = getMT104InstructionPartyFromPain008Document(envelope.Document.CstmrDrctDbtInitn.GrpHdr.InitgPty),
     swiftmt:MT50A?|swiftmt:MT50K? creditor = getMT104CreditorFromPain008Document(envelope.Document),
     swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? creditorsBank = getMT104CreditorsBankFromPain008Document(envelope.Document),
     swiftmt:MT53A?|swiftmt:MT53B? sendersCorrespondent = getMT104SendersCorrespondentFromPain008Document(envelope.Document),
     swiftmt:MT104Transaction[] transactions = check generateMT104Transactions(envelope.Document.CstmrDrctDbtInitn.PmtInf, instructingParty, creditor, creditorsBank)
     in {
-        block1: {
-            applicationId: "F",
-            serviceId: "01",
-            logicalTerminal: envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI
-        },
-        block2: {
-            'type: "output",
-            messageType: messageType,
-            MIRLogicalTerminal: envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI,
-            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.CstmrDrctDbtInitn.GrpHdr.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.CstmrDrctDbtInitn.GrpHdr.CreDtTm.substring(0, 10))}
-        },
+        block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+                envelope.Document.CstmrDrctDbtInitn.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
             MT19: {
                 name: MT19_NAME,
                 Amnt: {
-                    content: envelope.Document.CstmrDrctDbtInitn.GrpHdr.CtrlSum.toString(),
+                    content: convertDecimalToSwiftDecimal(envelope.Document.CstmrDrctDbtInitn.GrpHdr.CtrlSum),
                     number: NUMBER1
                 }
             },
@@ -118,8 +109,8 @@ function transformPain008DocumentToMT104(painIsoRecord:Pain008Envelope envelope,
             },
             MT32B: {
                 name: MT32B_NAME,
-                Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: NUMBER1},
-                Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt), number: NUMBER2}
+                Ccy: {content: envelope.Document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt?.Ccy, number: NUMBER1},
+                Amnt: {content: convertDecimalToSwiftDecimal(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].InstdAmt?.content), number: NUMBER2}
             },
             MT71F: {
                 name: MT71F_NAME,
@@ -176,8 +167,8 @@ isolated function generateMT104Transactions(
 
         swiftmt:MT32B MT32B = {
             name: MT32B_NAME,
-            Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: NUMBER1},
-            Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: NUMBER2}
+            Ccy: {content: mxTransaction.DrctDbtTxInf[0].InstdAmt?.Ccy, number: NUMBER1},
+            Amnt: {content: convertDecimalToSwiftDecimal(mxTransaction.DrctDbtTxInf[0].InstdAmt?.content), number: NUMBER2}
         };
 
         swiftmt:MT50C? MT50C = instrutingParty is swiftmt:MT50C ? instrutingParty : ();
@@ -206,8 +197,8 @@ isolated function generateMT104Transactions(
 
         swiftmt:MT33B MT33B = {
             name: MT33B_NAME,
-            Ccy: {content: getActiveOrHistoricCurrencyAndAmountCcy(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: NUMBER1},
-            Amnt: {content: getActiveOrHistoricCurrencyAndAmountValue(mxTransaction.DrctDbtTxInf[0].InstdAmt), number: NUMBER2}
+            Ccy: {content: mxTransaction.DrctDbtTxInf[0].InstdAmt?.Ccy, number: NUMBER1},
+            Amnt: {content: convertDecimalToSwiftDecimal(mxTransaction.DrctDbtTxInf[0].InstdAmt?.content), number: NUMBER2}
         };
 
         swiftmt:MT71A MT71A = {
@@ -239,4 +230,221 @@ isolated function generateMT104Transactions(
 
     }
     return transactions;
+}
+
+# Get the instructing party from the Pain008 document.
+#
+# + instructingParty - The instructing party
+# + return - The instructing party or an empty record
+isolated function getMT104InstructionPartyFromPain008Document(painIsoRecord:PartyIdentification272? instructingParty)
+    returns swiftmt:MT50C?|swiftmt:MT50L? {
+
+    if instructingParty is () {
+        return ();
+    }
+
+    painIsoRecord:GenericPersonIdentification2[]? otherIds = instructingParty.Id?.PrvtId?.Othr;
+    if instructingParty.Id?.OrgId?.AnyBIC != () {
+        return <swiftmt:MT50C>{
+            name: MT50C_NAME,
+            IdnCd: {
+                content: instructingParty.Id?.OrgId?.AnyBIC.toString(),
+                number: NUMBER1
+            }
+        };
+    }
+    if !(otherIds is ()) && otherIds.length() > 0 {
+        return <swiftmt:MT50L>{
+            name: MT50L_NAME,
+            PrtyIdn: {
+                content: otherIds[0].Id.toString(),
+                number: NUMBER1
+            }
+        };
+    }
+
+    return ();
+}
+
+# Get the ordering customer from the Pain008 document.
+#
+# + document - The Pain008 document
+# + return - The ordering customer or an empty record
+isolated function getMT104CreditorFromPain008Document(painIsoRecord:Pain008Document document)
+returns swiftmt:MT50A?|swiftmt:MT50K? {
+    painIsoRecord:PartyIdentification272? creditor = document.CstmrDrctDbtInitn.PmtInf[0].Cdtr;
+
+    if creditor is () {
+        return ();
+    }
+
+    painIsoRecord:Max70Text[]? AdrLine = creditor.PstlAdr?.AdrLine;
+    if creditor.Id?.OrgId?.AnyBIC != () {
+        return <swiftmt:MT50A>{
+            name: MT50A_NAME,
+            IdnCd: {
+                content: creditor.Id?.OrgId?.AnyBIC.toString(),
+                number: NUMBER1
+            }
+        };
+    }
+    if creditor.Nm != () || (!(AdrLine is ()) && AdrLine.length() > 0) {
+        return <swiftmt:MT50K>{
+            name: MT50K_NAME,
+            Nm: getNamesArrayFromNameString(creditor.Nm.toString()),
+            AdrsLine: getAddressLine(creditor.PstlAdr?.AdrLine)
+        };
+    }
+
+    return ();
+}
+
+# Get the account servicing institution from the Pain008 document.
+#
+# + document - The Pain008 document
+# + return - The account servicing institution or an empty record
+isolated function getMT104CreditorsBankFromPain008Document(painIsoRecord:Pain008Document document)
+returns swiftmt:MT52A?|swiftmt:MT52C?|swiftmt:MT52D? {
+    painIsoRecord:BranchAndFinancialInstitutionIdentification8? creditorsBank = document.CstmrDrctDbtInitn.PmtInf[0].CdtrAgt;
+
+    if creditorsBank is () {
+        return ();
+    }
+
+    if creditorsBank.FinInstnId?.BICFI != () {
+        return <swiftmt:MT52A>{
+            name: MT52A_NAME,
+            IdnCd: {
+                content: creditorsBank.FinInstnId?.BICFI.toString(),
+                number: NUMBER1
+            }
+        };
+    }
+    if creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId != () {
+        return <swiftmt:MT52C>{
+            name: MT52C_NAME,
+            PrtyIdn: {
+                content: creditorsBank.FinInstnId?.ClrSysMmbId?.MmbId.toString(),
+                number: NUMBER1
+            }
+        };
+    }
+    if creditorsBank.FinInstnId?.Nm != () || creditorsBank.FinInstnId?.PstlAdr?.AdrLine != () {
+        return <swiftmt:MT52D>{
+            name: MT52D_NAME,
+            Nm: getNamesArrayFromNameString(creditorsBank.FinInstnId?.Nm.toString()),
+            AdrsLine: getAddressLine(creditorsBank.FinInstnId?.PstlAdr?.AdrLine)
+        };
+    }
+
+    return ();
+}
+
+# Get the document debtor's bank from the Pain008 document.
+#
+# + mxTransaction - The MX document
+# + return - The document debtor's bank or an empty record
+isolated function getMT104TransactionDebtorsBankFromPain008Document(painIsoRecord:PaymentInstruction45 mxTransaction)
+returns swiftmt:MT57A?|swiftmt:MT57C?|swiftmt:MT57D? {
+    painIsoRecord:BranchAndFinancialInstitutionIdentification8? dbtrAgt = mxTransaction.DrctDbtTxInf[0].DbtrAgt;
+
+    if dbtrAgt is () {
+        return ();
+    }
+    if dbtrAgt.FinInstnId?.BICFI != () {
+        return <swiftmt:MT57A>{
+            name: MT57A_NAME,
+            IdnCd: {
+                content: dbtrAgt.FinInstnId.BICFI.toString(),
+                number: NUMBER1
+            }
+        };
+    }
+    if dbtrAgt.FinInstnId?.ClrSysMmbId?.MmbId != () {
+        return <swiftmt:MT57C>{
+            name: MT57C_NAME,
+            PrtyIdn: {
+                content: dbtrAgt.FinInstnId.ClrSysMmbId?.MmbId.toString(),
+                number: NUMBER1
+            }
+        };
+    }
+    if dbtrAgt.FinInstnId?.Othr?.Id != () {
+        return <swiftmt:MT57D>{
+            name: MT57D_NAME,
+            PrtyIdn: {
+                content: dbtrAgt.FinInstnId.Othr?.Id.toString(),
+                number: NUMBER1
+            },
+            Nm: getNamesArrayFromNameString(dbtrAgt.FinInstnId.Nm.toString()),
+            AdrsLine: getAddressLine(dbtrAgt.FinInstnId.PstlAdr?.AdrLine)
+        };
+    }
+
+    return ();
+}
+
+# Get the document debtor from the Pain008 document.
+#
+# + mxTransaction - The MX document
+# + return - The document debtor or an empty record
+isolated function getMT104TransactionDebtorFromPain008Document(painIsoRecord:PaymentInstruction45 mxTransaction)
+returns swiftmt:MT59?|swiftmt:MT59A? {
+    painIsoRecord:PartyIdentification272? debtor = mxTransaction.DrctDbtTxInf[0].Dbtr;
+
+    if debtor is () {
+        return ();
+    }
+    if debtor.Id?.OrgId?.AnyBIC != () {
+        return <swiftmt:MT59A>{
+            name: MT56A_NAME,
+            IdnCd: {
+                content: debtor.Id?.OrgId?.AnyBIC.toString(),
+                number: NUMBER1
+            }
+        };
+    }
+    if debtor.Nm != () || debtor.PstlAdr?.AdrLine != () {
+        return <swiftmt:MT59>{
+            name: MT59_NAME,
+            Nm: getNamesArrayFromNameString(debtor.Nm.toString()),
+            AdrsLine: getAddressLine(debtor.PstlAdr?.AdrLine)
+        };
+    }
+
+    return ();
+}
+
+# Get the senders correspondent from the Pain008 document.
+#
+# + document - The Pain008 document
+# + return - The senders correspondent or an empty record
+isolated function getMT104SendersCorrespondentFromPain008Document(painIsoRecord:Pain008Document document)
+returns swiftmt:MT53A?|swiftmt:MT53B? {
+    painIsoRecord:BranchAndFinancialInstitutionIdentification8? sendersCorrespondent = document.CstmrDrctDbtInitn.GrpHdr.FwdgAgt;
+
+    if sendersCorrespondent is () {
+        return ();
+    }
+
+    if sendersCorrespondent.FinInstnId?.BICFI != () {
+        return <swiftmt:MT53A>{
+            name: MT53A_NAME,
+            IdnCd: {
+                content: sendersCorrespondent.FinInstnId.BICFI.toString(),
+                number: NUMBER1
+            }
+        };
+    }
+    if sendersCorrespondent.FinInstnId?.PstlAdr?.TwnNm != () {
+        return <swiftmt:MT53B>{
+            name: MT53B_NAME,
+            Lctn: {
+                content: sendersCorrespondent.FinInstnId.PstlAdr?.TwnNm.toString(),
+                number: NUMBER1
+            }
+        };
+    }
+
+    return ();
 }

@@ -25,25 +25,17 @@ import ballerinax/financial.swift.mt as swiftmt;
 isolated function transformCamt026ToMtn95(camtIsoRecord:Camt026Envelope envelope, string messageType) returns swiftmt:MTn95Message|error => let
     camtIsoRecord:SupplementaryData1[]? splmtryData = envelope.Document.UblToApply.SplmtryData
     in {
-        block1: {
-            applicationId: "F",
-            serviceId: "01",
-            logicalTerminal: getSenderOrReceiver(envelope.Document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
-        },
-        block2: {
-            'type: "output",
-            messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.UblToApply.Assgnmt.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.UblToApply.Assgnmt.CreDtTm.substring(0, 10))}
-        },
+        block1: generateBlock1(getSenderOrReceiver(envelope.Document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
+                        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
+                        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.UblToApply.Assgnmt.CreDtTm),
         block3: createMtBlock3(envelope.Document.UblToApply.Undrlyg.Initn?.OrgnlUETR),
         block4: {
             MT20: check getMT20(envelope.Document.UblToApply.Case?.Id),
             MT21: {
                 name: MT21_NAME,
                 Ref: {
-                    content: envelope.Document.UblToApply.Undrlyg.Initn?.OrgnlInstrId.toString(),
+                    content: truncate(envelope.Document.UblToApply.Undrlyg.Initn?.OrgnlInstrId, 16),
                     number: NUMBER1
                 }
             },
@@ -70,7 +62,7 @@ isolated function transformCamt026ToMtn95(camtIsoRecord:Camt026Envelope envelope
                     Nrtv: formatNarrative(splmtryData[0].Envlp?.Nrtv)
                 }
                 : (),
-            MessageCopy: () // TODO - Need to add the relavent field mapping for this using the official mappings
+            MessageCopy: () // TODO - Need to add the relevant field mapping for this using the official mappings
 
         },
         block5: check generateMtBlock5FromSupplementaryData(envelope.Document.UblToApply.SplmtryData),

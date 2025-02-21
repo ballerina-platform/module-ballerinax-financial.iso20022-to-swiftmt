@@ -22,26 +22,40 @@ import ballerina/data.xmldata;
 # and applies the appropriate transformation based on the provided XML content and target SWIFT MT message type.
 #
 # + xmlContent - The ISO 20022 XML content that needs to be converted.
-# + messageType - The target SWIFT MT message type (e.g., "103", "102STP","202", "202COV").
 # + return - Returns the transformed SWIFT MT message as a record value or an error if the conversion fails.
-public isolated function toSwiftMtMessage(xml xmlContent, string messageType) returns record {}|error {
+public isolated function toSwiftMtMessage(xml xmlContent) returns record {}|error {
     xml:Element document = xml `<Empty/>`;
     foreach xml:Element element in xmlContent.elementChildren() {
         if element.getName().includes("Document") {
             document = element;
         }
     }
-    string? isoMessageType = (document).getAttributes()["{" + xml:XMLNS_NAMESPACE_URI + "}xmlns"];
-    if isoMessageType is () {
+    map<string> attributeMap = (document).getAttributes();
+    if attributeMap.length() == 0 {
         return error("Invalid xml: Cannot be converted to SWIFT MT message.");
     }
-    typedesc<record {}>? recordType = isoMessageTypes[isoMessageType.substring(31, 39)];
-    if recordType is () {
-        return error("ISO 20022 message type not supported.");
+    string isoRecordType = "";
+    typedesc<record {}>? isoEnvelope = ();
+    boolean isNameSpacePresent = false;
+    foreach string attributeKey in attributeMap.keys() {
+        if attributeKey.includes("xmlns") {
+            isNameSpacePresent = true;
+            foreach string recordKey in isoMessageTypes.keys() {
+                string? nameSpace = attributeMap[attributeKey];
+                if nameSpace is string && nameSpace.includes(recordKey) {
+                    isoEnvelope = isoMessageTypes[recordKey];
+                    isoRecordType = recordKey;
+                    break;
+                }
+            }
+        }
     }
-    isolated function? transformFunction = transformFunctionMap[messageType];
-    if transformFunction is () {
-        return error("ISO 20022 xml to SWIFT MT message is not supported.");
+    if !isNameSpacePresent {
+        return error("Invalid xml: Cannot be converted to SWIFT MT message.");
     }
-    return function:call(transformFunction, check xmldata:parseAsType(xmlContent, {textFieldName: "content"}, recordType), messageType.substring(0, 3)).ensureType();
+    if isoEnvelope is () {
+        return error("ISO 20022 message type is not supported.");
+    }
+
+    return getTransformFunction(isoRecordType, check xmldata:parseAsType(xmlContent, {textFieldName: "content"}, isoEnvelope)).ensureType();
 }

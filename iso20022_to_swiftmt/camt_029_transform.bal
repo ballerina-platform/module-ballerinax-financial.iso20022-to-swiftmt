@@ -23,30 +23,69 @@ import ballerinax/financial.swift.mt as swiftmt;
 # + messageType - The SWIFT MTn96 message type to be transformed.
 # + return - Returns an MTn96 message in the `swiftmt:MTn96Message` format if successful, otherwise returns an error.
 isolated function transformCamt029ToMtn96(camtIsoRecord:Camt029Envelope envelope, string messageType) returns swiftmt:MTn96Message|error => let
-    camtIsoRecord:PaymentTransaction152 cancellationDtls = check getTransactionInfoAndSts(check getCancellationDetails(envelope.Document.RsltnOfInvstgtn.CxlDtls)),
-    var [field76, field77A] = getField76(cancellationDtls.CxlStsRsnInf, envelope.Document.RsltnOfInvstgtn.Sts.Conf) in {
-        block1: {
-            applicationId:"F",
-            serviceId: "01",
-            logicalTerminal: getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)
-        },
-        block2: {
-            'type: "output",
-            messageType: messageType,
-            MIRLogicalTerminal: getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI, envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
-            senderInputTime: {content: check convertToSwiftTimeFormat(envelope.Document.RsltnOfInvstgtn.Assgnmt.CreDtTm.substring(11))},
-            MIRDate: {content: convertToSWIFTStandardDate(envelope.Document.RsltnOfInvstgtn.Assgnmt.CreDtTm.substring(0, 10))}
-        },
+    camtIsoRecord:PaymentTransaction152 cancellationDtls = check getTransactionInfoAndStsFromCamt029(check getCancellationDetailsFromCamt029(envelope.Document.RsltnOfInvstgtn.CxlDtls)),
+    string status = generateStatus(envelope.Document.RsltnOfInvstgtn),
+    var field76 = getCamtField76(status),
+    var field77A = getCamtField77A(status, envelope.Document.RsltnOfInvstgtn)
+    in {
+        block1: generateBlock1(getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
+                        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
+        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgnr.Agt?.FinInstnId?.BICFI,
+                        envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.RsltnOfInvstgtn.Assgnmt.CreDtTm),
         block3: createMtBlock3(cancellationDtls.OrgnlUETR),
         block4: {
-            MT20: {name: MT20_NAME, msgId: {content: getMandatoryField(cancellationDtls.CxlStsId), number: NUMBER1}},
-            MT21: {name: MT21_NAME, Ref: {content: getMandatoryField(cancellationDtls.RslvdCase?.Id), number: NUMBER1}},
+            MT20: {name: MT20_NAME, msgId: {content: getField20Content(cancellationDtls.CxlStsId), number: NUMBER1}},
+            MT21: {name: MT21_NAME, Ref: {content: truncate(cancellationDtls.RslvdCase?.Id, 16), number: NUMBER1}},
             MT11R: {
                 name: MT11R_NAME,
                 Dt: {content: convertToSWIFTStandardDate(cancellationDtls.OrgnlGrpInf?.OrgnlCreDtTm), number: NUMBER2},
-                MtNum: {content: getMandatoryField(cancellationDtls.OrgnlGrpInf?.OrgnlMsgNmId), number: NUMBER1}
+                MtNum: {content: getCamt029MtNumber(getMandatoryField(cancellationDtls.OrgnlGrpInf?.OrgnlMsgNmId)), number: NUMBER1}
             },
             MT76: field76,
             MT77A: field77A
         }
     };
+
+# Get cancellation details from camt.029.
+#
+# + cxlDtls - camt.029 cancellation details array
+# + return - return cancellation details or error
+isolated function getCancellationDetailsFromCamt029(camtIsoRecord:UnderlyingTransaction32[]? cxlDtls) returns camtIsoRecord:PaymentTransaction152[]?|error {
+    if cxlDtls is camtIsoRecord:UnderlyingTransaction32[] {
+        if cxlDtls[0].TxInfAndSts is camtIsoRecord:PaymentTransaction152[] {
+            return cxlDtls[0].TxInfAndSts;
+        }
+    }
+    return error("Transaction Information is required to transform this ISO 20022 message to SWIFT message.");
+}
+
+# Get transaction information and status from camt.029.
+#
+# + txInfAndSts - camt.029 transaction information and status array
+# + return - return transaction information and status or error
+isolated function getTransactionInfoAndStsFromCamt029(camtIsoRecord:PaymentTransaction152[]? txInfAndSts) returns camtIsoRecord:PaymentTransaction152|error {
+    if txInfAndSts is camtIsoRecord:PaymentTransaction152[] {
+        return txInfAndSts[0];
+    }
+    return error("Transaction Information is required to transform this ISO 20022 message to SWIFT message.");
+}
+
+# Get mt number from camt.029 original message name.
+#
+# + orgnlMsgNmId - original message name
+# + return - return mt number
+isolated function getCamt029MtNumber(string orgnlMsgNmId) returns string {
+    if orgnlMsgNmId.includes(PACS008) {
+        return "103";
+    } else if orgnlMsgNmId.includes(PACS003) {
+        return "104";
+    } else if orgnlMsgNmId.includes(PACS009) {
+        return "202";
+    } else if orgnlMsgNmId.includes(PACS010) {
+        return "204";
+    } else if orgnlMsgNmId.includes(PACS003) {
+        return "104";
+    } else {
+        return orgnlMsgNmId.substring(3);
+    }
+}

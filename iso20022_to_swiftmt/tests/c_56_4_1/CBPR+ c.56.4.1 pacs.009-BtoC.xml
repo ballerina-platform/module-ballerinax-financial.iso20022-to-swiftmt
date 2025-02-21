@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+====================================================================================================================================================================
+c.56.4.1Agent B Toronto Dominion US sends a pacs.009 to C Toronto Dominion Canada
+========================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
+	<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.04">
+		<Fr>
+			<FIId>
+				<FinInstnId>
+					<BICFI>TDOMUS33</BICFI>
+				</FinInstnId>
+			</FIId>
+		</Fr>
+		<To>
+			<FIId>
+				<FinInstnId>
+					<BICFI>TDOMCATT</BICFI>
+				</FinInstnId>
+			</FIId>
+		</To>
+		<BizMsgIdr>pacs9bizmsgidr02</BizMsgIdr>
+		<MsgDefIdr>pacs.009.001.08</MsgDefIdr>
+		<BizSvc>swift.cbprplus.02</BizSvc>
+		<CreDt>2021-04-27T09:15:00-05:00</CreDt>
+	</AppHdr>
+	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.009.001.11">
+		<FICdtTrf>
+			<GrpHdr>
+				<MsgId>pacs9bizmsgidr02</MsgId>
+				<CreDtTm>2021-04-27T09:15:00-05:00</CreDtTm>
+				<NbOfTxs>1</NbOfTxs>
+				<SttlmInf>
+					<SttlmMtd>INDA</SttlmMtd>
+				</SttlmInf>
+			</GrpHdr>
+			<CdtTrfTxInf>
+				<PmtId>
+					<InstrId>pacs9bizmsgidr02</InstrId>
+					<EndToEndId>pacs9bizmsgidr01</EndToEndId>
+					<UETR>7a562c67-ca16-48ba-b074-65581be6f001</UETR>
+				</PmtId>
+				<IntrBkSttlmAmt Ccy="CAD">2565972</IntrBkSttlmAmt>
+				<IntrBkSttlmDt>2021-04-27</IntrBkSttlmDt>
+				<InstgAgt>
+					<FinInstnId>
+						<BICFI>TDOMUS33</BICFI>
+					</FinInstnId>
+				</InstgAgt>
+				<InstdAgt>
+					<FinInstnId>
+						<BICFI>TDOMCATT</BICFI>
+					</FinInstnId>
+				</InstdAgt>
+				<Dbtr>
+					<FinInstnId>
+						<BICFI>TDOMUS33</BICFI>
+					</FinInstnId>
+				</Dbtr>
+				<DbtrAgt>
+					<FinInstnId>
+						<BICFI>TDOMCATT</BICFI>
+					</FinInstnId>
+				</DbtrAgt>
+				<CdtrAgt>
+					<FinInstnId>
+						<BICFI>ROYCCAT2</BICFI>
+					</FinInstnId>
+				</CdtrAgt>
+				<Cdtr>
+					<FinInstnId>
+						<BICFI>NWBKGB2L</BICFI>
+					</FinInstnId>
+				</Cdtr>
+				<InstrForCdtrAgt>
+					<InstrInf>/UDLC/RBOSGB2L</InstrInf>
+				</InstrForCdtrAgt>
+			</CdtTrfTxInf>
+		</FICdtTrf>
+	</Document>
+</Envelope>

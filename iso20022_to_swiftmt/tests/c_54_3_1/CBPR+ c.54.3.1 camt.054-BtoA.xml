@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
+=========================================================================================================================================================================================
+SWIFT � 2020. All rights reserved. 
+This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
+The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
+=================================================================================================================================================================================
+c.54.3.1B Awa Bank sends a camt.054 to A Standard Chartered
+========================================================================================================================
+-->
+<Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
+	<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.04">
+		<Fr>
+			<FIId>
+				<FinInstnId>
+					<BICFI>AWABJPJT</BICFI>
+				</FinInstnId>
+			</FIId>
+		</Fr>
+		<To>
+			<FIId>
+				<FinInstnId>
+					<BICFI>SCBLSG22</BICFI>
+				</FinInstnId>
+			</FIId>
+		</To>
+		<BizMsgIdr>cmt054bizmsgidr-001</BizMsgIdr>
+		<MsgDefIdr>camt.054.001.08</MsgDefIdr>
+		<BizSvc>swift.cbprplus.02</BizSvc>
+		<CreDt>2020-08-06T20:00:47+09:00</CreDt>
+	</AppHdr>
+	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.054.001.12">
+		<BkToCstmrDbtCdtNtfctn>
+			<GrpHdr>
+				<MsgId>cmt054bizmsgidr-001</MsgId>
+				<CreDtTm>2020-08-06T20:00:47+09:00</CreDtTm>
+			</GrpHdr>
+			<Ntfctn>
+				<Id>cmt054NtfctnId-001</Id>
+				<Acct>
+					<Id>
+						<Othr>
+							<Id>AWA15457</Id>
+						</Othr>
+					</Id>
+					<Ccy>JPY</Ccy>
+				</Acct>
+				<Ntry>
+					<NtryRef>cmt054NtryRef001</NtryRef>
+					<Amt Ccy="JPY">165486600</Amt>
+					<CdtDbtInd>DBIT</CdtDbtInd>
+					<Sts>
+						<Cd>BOOK</Cd>
+					</Sts>
+					<ValDt>
+						<Dt>2020-08-06</Dt>
+					</ValDt>
+					<BkTxCd>
+						<Domn>
+							<Cd>PMNT</Cd>
+							<Fmly>
+								<Cd>ICDT</Cd>
+								<SubFmlyCd>XBCT</SubFmlyCd>
+							</Fmly>
+						</Domn>
+					</BkTxCd>
+					<NtryDtls>
+						<TxDtls>
+							<Refs>
+								<InstrId>pacs9bizmsgidr01</InstrId>
+								<EndToEndId>pacs008EndToEndId-001</EndToEndId>
+								<UETR>8a562c67-ca16-48ba-b074-65581be6f001</UETR>
+							</Refs>
+							<Amt Ccy="JPY">165486600</Amt>
+							<CdtDbtInd>DBIT</CdtDbtInd>
+							<RltdDts>
+								<IntrBkSttlmDt>2020-08-06</IntrBkSttlmDt>
+							</RltdDts>
+						</TxDtls>
+					</NtryDtls>
+				</Ntry>
+			</Ntfctn>
+		</BkToCstmrDbtCdtNtfctn>
+	</Document>
+</Envelope>
