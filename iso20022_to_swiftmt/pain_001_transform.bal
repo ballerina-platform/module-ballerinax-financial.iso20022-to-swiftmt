@@ -134,7 +134,7 @@ isolated function generateMT101Transactions(
                 name: MT71A_NAME,
                 Cd: getDetailsOfChargesFromChargeBearerType1Code(creditTransferTransaction.ChrgBr)
             },
-            MT36: check getField36(creditTransferTransaction.XchgRateInf?.XchgRate)
+            MT36: getField36(creditTransferTransaction.XchgRateInf?.XchgRate)
         });
     }
 

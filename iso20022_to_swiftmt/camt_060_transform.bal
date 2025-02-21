@@ -31,7 +31,7 @@ swiftmt:MT25A?|swiftmt:MT25P? field25a = getCashAccount(envelope.Document.AcctRp
             MT12: {name: MT12_NAME, Msg: {content: envelope.Document.AcctRptgReq.RptgReq[0].ReqdMsgNmId, number: NUMBER1}},
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(envelope.Document.AcctRptgReq.GrpHdr.MsgId), number: NUMBER1}},
             MT25: field25a is swiftmt:MT25A ? field25a : {name: MT25_NAME, Acc: {content: "NOTPROVIDED", number: NUMBER1}},
-            MT34F: check getField34F(envelope.Document.AcctRptgReq.RptgReq[0].ReqdTxTp?.FlrLmt)
+            MT34F: getField34F(envelope.Document.AcctRptgReq.RptgReq[0].ReqdTxTp?.FlrLmt)
         }
     };
 

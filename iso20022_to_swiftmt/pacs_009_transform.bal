@@ -249,7 +249,7 @@ isolated function getUnderlyingCustomerTransaction(pacsIsoRecord:CreditTransferT
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.UndrlygCstmrCdtTrf?.CdtrAgt?.FinInstnId, creditTransfer.UndrlygCstmrCdtTrf?.CdtrAgtAcct?.Id, true);
     swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? field59 = getField59a(creditTransfer.UndrlygCstmrCdtTrf?.Cdtr, creditTransfer.UndrlygCstmrCdtTrf?.CdtrAcct?.Id);
     return {
-        MT33B: check getField33B(creditTransfer.UndrlygCstmrCdtTrf?.InstdAmt, (), true),
+        MT33B: getField33B(creditTransfer.UndrlygCstmrCdtTrf?.InstdAmt, (), true),
         MT50F: field50a is swiftmt:MT50F ? field50a : (),
         MT50A: field50a is swiftmt:MT50A ? field50a : (),
         MT50K: field50a is swiftmt:MT50K ? field50a : (),

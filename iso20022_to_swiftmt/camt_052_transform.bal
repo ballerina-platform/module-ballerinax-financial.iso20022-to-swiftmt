@@ -56,7 +56,7 @@ isolated function transformCamt052ToMt972(camtIsoRecord:Camt052Envelope envelope
             MT28C: {name: MT28C_NAME, StmtNo: {content: envelope.Document.BkToCstmrAcctRpt.Rpt[0].LglSeqNb ?: 1, number: NUMBER1}, SeqNo: {content: envelope.Document.BkToCstmrAcctRpt.Rpt[0].ElctrncSeqNb ?: 1, number: NUMBER2}},
             MT60F: field60F,
             MT62F: field62F,
-            MT61: check getField61(envelope.Document.BkToCstmrAcctRpt.Rpt[0].Ntry),
+            MT61: getField61(envelope.Document.BkToCstmrAcctRpt.Rpt[0].Ntry),
             MT60M: field60M.length() == 0 ? () : field60M,
             MT62M: field62M.length() == 0 ? () : field62M,
             MT64: field64.length() == 0 ? () : field64
@@ -112,7 +112,7 @@ isolated function transformCamt052ToMt942(camtIsoRecord:Camt052Envelope envelope
             },
             MT13D: check getField13DforCamt(envelope.Document.BkToCstmrAcctRpt),
             MT34F: getField34FforCamt052(report.Acct?.Ccy),
-            MT61: check getField61(report.Ntry),
+            MT61: getField61(report.Ntry),
             MT90D: check getField90(report.TxsSummry?.TtlDbtNtries, false),
             MT90C: check getField90(report.TxsSummry?.TtlCdtNtries, true)
         }

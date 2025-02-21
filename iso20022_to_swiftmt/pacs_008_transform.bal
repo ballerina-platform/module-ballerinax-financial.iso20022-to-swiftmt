@@ -217,7 +217,7 @@ returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
 
         swiftmt:MT26T? MT26T = getRepeatingField26T(mxTransactions, transaxion.Purp, true);
 
-        swiftmt:MT33B? MT33B = check getField33B(transaxion.InstdAmt, transaxion.IntrBkSttlmAmt);
+        swiftmt:MT33B? MT33B = getField33B(transaxion.InstdAmt, transaxion.IntrBkSttlmAmt);
 
         swiftmt:MT71A? MT71A = getRepeatingField71A(mxTransactions, transaxion.ChrgBr, true);
 
@@ -338,9 +338,9 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Envelope envelope, MT
         Amnt: {content: convertDecimalToSwiftDecimal(firstTransaction.IntrBkSttlmAmt?.content), number: NUMBER3}
     };
 
-    swiftmt:MT33B? MT33B = check getField33B(firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmAmt);
+    swiftmt:MT33B? MT33B = getField33B(firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmAmt);
 
-    swiftmt:MT36? MT36 = check getField36(firstTransaction.XchgRate);
+    swiftmt:MT36? MT36 = getField36(firstTransaction.XchgRate);
 
     swiftmt:MT50A? MT50A = field50a is swiftmt:MT50A ? field50a : ();
     swiftmt:MT50F? MT50F = field50a is swiftmt:MT50F ? field50a : ();

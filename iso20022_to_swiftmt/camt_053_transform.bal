@@ -44,7 +44,7 @@ isolated function transformCamt053ToMt940(camtIsoRecord:Camt053Envelope envelope
             },
             MT60F: field60F,
             MT62F: field62F,
-            MT61: check getField61(statement.Ntry),
+            MT61: getField61(statement.Ntry),
             MT60M: field60M.length() == 0 ? () : field60M,
             MT62M: field62M.length() == 0 ? () : field62M,
             MT64: field64.length() == 0 ? () : field64,
@@ -78,7 +78,7 @@ isolated function transformCamt053ToMt950(camtIsoRecord:Camt053Envelope envelope
             },
             MT60F: field60F,
             MT62F: field62F,
-            MT61: check getField61(statement.Ntry),
+            MT61: getField61(statement.Ntry),
             MT60M: field60M.length() == 0 ? () : field60M,
             MT62M: field62M.length() == 0 ? () : field62M,
             MT64: field64.length() == 0 ? () : field64
@@ -111,7 +111,7 @@ isolated function transformCamt053ToMt970(camtIsoRecord:Camt053Envelope envelope
             },
             MT60F: field60F,
             MT62F: field62F,
-            MT61: check getField61(statement.Ntry),
+            MT61: getField61(statement.Ntry),
             MT60M: field60M.length() == 0 ? () : field60M,
             MT62M: field62M.length() == 0 ? () : field62M,
             MT64: field64.length() == 0 ? () : field64
