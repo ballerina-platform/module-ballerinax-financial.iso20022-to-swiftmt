@@ -27,7 +27,7 @@ isolated function testP211(xml mx, string mt) returns error? {
     test:assertEquals((check swiftmt:getFinMessage(rec)).toString(), mt, msg = "Use case p.2.1.1 result incorrect");
 }
 
-string finMessage_211_A_B = "{1:F01ABNANL2AXXXX0000000000}{2:O1030900210409RBOSGB2LXXXX00000000002104090900N}{3:{121:8a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n"+
+string finMessage_211_A_B = "{1:F01ABNANL2AXXXX0000000000}{2:O1030800210409RBOSGB2LXXXX00000000002104090800N}{3:{121:8a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n"+
         ":20:pacs8bizmsgidr01\r\n" +
         ":23B:CRED\r\n" +
         ":32A:210409EUR15669,38\r\n" +
@@ -47,7 +47,7 @@ string finMessage_211_A_B = "{1:F01ABNANL2AXXXX0000000000}{2:O1030900210409RBOSG
         ":71A:OUR\r\n" +
         "-}";
 
-string finMessage_211_B_C = "{1:F01NDEAFIHHXXXX0000000000}{2:O1030910210409ABNANL2AXXXX00000000002104090910N}{3:{121:8a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_211_B_C = "{1:F01NDEAFIHHXXXX0000000000}{2:O1030710210409ABNANL2AXXXX00000000002104090710N}{3:{121:8a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
         ":20:pacs8bizmsgidr02\r\n" +
         ":23B:CRED\r\n" +
         ":32A:210409EUR15669,38\r\n" +
@@ -66,7 +66,7 @@ string finMessage_211_B_C = "{1:F01NDEAFIHHXXXX0000000000}{2:O1030910210409ABNAN
         ":71A:OUR\r\n" +
         "-}";
 
-string finMessage_211_C_D = "{1:F01HELSFIHHXXXX0000000000}{2:O1030920210409NDEAFIHHXXXX00000000002104090920N}{3:{121:8a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_211_C_D = "{1:F01HELSFIHHXXXX0000000000}{2:O1030720210409NDEAFIHHXXXX00000000002104090720N}{3:{121:8a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
         ":20:pacs8bizmsgidr03\r\n" +
         ":23B:CRED\r\n" +
         ":32A:210409EUR15669,38\r\n" +

@@ -37,7 +37,7 @@ function dataGen10812() returns map<[xml, string]>|error {
     return dataSet;
 }
 
-string finMessage_10812_c053_B_A = "{1:F01MYMBGB2LXXXX0000000000}{2:O9401800221020RBSSGBKCXXXX00000000002210201800N}{4:\r\n" +
+string finMessage_10812_c053_B_A = "{1:F01MYMBGB2LXXXX0000000000}{2:O9401600221020RBSSGBKCXXXX00000000002210201600N}{4:\r\n" +
     ":20:Stmnt-100-01\r\n" +
     ":25:9875687\r\n" +
     ":28C:1001/1\r\n" +

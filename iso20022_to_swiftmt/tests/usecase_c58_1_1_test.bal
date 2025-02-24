@@ -35,7 +35,7 @@ function dataGen5811() returns map<[xml, string]>|error {
     return dataSet;
 }
 
-string finMessage_5811_c57_Cdtr_C = "{1:F01NDEAFIHHXXXX0000000000}{2:O2100925221020OKOYFIHHXXXX00000000002210200925N}{4:\r\n" +
+string finMessage_5811_c57_Cdtr_C = "{1:F01NDEAFIHHXXXX0000000000}{2:O2100725221020OKOYFIHHXXXX00000000002210200725N}{4:\r\n" +
     ":20:cmt057bizmsgidr+\r\n" +
     ":25:25698745\r\n" +
     ":30:221025\r\n" +

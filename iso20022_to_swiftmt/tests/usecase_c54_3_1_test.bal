@@ -34,7 +34,7 @@ function dataGen5431() returns map<[xml, string]>|error {
     return dataSet;
 }
 
-string finMessage_5431_B_A = "{1:F01SCBLSG22XXXX0000000000}{2:O9002000200806AWABJPJTXXXX00000000002008062000N}{4:\r\n" +
+string finMessage_5431_B_A = "{1:F01SCBLSG22XXXX0000000000}{2:O9001100200806AWABJPJTXXXX00000000002008061100N}{4:\r\n" +
     ":20:cmt054bizmsgidr+\r\n" +
     ":21:pacs9bizmsgidr01\r\n" +
     ":25:AWA15457\r\n" +

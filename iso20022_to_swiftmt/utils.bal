@@ -2851,7 +2851,7 @@ isolated function getSenderOrReceiver(string? identifierCode, string? identifier
 # + content - parameter description
 # + return - return value description
 isolated function convertToSwiftTimeFormat(string? content) returns string|error {
-    if content is () || !content.matches(re `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$`){
+    if content is () || !content.matches(re `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?[+-]\d{2}:\d{2}$`) {
         return "0000";
     }
 
