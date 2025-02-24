@@ -31,7 +31,7 @@ isolated function transformCamt106ToMtn91(camtIsoRecord:Camt106Envelope envelope
             envelope.Document.ChrgsPmtReq.GrpHdr.ChrgsAcctAgt?.FinInstnId,
             envelope.Document.ChrgsPmtReq.GrpHdr.ChrgsAcctAgtAcct?.Id) in {
             block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-            block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), 
+            block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), 
                 envelope.Document.ChrgsPmtReq.GrpHdr.CreDtTm),
             block3: createMtBlock3(getUETRfromUnderlyingTx(charges?.Rcrd)),
             block4: {

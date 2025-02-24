@@ -27,7 +27,7 @@ isolated function transformPacs002DocumentToMTn99(pacsIsoRecord:Pacs002Envelope 
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FIToFIPmtStsRpt.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIToFIPmtStsRpt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIToFIPmtStsRpt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FIToFIPmtStsRpt.GrpHdr.CreDtTm),
         block3: createMtBlock3(transactionInfo.OrgnlUETR),
         block4: {

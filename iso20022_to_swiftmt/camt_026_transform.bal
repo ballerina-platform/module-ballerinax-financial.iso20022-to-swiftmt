@@ -27,7 +27,7 @@ isolated function transformCamt026ToMtn95(camtIsoRecord:Camt026Envelope envelope
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.UblToApply.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.UblToApply.Assgnmt.CreDtTm),
         block3: createMtBlock3(envelope.Document.UblToApply.Undrlyg.Initn?.OrgnlUETR),
         block4: {

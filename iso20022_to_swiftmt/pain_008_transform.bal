@@ -30,7 +30,7 @@ isolated function transformPain008DocumentToMT104(painIsoRecord:Pain008Envelope 
     swiftmt:MT104Transaction[] transactions = check generateMT104Transactions(envelope.Document.CstmrDrctDbtInitn.PmtInf, instructingParty, creditor, creditorsBank)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.CstmrDrctDbtInitn.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.CstmrDrctDbtInitn.PmtInf[0].DrctDbtTxInf[0].PmtId?.UETR),
         block4: {

@@ -28,7 +28,7 @@ camtIsoRecord:EntryTransaction14? transactionDetails = getTransactionDetails(ent
 swiftmt:MT25A?|swiftmt:MT25P? field25a = getCashAccount(envelope.Document.BkToCstmrDbtCdtNtfctn.Ntfctn[0].Acct?.Id, envelope.Document.BkToCstmrDbtCdtNtfctn.Ntfctn[0].Acct?.Ownr),
 swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getField52(transactionDetails?.RltdPties?.Dbtr?.Agt?.FinInstnId, transactionDetails?.RltdPties?.DbtrAcct?.Id) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.BkToCstmrDbtCdtNtfctn.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(envelope.Document.BkToCstmrDbtCdtNtfctn.GrpHdr.MsgId), number: NUMBER1}},
@@ -61,7 +61,7 @@ swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field
 swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getDebtorAgentForMt910(transactionDetails?.RltdAgts?.DbtrAgt, transactionDetails?.RltdPties?.Dbtr?.Agt, transactionDetails?.RltdPties?.DbtrAcct),
 swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(transactionDetails?.RltdAgts?.IntrmyAgt1?.FinInstnId, ()) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.BkToCstmrDbtCdtNtfctn.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(envelope.Document.BkToCstmrDbtCdtNtfctn.GrpHdr.MsgId), number: NUMBER1}},

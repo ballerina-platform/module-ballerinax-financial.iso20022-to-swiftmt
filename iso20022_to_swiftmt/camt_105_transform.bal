@@ -27,7 +27,7 @@ isolated function transformCamt105ToMtn90(camtIsoRecord:Camt105Envelope envelope
     swiftmt:MT32A? field32a = getField32aForCamt105(charges?.Rcrd),
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52D? field52a = check getDebtorAgtDtlsForCamt105Or106(charges?.Rcrd) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.ChrgsPmtNtfctn.GrpHdr.CreDtTm),
         block3: createMtBlock3(getUETRfromUnderlyingTx(charges?.Rcrd)),
         block4: {

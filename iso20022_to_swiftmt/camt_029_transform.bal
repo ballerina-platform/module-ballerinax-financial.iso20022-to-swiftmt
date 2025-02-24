@@ -30,7 +30,7 @@ isolated function transformCamt029ToMtn96(camtIsoRecord:Camt029Envelope envelope
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgnr.Agt?.FinInstnId?.BICFI,
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.RsltnOfInvstgtn.Assgnmt.Assgnr.Agt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.RsltnOfInvstgtn.Assgnmt.CreDtTm),
         block3: createMtBlock3(cancellationDtls.OrgnlUETR),
         block4: {

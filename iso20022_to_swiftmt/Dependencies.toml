@@ -215,4 +215,3 @@ modules = [
 	{org = "ballerinax", packageName = "financial.swift.mt", moduleName = "financial.swift.mt.com.prowidesoftware.swift.model"},
 	{org = "ballerinax", packageName = "financial.swift.mt", moduleName = "financial.swift.mt.java.lang"}
 ]
-

@@ -32,7 +32,7 @@ isolated function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Envelope 
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
@@ -181,7 +181,7 @@ isolated function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Envelope 
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId?.UETR),
         block4: {

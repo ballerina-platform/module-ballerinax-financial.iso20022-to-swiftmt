@@ -27,7 +27,7 @@ isolated function transformPain001DocumentToMT101(painIsoRecord:Pain001Envelope 
     swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getMT101OrderingCustomerFromPain001Document(envelope.Document.CstmrCdtTrfInitn.PmtInf),
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getMT101AccountServicingInstitutionFromPain001Document(envelope.Document.CstmrCdtTrfInitn.PmtInf) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.CstmrCdtTrfInitn.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.CstmrCdtTrfInitn.PmtInf[0].CdtTrfTxInf[0].PmtId?.UETR),
         block4: {

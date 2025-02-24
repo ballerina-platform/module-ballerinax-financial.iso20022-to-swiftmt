@@ -24,7 +24,7 @@ isolated function transformCamt057ToMt210(camtIsoRecord:Camt057Envelope envelope
     swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(notificationItem.IntrmyAgt?.FinInstnId)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.NtfctnToRcv.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.NtfctnToRcv.Ntfctn.Itm[0].UETR),
         block4: {

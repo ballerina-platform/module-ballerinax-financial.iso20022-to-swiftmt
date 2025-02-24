@@ -29,7 +29,7 @@ isolated function transformCamt053ToMt940(camtIsoRecord:Camt053Envelope envelope
         [field60F, field60M, field62F, field62M, field64, field65] = check getBalanceInformation(statement.Bal)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.BkToCstmrStmt.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getField20Content(statement.Id), number: NUMBER1}},
@@ -64,7 +64,7 @@ isolated function transformCamt053ToMt950(camtIsoRecord:Camt053Envelope envelope
         [field60F, field60M, field62F, field62M, field64, _] = check getBalanceInformation(statement.Bal)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.BkToCstmrStmt.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getField20Content(statement.Id), number: NUMBER1}},
@@ -97,7 +97,7 @@ isolated function transformCamt053ToMt970(camtIsoRecord:Camt053Envelope envelope
         [field60F, field60M, field62F, field62M, field64, _] = check getBalanceInformation(statement.Bal)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.BkToCstmrStmt.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getField20Content(statement.Id), number: NUMBER1}},

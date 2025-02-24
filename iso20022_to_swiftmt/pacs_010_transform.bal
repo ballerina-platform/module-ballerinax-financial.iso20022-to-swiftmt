@@ -23,7 +23,7 @@ isolated function transformPacs010ToMt204(pacsIsoRecord:Pacs010Envelope envelope
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(debitTransfer.Cdtr?.FinInstnId, debitTransfer.CdtrAcct?.Id) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FIDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FIDrctDbt.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FIDrctDbt.CdtInstr[0].DrctDbtTxInf[0].PmtId?.UETR),
         block4: {

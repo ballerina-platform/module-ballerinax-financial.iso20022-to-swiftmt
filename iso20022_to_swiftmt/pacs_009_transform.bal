@@ -25,7 +25,7 @@ isolated function transformPacs009ToMt200(pacsIsoRecord:Pacs009Envelope envelope
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
@@ -66,7 +66,7 @@ isolated function transformPacs009ToMt201(pacsIsoRecord:Pacs009Envelope envelope
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(creditTransfer.Dbtr.FinInstnId, creditTransfer.DbtrAcct?.Id, true) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
@@ -124,7 +124,7 @@ isolated function transformPacs009ToMt202(pacsIsoRecord:Pacs009Envelope envelope
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2("202", getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2("202", getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
@@ -188,7 +188,7 @@ isolated function transformPacs009ToMt202COV(pacsIsoRecord:Pacs009Envelope envel
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2("202", getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2("202", getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR, VALIDATION_FLAG_COV),
         block4: {
@@ -281,7 +281,7 @@ isolated function transformPacs009ToMt203(pacsIsoRecord:Pacs009Envelope envelope
     swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? field54 = getField54(settlementInfo.InstdRmbrsmntAgt?.FinInstnId, settlementInfo.InstdRmbrsmntAgtAcct?.Id, true) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
@@ -351,7 +351,7 @@ isolated function transformPacs009ToMt205(pacsIsoRecord:Pacs009Envelope envelope
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR),
         block4: {
@@ -410,7 +410,7 @@ isolated function transformPacs009ToMt205COV(pacsIsoRecord:Pacs009Envelope envel
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2("205", getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2("205", getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FICdtTrf.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FICdtTrf.CdtTrfTxInf[0].PmtId?.UETR, VALIDATION_FLAG_COV),
         block4: {

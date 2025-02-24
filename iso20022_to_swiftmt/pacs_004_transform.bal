@@ -25,7 +25,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 isolated function transformPacs004DocumentToMT103RETN(pacsIsoRecord:Pacs004Envelope envelope, string messageType) returns swiftmt:MT103Message|error => let
     pacsIsoRecord:PaymentTransaction159 transactionInfo = check getTransactionInfoForPacs004(envelope.Document.PmtRtr.TxInf) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.PmtRtr.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2("103", getSenderOrReceiver(envelope.Document.PmtRtr.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2("103", getSenderOrReceiver(envelope.Document.PmtRtr.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.PmtRtr.GrpHdr.CreDtTm),
         block3: createMtBlock3(transactionInfo.OrgnlUETR),
         block4: check generateMT103RETNBlock4(envelope).ensureType(swiftmt:MT103Block4),
@@ -140,7 +140,7 @@ isolated function generateMT103RETNBlock4(pacsIsoRecord:Pacs004Envelope envelope
 isolated function transformPacs004ToMt202RETN(pacsIsoRecord:Pacs004Envelope envelope, string messageType) returns swiftmt:MT202Message|error => let
     pacsIsoRecord:PaymentTransaction159 transactionInfo = check getTransactionInfoForPacs004(envelope.Document.PmtRtr.TxInf) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.PmtRtr.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2("202", getSenderOrReceiver(envelope.Document.PmtRtr.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2("202", getSenderOrReceiver(envelope.Document.PmtRtr.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.PmtRtr.GrpHdr.CreDtTm),
         block3: createMtBlock3(transactionInfo.OrgnlUETR),
         block4: check generateMT202RETNBlock4(envelope),
@@ -155,7 +155,7 @@ isolated function transformPacs004ToMt202RETN(pacsIsoRecord:Pacs004Envelope enve
 isolated function transformPacs004ToMt205RETN(pacsIsoRecord:Pacs004Envelope envelope, string messageType) returns swiftmt:MT202Message|error => let
     pacsIsoRecord:PaymentTransaction159 transactionInfo = check getTransactionInfoForPacs004(envelope.Document.PmtRtr.TxInf) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.PmtRtr.GrpHdr.InstdAgt?.FinInstnId?.BICFI, envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2("205", getSenderOrReceiver(envelope.Document.PmtRtr.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2("205", getSenderOrReceiver(envelope.Document.PmtRtr.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.PmtRtr.GrpHdr.CreDtTm),
         block3: createMtBlock3(transactionInfo.OrgnlUETR),
         block4: check generateMT202RETNBlock4(envelope),

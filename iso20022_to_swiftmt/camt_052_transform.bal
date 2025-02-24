@@ -28,7 +28,7 @@ isolated function transformCamt052ToMt971(camtIsoRecord:Camt052Envelope envelope
         [_, _, field62F, _, _, _] = check getBalanceInformation(envelope.Document.BkToCstmrAcctRpt.Rpt[0].Bal)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.BkToCstmrAcctRpt.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(envelope.Document.BkToCstmrAcctRpt.GrpHdr.MsgId), number: NUMBER1}},
@@ -48,7 +48,7 @@ isolated function transformCamt052ToMt972(camtIsoRecord:Camt052Envelope envelope
         [field60F, field60M, field62F, field62M, field64, _] = check getBalanceInformation(envelope.Document.BkToCstmrAcctRpt.Rpt[0].Bal)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.BkToCstmrAcctRpt.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(envelope.Document.BkToCstmrAcctRpt.GrpHdr.MsgId), number: NUMBER1}},
@@ -74,7 +74,7 @@ isolated function transformCamt052ToMt941(camtIsoRecord:Camt052Envelope envelope
         [field60F, _, field62F, _, field64, field65] = check getBalanceInformation(envelope.Document.BkToCstmrAcctRpt.Rpt[0].Bal)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.BkToCstmrAcctRpt.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(envelope.Document.BkToCstmrAcctRpt.GrpHdr.MsgId), number: NUMBER1}},
@@ -99,7 +99,7 @@ isolated function transformCamt052ToMt942(camtIsoRecord:Camt052Envelope envelope
     camtIsoRecord:AccountReport33 report = envelope.Document.BkToCstmrAcctRpt.Rpt[0],
     swiftmt:MT25A?|swiftmt:MT25P? field25a = getCashAccount(report.Acct?.Id, report.Acct?.Ownr, true) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.BkToCstmrAcctRpt.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(report.Id), number: NUMBER1}},
