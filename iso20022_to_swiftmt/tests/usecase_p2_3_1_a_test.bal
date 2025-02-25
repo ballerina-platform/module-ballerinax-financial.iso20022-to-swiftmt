@@ -25,7 +25,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 }
 isolated function testP231a(xml mx, string mt) returns error? {
     record{} rec = check toSwiftMtMessage(mx);
-    test:assertEquals((check swiftmt:getFinMessage(rec)).toString(), mt, msg = "Use case p.2.3.1 result incorrect");
+    test:assertEquals((check swiftmt:toFinMessage(rec)).toString(), mt, msg = "Use case p.2.3.1 result incorrect");
 }
 
 function dataGen231a() returns map<[xml, string]>|error {

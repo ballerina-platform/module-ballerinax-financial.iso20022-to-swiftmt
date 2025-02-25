@@ -24,7 +24,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 }
 isolated function testP212(xml mx, string mt) returns error? {
     record{} rec = check toSwiftMtMessage(mx);
-    test:assertEquals((check swiftmt:getFinMessage(rec)).toString(), mt, msg = "Use case p.2.1.2 result incorrect");
+    test:assertEquals((check swiftmt:toFinMessage(rec)).toString(), mt, msg = "Use case p.2.1.2 result incorrect");
 }
 
 string finMessage_212_D_C = "{1:F01ANBTUS44XXXX0000000000}{2:O1990643210511HNBAUS51XXXX00000000002105110643N}{3:{121:174c245f-2682-4291-ad67-2a41e530cd27}}{4:\r\n" +
