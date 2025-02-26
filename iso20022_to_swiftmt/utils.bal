@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/log;
-import ballerina/regex;
 import ballerina/time;
 import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
 import ballerinax/financial.iso20022.payment_initiation as painIsoRecord;
@@ -44,7 +43,8 @@ isolated function convertDecimalToSwiftDecimal(decimal? number) returns string {
     if !number.toString().includes(".") {
         return number.toString().concat(",");
     }
-    return regex:replace(number.toString(), "\\.", ",");
+    string:RegExp regex = re `\.`;
+    return regex.replace(number.toString(), ",");
 }
 
 # Converts the given date to a Swift standard date format.
@@ -3041,7 +3041,8 @@ isolated function getBankOperationCodeFromPaymentTypeInformation22(painIsoRecord
 # + nameString - The name string
 # + return - The names array
 isolated function getNamesArrayFromNameString(string nameString) returns swiftmt:Nm[] {
-    string[] names = regex:split(nameString, " ");
+    string:RegExp regex = re ` `;
+    string[] names = regex.split(nameString);
     swiftmt:Nm[] result = [];
 
     foreach int i in 0 ... names.length() - 1 {
