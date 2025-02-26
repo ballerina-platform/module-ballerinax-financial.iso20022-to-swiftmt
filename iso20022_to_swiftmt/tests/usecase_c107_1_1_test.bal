@@ -24,7 +24,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 }
 isolated function testC10711(xml mx, string mt) returns error? {
     record {} rec = check toSwiftMtMessage(mx);
-    test:assertEquals((check swiftmt:getFinMessage(rec)).toString(), mt, msg = "Use case c.107.1.1 result incorrect");
+    test:assertEquals((check swiftmt:toFinMessage(rec)).toString(), mt, msg = "Use case c.107.1.1 result incorrect");
 }
 
 function dataGen10711() returns map<[xml, string]>|error {
@@ -49,7 +49,7 @@ string finMessage_10711_c107_A_B = "{1:F01RBSSGBKCXXXX0000000000}{2:O11009052210
     "3/GB/London\r\n" +
     "-}";
 
-string finMessage_10711_c053_B_A = "{1:F01MYMBGB2LXXXX0000000000}{2:O9401800221020RBSSGBKCXXXX00000000002210201800N}{4:\r\n" +
+string finMessage_10711_c053_B_A = "{1:F01MYMBGB2LXXXX0000000000}{2:O9401600221020RBSSGBKCXXXX00000000002210201600N}{4:\r\n" +
     ":20:Stmnt-100-01\r\n" +
     ":25:9875687\r\n" +
     ":28C:1001/1\r\n" +

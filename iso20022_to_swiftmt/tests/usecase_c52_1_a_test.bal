@@ -24,7 +24,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 }
 isolated function testC521a(xml mx, string mt) returns error? {
     record{} rec = check toSwiftMtMessage(mx);
-    test:assertEquals((check swiftmt:getFinMessage(rec)).toString(), mt, msg = "Use case c.52.1.a result incorrect");
+    test:assertEquals((check swiftmt:toFinMessage(rec)).toString(), mt, msg = "Use case c.52.1.a result incorrect");
 }
 
 function dataGen521a() returns map<[xml, string]>|error {
@@ -37,7 +37,7 @@ function dataGen521a() returns map<[xml, string]>|error {
     return dataSet;
 }
 
-string finMessage_521a_c52_Cdtr = "{1:F01AZSEDEMMXXXX0000000000}{2:O9421100201124DEUTDEFFXXXX00000000002011241100N}{4:\r\n" +
+string finMessage_521a_c52_Cdtr = "{1:F01AZSEDEMMXXXX0000000000}{2:O9421000201124DEUTDEFFXXXX00000000002011241000N}{4:\r\n" +
     ":20:100-01\r\n" +
     ":25:DE8547812\r\n" +
     ":28C:10001/3\r\n" +
@@ -85,7 +85,7 @@ string finMessage_521a_B_C = "{1:F01LOYDGB2LXXXX0000000000}{2:O1030924201124CBRL
     ":71A:OUR\r\n" +
     "-}";
 
-string finMessage_521a_C_D = "{1:F01DEUTDEFFXXXX0000000000}{2:O1030934201124LOYDGB2LXXXX00000000002011240934N}{3:{121:8a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_521a_C_D = "{1:F01DEUTDEFFXXXX0000000000}{2:O1030834201124LOYDGB2LXXXX00000000002011240834N}{3:{121:8a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
     ":20:pacs8bizmsgidr03\r\n" +
     ":23B:CRED\r\n" +
     ":32A:201124EUR750000,\r\n" +

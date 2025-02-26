@@ -26,7 +26,7 @@ isolated function transformCamt109ToMt112(camtIsoRecord:Camt109Envelope envelope
     camtIsoRecord:Cheque18 cheque = envelope.Document.ChqCxlOrStopRpt.Chq[0],
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52D? field52a = check getField52(cheque.DrwrAgt?.FinInstnId, cheque.DrwrAgtAcct?.Id, isOptionBPresent = true) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.ChqCxlOrStopRpt.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(envelope.Document.ChqCxlOrStopRpt.GrpHdr.MsgId), number: NUMBER1}},

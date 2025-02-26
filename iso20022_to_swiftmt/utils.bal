@@ -2850,21 +2850,16 @@ isolated function getSenderOrReceiver(string? identifierCode, string? identifier
 #
 # + content - parameter description
 # + return - return value description
-isolated function convertToSwiftTimeFormat(string? content) returns string {
-    if content is () {
+isolated function convertToSwiftTimeFormat(string? content) returns string|error {
+    if content is () || !content.matches(re `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?[+-]\d{2}:\d{2}$`) {
         return "0000";
     }
-    string time = "";
-    foreach int i in 0 ... content.length() - 1 {
-        if content.substring(i, i + 1).equalsIgnoreCaseAscii(".") {
-            break;
-        }
-        if content.substring(i, i + 1).equalsIgnoreCaseAscii(":") {
-            continue;
-        }
-        time += content.substring(i, i + 1);
-    }
-    return time;
+
+    time:Civil civilTime = check time:civilFromString(content);
+    time:Utc utc = check time:utcFromCivil(civilTime);
+    string utcString = time:utcToString(utc);
+    return utcString.substring(11, 13) + utcString.substring(14, 16);
+    
 }
 
 // TODO Add the necessary functions to map the MX messages to the MT messages.
@@ -3435,17 +3430,17 @@ isolated function generateBlock1(string bicfi) returns swiftmt:Block1 {
 # + seqNo - sequence number
 # + return - return block 2
 isolated function generateBlock2(string messageType, string bicfi, string dateTime, string sessionNo = "0000",
-        string seqNo = "000000") returns swiftmt:Block2 {
+        string seqNo = "000000") returns swiftmt:Block2|error {
     return {
         'type: "output",
         messageType: messageType,
         MIRLogicalTerminal: bicfi,
-        senderInputTime: {content: convertToSwiftTimeFormat(dateTime.substring(11, 16))},
+        senderInputTime: {content: check convertToSwiftTimeFormat(dateTime)},
         MIRDate: {content: convertToSWIFTStandardDate(dateTime.substring(0, 10))},
         MIRSessionNumber: sessionNo,
         MIRSequenceNumber: seqNo,
         receiverOutputDate: {content: convertToSWIFTStandardDate(dateTime.substring(0, 10))},
-        receiverOutputTime: {content: convertToSwiftTimeFormat(dateTime.substring(11, 16))},
+        receiverOutputTime: {content: check convertToSwiftTimeFormat(dateTime)},
         messagePriority: "N"
     };
 }

@@ -25,7 +25,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 }
 isolated function testP242(xml mx, string mt) returns error? {
     record{} rec = check toSwiftMtMessage(mx);
-    test:assertEquals((check swiftmt:getFinMessage(rec)).toString(), mt, msg = "Use case p.2.4.2 result incorrect");
+    test:assertEquals((check swiftmt:toFinMessage(rec)).toString(), mt, msg = "Use case p.2.4.2 result incorrect");
 }
 
 function dataGen242() returns map<[xml, string]>|error {
@@ -36,7 +36,7 @@ function dataGen242() returns map<[xml, string]>|error {
     return dataSet;
 }
 
-string finMessage_242_B_E = "{1:F01NDEADKK2XXXX0000000000}{2:O2990935221020BOFSGB2LXXXX00000000002210200935N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_242_B_E = "{1:F01NDEADKK2XXXX0000000000}{2:O2990835221020BOFSGB2LXXXX00000000002210200835N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
     ":20:pacs002bizmsgid+\r\n" +
     ":21:pcs010bizmsgidr1\r\n" +
     ":79:/REJT/99\r\n" +

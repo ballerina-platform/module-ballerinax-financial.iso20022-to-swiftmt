@@ -25,7 +25,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 isolated function transformCamt028ToMtn96(camtIsoRecord:Camt028Envelope envelope, string messageType) returns swiftmt:MTn96Message|error => {
     block1: generateBlock1(getSenderOrReceiver(envelope.Document.AddtlPmtInf.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
                     envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-    block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.AddtlPmtInf.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
+    block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.AddtlPmtInf.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
                     envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.AddtlPmtInf.Assgnmt.CreDtTm),
     block3: createMtBlock3(envelope.Document.AddtlPmtInf.Undrlyg.Initn?.OrgnlUETR),
     block4: {

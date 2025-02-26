@@ -208,6 +208,10 @@ const VALIDATION_FLAG_STP = "STP";
 const VALIDATION_FLAG_COV = "COV";
 const VALIDATION_FLAG_REMIT = "REMIT";
 
+const INSTRUCTION_CODE_PREFIX = "/";
+const CHARGE_REQUEST_PREFIX = "/CHRQ/";
+const LINE_LENGTH = 35;
+
 final readonly & string[] RETURN_REASON_CODES = [
     "AC01",
     "AC04",

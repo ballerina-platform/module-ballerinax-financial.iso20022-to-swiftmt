@@ -28,7 +28,7 @@ isolated function transformCamt052ToMt971(camtIsoRecord:Camt052Envelope envelope
         [_, _, field62F, _, _, _] = check getBalanceInformation(envelope.Document.BkToCstmrAcctRpt.Rpt[0].Bal)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.BkToCstmrAcctRpt.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(envelope.Document.BkToCstmrAcctRpt.GrpHdr.MsgId), number: NUMBER1}},
@@ -48,7 +48,7 @@ isolated function transformCamt052ToMt972(camtIsoRecord:Camt052Envelope envelope
         [field60F, field60M, field62F, field62M, field64, _] = check getBalanceInformation(envelope.Document.BkToCstmrAcctRpt.Rpt[0].Bal)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.BkToCstmrAcctRpt.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(envelope.Document.BkToCstmrAcctRpt.GrpHdr.MsgId), number: NUMBER1}},
@@ -56,7 +56,7 @@ isolated function transformCamt052ToMt972(camtIsoRecord:Camt052Envelope envelope
             MT28C: {name: MT28C_NAME, StmtNo: {content: envelope.Document.BkToCstmrAcctRpt.Rpt[0].LglSeqNb ?: 1, number: NUMBER1}, SeqNo: {content: envelope.Document.BkToCstmrAcctRpt.Rpt[0].ElctrncSeqNb ?: 1, number: NUMBER2}},
             MT60F: field60F,
             MT62F: field62F,
-            MT61: check getField61(envelope.Document.BkToCstmrAcctRpt.Rpt[0].Ntry),
+            MT61: getField61(envelope.Document.BkToCstmrAcctRpt.Rpt[0].Ntry),
             MT60M: field60M.length() == 0 ? () : field60M,
             MT62M: field62M.length() == 0 ? () : field62M,
             MT64: field64.length() == 0 ? () : field64
@@ -74,7 +74,7 @@ isolated function transformCamt052ToMt941(camtIsoRecord:Camt052Envelope envelope
         [field60F, _, field62F, _, field64, field65] = check getBalanceInformation(envelope.Document.BkToCstmrAcctRpt.Rpt[0].Bal)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.BkToCstmrAcctRpt.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(envelope.Document.BkToCstmrAcctRpt.GrpHdr.MsgId), number: NUMBER1}},
@@ -99,7 +99,7 @@ isolated function transformCamt052ToMt942(camtIsoRecord:Camt052Envelope envelope
     camtIsoRecord:AccountReport33 report = envelope.Document.BkToCstmrAcctRpt.Rpt[0],
     swiftmt:MT25A?|swiftmt:MT25P? field25a = getCashAccount(report.Acct?.Id, report.Acct?.Ownr, true) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.BkToCstmrAcctRpt.GrpHdr.CreDtTm),
         block4: {
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(report.Id), number: NUMBER1}},
@@ -112,7 +112,7 @@ isolated function transformCamt052ToMt942(camtIsoRecord:Camt052Envelope envelope
             },
             MT13D: check getField13DforCamt(envelope.Document.BkToCstmrAcctRpt),
             MT34F: getField34FforCamt052(report.Acct?.Ccy),
-            MT61: check getField61(report.Ntry),
+            MT61: getField61(report.Ntry),
             MT90D: check getField90(report.TxsSummry?.TtlDbtNtries, false),
             MT90C: check getField90(report.TxsSummry?.TtlCdtNtries, true)
         }

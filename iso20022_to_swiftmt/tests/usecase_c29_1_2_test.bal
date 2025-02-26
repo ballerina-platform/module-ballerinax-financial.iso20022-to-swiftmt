@@ -24,7 +24,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 }
 isolated function testC2912(xml mx, string mt) returns error? {
     record{} rec = check toSwiftMtMessage(mx);
-    test:assertEquals((check swiftmt:getFinMessage(rec)).toString(), mt, msg = "Use case c.29.1.2 result incorrect");
+    test:assertEquals((check swiftmt:toFinMessage(rec)).toString(), mt, msg = "Use case c.29.1.2 result incorrect");
 }
 
 function dataGen2912() returns map<[xml, string]>|error {
@@ -39,7 +39,7 @@ function dataGen2912() returns map<[xml, string]>|error {
     return dataSet;
 }
 
-string finMessage_2912_B_A = "{1:F01MYMBGB2LXXXX0000000000}{2:O1961555221020INGBROBUXXXX00000000002210201555N}{3:{121:174c245f-2682-4291-ad67-2a41e530cd27}}{4:\r\n" +
+string finMessage_2912_B_A = "{1:F01MYMBGB2LXXXX0000000000}{2:O1961355221020INGBROBUXXXX00000000002210201355N}{3:{121:174c245f-2682-4291-ad67-2a41e530cd27}}{4:\r\n" +
     ":20:CNCL-EFGH\r\n" +
     ":21:CASEMYMBGB2L\r\n" +
     ":76:/CNCL/\r\n" +
@@ -78,7 +78,7 @@ string finMessage_2912_pacs8_A_B = "{1:F01INGBROBUXXXX0000000000}{2:O10309052210
     ":71A:OUR\r\n" +
     "-}";
 
-string finMessage_2912_C_B = "{1:F01INGBROBUXXXX0000000000}{2:O1961545221020RZBRROBUXXXX00000000002210201545N}{3:{121:174c245f-2682-4291-ad67-2a41e530cd27}}{4:\r\n" +
+string finMessage_2912_C_B = "{1:F01INGBROBUXXXX0000000000}{2:O1961345221020RZBRROBUXXXX00000000002210201345N}{3:{121:174c245f-2682-4291-ad67-2a41e530cd27}}{4:\r\n" +
     ":20:\r\n" +
     ":21:\r\n" +
     ":76:/CNCL/\r\n" +
@@ -88,7 +88,7 @@ string finMessage_2912_C_B = "{1:F01INGBROBUXXXX0000000000}{2:O1961545221020RZBR
     "221020\r\n" +
     "-}";
 
-string finMessage_2912_B_C = "{1:F01RZBRROBUXXXX0000000000}{2:O1921145221020INGBROBUXXXX00000000002210201145N}{3:{121:174c245f-2682-4291-ad67-2a41e530cd27}}{4:\r\n" +
+string finMessage_2912_B_C = "{1:F01RZBRROBUXXXX0000000000}{2:O1920945221020INGBROBUXXXX00000000002210200945N}{3:{121:174c245f-2682-4291-ad67-2a41e530cd27}}{4:\r\n" +
     ":20:\r\n" +
     ":21:pcs008bzmsgidr-2\r\n" +
     ":11S:103\r\n" +
@@ -98,7 +98,7 @@ string finMessage_2912_B_C = "{1:F01RZBRROBUXXXX0000000000}{2:O1921145221020INGB
     ":32A:221020RON591636,\r\n" +
     "-}";
 
-string finMessage_2912_pacs8_B_C = "{1:F01RZBRROBUXXXX0000000000}{2:O1030925221020INGBROBUXXXX00000000002210200925N}{3:{121:174c245f-2682-4291-ad67-2a41e530cd27}}{4:\r\n" +
+string finMessage_2912_pacs8_B_C = "{1:F01RZBRROBUXXXX0000000000}{2:O1030725221020INGBROBUXXXX00000000002210200725N}{3:{121:174c245f-2682-4291-ad67-2a41e530cd27}}{4:\r\n" +
     ":20:pcs008bzmsgidr-2\r\n" +
     ":23B:CRED\r\n" +
     ":32A:221020RON591636,\r\n" +

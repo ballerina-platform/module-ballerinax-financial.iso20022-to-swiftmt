@@ -24,7 +24,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 }
 isolated function testC5641(xml mx, string mt) returns error? {
     record{} rec = check toSwiftMtMessage(mx);
-    test:assertEquals((check swiftmt:getFinMessage(rec)).toString(), mt, msg = "Use case c.56.4.1 result incorrect");
+    test:assertEquals((check swiftmt:toFinMessage(rec)).toString(), mt, msg = "Use case c.56.4.1 result incorrect");
 }
 
 function dataGen5641() returns map<[xml, string]>|error {
@@ -41,7 +41,7 @@ function dataGen5641() returns map<[xml, string]>|error {
     return dataSet;
 }
 
-string finMessage_5641_c29_E_B = "{1:F01TDOMUS33XXXX0000000000}{2:O2961510210427NWBKGB2LXXXX00000000002104271510N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_5641_c29_E_B = "{1:F01TDOMUS33XXXX0000000000}{2:O2962010210427NWBKGB2LXXXX00000000002104272010N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
     ":20:CNCL-ID001\r\n" +
     ":21:CSE-001\r\n" +
     ":76:/PDCR/\r\n" +
@@ -60,7 +60,7 @@ string finMessage_5641_c53_D_E = "{1:F01NWBKGB2LXXXX0000000000}{2:O9401800210427
     ":62F:C210427CAD2469428,\r\n" +
     "-}";
 
-string finMessage_5641_c54_D_E = "{1:F01NWBKGB2LXXXX0000000000}{2:O9101300210427ROYCCAT2XXXX00000000002104271300N}{4:\r\n" +
+string finMessage_5641_c54_D_E = "{1:F01NWBKGB2LXXXX0000000000}{2:O9101800210427ROYCCAT2XXXX00000000002104271800N}{4:\r\n" +
     ":20:cmt054bizmsgidr+\r\n" +
     ":21:pacs9bizmsgidr03\r\n" +
     ":25:9875687\r\n" +
@@ -76,7 +76,7 @@ string finMessage_5641_c54_E_F = "{1:F01RBOSGB2LXXXX0000000000}{2:O9100920210427
     ":52D:NOTPROVIDED\r\n" +
     "-}";
 
-string finMessage_5641_c56_B_E = "{1:F01NWBKGB2LXXXX0000000000}{2:O2921015210427TDOMUS33XXXX00000000002104271015N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_5641_c56_B_E = "{1:F01NWBKGB2LXXXX0000000000}{2:O2921515210427TDOMUS33XXXX00000000002104271515N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
     ":20:CSE-001\r\n" +
     ":21:pacs9bizmsgidr01\r\n" +
     ":11S:202\r\n" +
@@ -86,7 +86,7 @@ string finMessage_5641_c56_B_E = "{1:F01NWBKGB2LXXXX0000000000}{2:O2921015210427
     ":32A:210427CAD2565972,\r\n" +
     "-}";
 
-string finMessage_5641_p9_B_C = "{1:F01TDOMCATTXXXX0000000000}{2:O2020915210427TDOMUS33XXXX00000000002104270915N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_5641_p9_B_C = "{1:F01TDOMCATTXXXX0000000000}{2:O2021415210427TDOMUS33XXXX00000000002104271415N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
     ":20:pacs9bizmsgidr02\r\n" +
     ":21:pacs9bizmsgidr01\r\n" +
     ":32A:210427CAD2565972,\r\n" +
@@ -97,7 +97,7 @@ string finMessage_5641_p9_B_C = "{1:F01TDOMCATTXXXX0000000000}{2:O2020915210427T
     "/INS/TDOMCATT\r\n" +
     "-}";
 
-string finMessage_5641_p9_C_D = "{1:F01ROYCCAT2XXXX0000000000}{2:O2020925210427TDOMCATTXXXX00000000002104270925N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_5641_p9_C_D = "{1:F01ROYCCAT2XXXX0000000000}{2:O2021425210427TDOMCATTXXXX00000000002104271425N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
     ":20:pacs9bizmsgidr03\r\n" +
     ":21:pacs9bizmsgidr01\r\n" +
     ":32A:210427CAD2565972,\r\n" +

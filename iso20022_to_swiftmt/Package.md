@@ -98,6 +98,6 @@ public function main() returns error? {
     </NtfctnToRcv>
     </Document>
 </Envelope>`;
-    io:println(mxToMt:toSwiftMtMessage(isoMessage, "210"));
+    io:println(mxToMt:toSwiftMtMessage(isoMessage));
 }
 ```

@@ -26,7 +26,7 @@ isolated function transformCamt055ToMtn92(camtIsoRecord:Camt055Envelope envelope
     camtIsoRecord:UnderlyingTransaction33 undrlygTransaction = envelope.Document.CstmrPmtCxlReq.Undrlyg[0] in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.CstmrPmtCxlReq.Assgnmt.Assgne.Agt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.CstmrPmtCxlReq.Assgnmt.CreDtTm),
         block4: {
             MT20: {

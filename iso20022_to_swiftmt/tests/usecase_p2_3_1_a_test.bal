@@ -25,7 +25,7 @@ import ballerinax/financial.swift.mt as swiftmt;
 }
 isolated function testP231a(xml mx, string mt) returns error? {
     record{} rec = check toSwiftMtMessage(mx);
-    test:assertEquals((check swiftmt:getFinMessage(rec)).toString(), mt, msg = "Use case p.2.3.1 result incorrect");
+    test:assertEquals((check swiftmt:toFinMessage(rec)).toString(), mt, msg = "Use case p.2.3.1 result incorrect");
 }
 
 function dataGen231a() returns map<[xml, string]>|error {
@@ -42,7 +42,7 @@ function dataGen231a() returns map<[xml, string]>|error {
     return dataSet;
 }
 
-string finMessage_231a_C_D = "{1:F01CAIXESBBXXXX0000000000}{2:O9401200221020BSCHESMMXXXX00000000002210201200N}{4:\r\n" +
+string finMessage_231a_C_D = "{1:F01CAIXESBBXXXX0000000000}{2:O9401100221020BSCHESMMXXXX00000000002210201100N}{4:\r\n" +
     ":20:100-01\r\n" +
     ":25:48751258\r\n" +
     ":28C:1001/1\r\n" +
@@ -72,7 +72,7 @@ string finMessage_231a_A_D = "{1:F01CAIXESBBXXXX0000000000}{2:O1030925221020CLYD
     ":71A:OUR\r\n" +
     "-}";
 
-string finMessage_231a_D_A = "{1:F01CLYDGB2SXXXX0000000000}{2:O1990925221020CAIXESBBXXXX00000000002210200925N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_231a_D_A = "{1:F01CLYDGB2SXXXX0000000000}{2:O1990825221020CAIXESBBXXXX00000000002210200825N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
     ":20:pacs002bizmsgid+\r\n" +
     ":21:pcs008bzmsgidr-1\r\n" +
     ":79:/REJT/99\r\n" +
@@ -82,7 +82,7 @@ string finMessage_231a_D_A = "{1:F01CLYDGB2SXXXX0000000000}{2:O1990925221020CAIX
     "/TEXT//UETR/7a562c67-ca16-48ba-b074-65581be6f001\r\n" +
     "-}";
 
-string finMessage_231a_B_A = "{1:F01CLYDGB2SXXXX0000000000}{2:O2021020221020BOFSGB2LXXXX00000000002210201020N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_231a_B_A = "{1:F01CLYDGB2SXXXX0000000000}{2:O2020820221020BOFSGB2LXXXX00000000002210200820N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
     ":20:pacs004bizmsgid+\r\n" +
     ":21:pacs008EndToEnd+\r\n" +
     ":32A:221020EUR65784,32\r\n" +
@@ -95,7 +95,7 @@ string finMessage_231a_B_A = "{1:F01CLYDGB2SXXXX0000000000}{2:O2021020221020BOFS
     "/TREF/pacs008EndToEnd+\r\n" +
     "-}";
 
-string finMessage_231a_C_B = "{1:F01BOFSGB2LXXXX0000000000}{2:O2021020221020BSCHESMMXXXX00000000002210201020N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_231a_C_B = "{1:F01BOFSGB2LXXXX0000000000}{2:O2020920221020BSCHESMMXXXX00000000002210200920N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
     ":20:pacs002bizmsgid+\r\n" +
     ":21:pacs008EndToEnd+\r\n" +
     ":32A:221020EUR65784,32\r\n" +
@@ -108,7 +108,7 @@ string finMessage_231a_C_B = "{1:F01BOFSGB2LXXXX0000000000}{2:O2021020221020BSCH
     "/TREF/pacs008EndToEnd+\r\n" +
     "-}";
 
-string finMessage_231a_D_C = "{1:F01BSCHESMMXXXX0000000000}{2:O2021010221020CAIXESBBXXXX00000000002210201010N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_231a_D_C = "{1:F01BSCHESMMXXXX0000000000}{2:O2020910221020CAIXESBBXXXX00000000002210200910N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
     ":20:pacs002bizmsgid+\r\n" +
     ":21:pacs008EndToEnd+\r\n" +
     ":32A:221020EUR65784,32\r\n" +
@@ -141,7 +141,7 @@ string finMessage_231a_A_B = "{1:F01BOFSGB2LXXXX0000000000}{2:O2020935221020CLYD
     "3/ES/Barcelona\r\n" +
     "-}";
 
-string finMessage_231a_B_C = "{1:F01BSCHESMMXXXX0000000000}{2:O2020945221020BOFSGB2LXXXX00000000002210200945N}{3:{119:COV}{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_231a_B_C = "{1:F01BSCHESMMXXXX0000000000}{2:O2020845221020BOFSGB2LXXXX00000000002210200845N}{3:{119:COV}{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
     ":20:pacs9bizmsgidr02\r\n" +
     ":21:pacs008EndToEnd+\r\n" +
     ":32A:221020EUR65784,32\r\n" +

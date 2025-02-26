@@ -32,7 +32,7 @@ isolated function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Envelope 
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
@@ -114,8 +114,8 @@ isolated function generateMT104TransactionsFromPacs003(
 
         swiftmt:MT21C? MT21C = getField21C(tx.DrctDbtTx?.MndtRltdInf?.MndtId);
         swiftmt:MT26T? MT26T = getRepeatingField26T(drctDbtTxInf, tx.Purp, true);
-        swiftmt:MT33B? MT33B = check getField33B(tx.InstdAmt, tx.IntrBkSttlmAmt);
-        swiftmt:MT36? MT36 = check getField36(tx.XchgRate);
+        swiftmt:MT33B? MT33B = getField33B(tx.InstdAmt, tx.IntrBkSttlmAmt);
+        swiftmt:MT36? MT36 = getField36(tx.XchgRate);
 
         swiftmt:MT50C? MT50C = instructingParty is swiftmt:MT50C ? instructingParty : ();
         swiftmt:MT50L? MT50L = instructingParty is swiftmt:MT50L ? instructingParty : ();
@@ -181,11 +181,11 @@ isolated function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Envelope 
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstgAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI), envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CreDtTm),
         block3: createMtBlock3(envelope.Document.FIToFICstmrDrctDbt.DrctDbtTxInf[0].PmtId?.UETR),
         block4: {
-            MT19: check getField19(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum),
+            MT19: getField19(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.CtrlSum),
             MT20: {
                 name: MT20_NAME,
                 msgId: {
@@ -268,8 +268,8 @@ isolated function generateMT107TransactionsFromPacs003(
 
         swiftmt:MT21C? MT21C = getField21C(tx.DrctDbtTx?.MndtRltdInf?.MndtId);
         swiftmt:MT26T? MT26T = getRepeatingField26T(drctDbtTxInf, tx.Purp, true);
-        swiftmt:MT33B? MT33B = check getField33B(tx.InstdAmt, tx.IntrBkSttlmAmt);
-        swiftmt:MT36? MT36 = check getField36(tx.XchgRate);
+        swiftmt:MT33B? MT33B = getField33B(tx.InstdAmt, tx.IntrBkSttlmAmt);
+        swiftmt:MT36? MT36 = getField36(tx.XchgRate);
 
         swiftmt:MT50C? MT50C = instructingParty is swiftmt:MT50C ? instructingParty : ();
         swiftmt:MT50L? MT50L = instructingParty is swiftmt:MT50L ? instructingParty : ();

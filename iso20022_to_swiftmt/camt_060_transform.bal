@@ -25,13 +25,13 @@ import ballerinax/financial.swift.mt as swiftmt;
 isolated function transformCamt060ToMt920(camtIsoRecord:Camt060Envelope envelope, string messageType) returns swiftmt:MT920Message|error => let
 swiftmt:MT25A?|swiftmt:MT25P? field25a = getCashAccount(envelope.Document.AcctRptgReq.RptgReq[0].Acct?.Id, (), true) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.AcctRptgReq.GrpHdr.CreDtTm),
         block4: {
             MT12: {name: MT12_NAME, Msg: {content: envelope.Document.AcctRptgReq.RptgReq[0].ReqdMsgNmId, number: NUMBER1}},
             MT20: {name: MT20_NAME, msgId: {content: getMxToMTReference(envelope.Document.AcctRptgReq.GrpHdr.MsgId), number: NUMBER1}},
             MT25: field25a is swiftmt:MT25A ? field25a : {name: MT25_NAME, Acc: {content: "NOTPROVIDED", number: NUMBER1}},
-            MT34F: check getField34F(envelope.Document.AcctRptgReq.RptgReq[0].ReqdTxTp?.FlrLmt)
+            MT34F: getField34F(envelope.Document.AcctRptgReq.RptgReq[0].ReqdTxTp?.FlrLmt)
         }
     };
 
@@ -43,7 +43,7 @@ swiftmt:MT25A?|swiftmt:MT25P? field25a = getCashAccount(envelope.Document.AcctRp
 isolated function transformCamt060ToMt973(camtIsoRecord:Camt060Envelope envelope, string messageType) returns swiftmt:MT973Message|error => let
 swiftmt:MT25A?|swiftmt:MT25P? field25a = getCashAccount(envelope.Document.AcctRptgReq.RptgReq[0].Acct?.Id, (), true) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
-        block2: generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
+        block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),
                 envelope.Document.AcctRptgReq.GrpHdr.CreDtTm),
         block4: {
             MT12: {name: MT12_NAME, Msg: {content: envelope.Document.AcctRptgReq.RptgReq[0].ReqdMsgNmId, number: NUMBER1}},
