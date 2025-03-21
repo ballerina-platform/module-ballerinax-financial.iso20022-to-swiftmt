@@ -50,11 +50,15 @@ isolated function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Envelope 
                 name: MT30_NAME,
                 Dt: {content: convertToSWIFTStandardDate(dbtTrfTx[0].IntrBkSttlmDt), number: NUMBER1}
             },
-            MT32B: {
-                name: MT32B_NAME,
-                Ccy: {content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.Ccy.toString(), number: NUMBER1},
-                Amnt: {content: convertDecimalToSwiftDecimal(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.content), number: NUMBER2}
-            },
+            MT32B: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt is () ? {
+                    name: MT32B_NAME,
+                    Ccy: {content: dbtTrfTx[0].IntrBkSttlmAmt.Ccy, number: NUMBER1},
+                    Amnt: {content: getTotalInterBankSettlementAmount(dbtTrfTx), number: NUMBER2}
+                } : {
+                    name: MT32B_NAME,
+                    Ccy: {content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.Ccy.toString(), number: NUMBER1},
+                    Amnt: {content: convertDecimalToSwiftDecimal(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.content), number: NUMBER2}
+                },
             MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
             MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
             MT50A: field50a is swiftmt:MT50A ? field50a : (),
@@ -193,20 +197,21 @@ isolated function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Envelope 
                     number: NUMBER1
                 }
             },
-            MT23E: dbtTrfTx[0].PmtTpInf?.CtgyPurp?.Cd is () ? () : {
-                    name: MT23E_NAME,
-                    InstrnCd: {content: dbtTrfTx[0].PmtTpInf?.CtgyPurp?.Cd.toString(), number: NUMBER1}
-                },
+            MT23E: getRepeatingField23EForPacs003(dbtTrfTx),
             MT26T: getRepeatingField26T(dbtTrfTx),
             MT30: {
                 name: MT30_NAME,
                 Dt: {content: convertToSWIFTStandardDate(dbtTrfTx[0].IntrBkSttlmDt), number: NUMBER1}
             },
-            MT32B: {
-                name: MT32B_NAME,
-                Ccy: {content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.Ccy.toString(), number: NUMBER1},
-                Amnt: {content: convertDecimalToSwiftDecimal(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.content), number: NUMBER2}
-            },
+            MT32B: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt is () ? {
+                    name: MT32B_NAME,
+                    Ccy: {content: dbtTrfTx[0].IntrBkSttlmAmt.Ccy, number: NUMBER1},
+                    Amnt: {content: getTotalInterBankSettlementAmount(dbtTrfTx), number: NUMBER2}
+                } : {
+                    name: MT32B_NAME,
+                    Ccy: {content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.Ccy.toString(), number: NUMBER1},
+                    Amnt: {content: convertDecimalToSwiftDecimal(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.content), number: NUMBER2}
+                },
             MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
             MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
             MT50A: field50a is swiftmt:MT50A ? field50a : (),
@@ -255,15 +260,12 @@ isolated function generateMT107TransactionsFromPacs003(
             }
         };
 
-        swiftmt:MT23E MT23E = {
-            name: MT23E_NAME,
-            InstrnCd: {content: getEmptyStrIfNull(tx.PmtTpInf?.CtgyPurp?.Cd), number: NUMBER1}
-        };
+        swiftmt:MT23E? MT23E = getRepeatingField23EForPacs003(drctDbtTxInf, tx.PmtTpInf?.CtgyPurp?.Cd, true);
 
         swiftmt:MT32B MT32B = {
-            name: MT23B_NAME,
+            name: MT32B_NAME,
             Ccy: {content: tx.IntrBkSttlmAmt.Ccy, number: NUMBER1},
-            Amnt: {content: convertDecimalToSwiftDecimal(tx.IntrBkSttlmAmt?.content), number: NUMBER1}
+            Amnt: {content: convertDecimalToSwiftDecimal(tx.IntrBkSttlmAmt?.content), number: NUMBER2}
         };
 
         swiftmt:MT21C? MT21C = getField21C(tx.DrctDbtTx?.MndtRltdInf?.MndtId);
@@ -412,4 +414,18 @@ isolated function getMT104Or107CreditorsBankFromPacs003Document(pacsIsoRecord:Di
         return ();
     }
     return check getField52(dbtTrfTx[0].CdtrAgt?.FinInstnId, dbtTrfTx[0].CdtrAgtAcct?.Id, isOptionCPresent = true);
+}
+
+isolated function getTotalInterBankSettlementAmount(pacsIsoRecord:DirectDebitTransactionInformation31[] drctDbtTxInf) returns string {
+    decimal totalAmount = 0;
+    foreach pacsIsoRecord:DirectDebitTransactionInformation31 tx in drctDbtTxInf {
+        totalAmount = totalAmount + tx.IntrBkSttlmAmt.content;
+    }
+    string totalAmountStr = convertDecimalToSwiftDecimal(totalAmount);
+
+    if (totalAmountStr.length() > 15) {
+        return "NOTPROVIDED";
+    } else {
+        return totalAmountStr;
+    }
 }
