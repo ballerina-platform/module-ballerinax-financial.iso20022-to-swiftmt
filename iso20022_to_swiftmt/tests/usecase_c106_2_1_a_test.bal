@@ -29,7 +29,7 @@ isolated function testC10621a(xml mx, string mt) returns error? {
 
 function dataGen10621a() returns map<[xml, string]>|error {
     map<[xml, string]> dataSet = {
-        // "c106_C_B": [check io:fileReadXml("./tests/c_106_2_1_a/CBPR+ c.106.2.1.a camt.106-CtoB.xml"), finMessage_10621a_c106_C_B],
+        "c106_C_B": [check io:fileReadXml("./tests/c_106_2_1_a/CBPR+ c.106.2.1.a camt.106-CtoB.xml"), finMessage_10621a_c106_C_B],
         "p008_A_B": [check io:fileReadXml("./tests/c_106_2_1_a/CBPR+ c.106.2.1.a pacs.008 AtoB.xml"), finMessage_10621a_p008_A_B],
         "p008_B_C": [check io:fileReadXml("./tests/c_106_2_1_a/CBPR+ c.106.2.1.a pacs.008 BtoC.xml"), finMessage_10621a_p008_B_C],
         "p008_C_D": [check io:fileReadXml("./tests/c_106_2_1_a/CBPR+ c.106.2.1.a pacs.008 CtoD.xml"), finMessage_10621a_p008_C_D],
@@ -38,7 +38,7 @@ function dataGen10621a() returns map<[xml, string]>|error {
     return dataSet;
 }
 
-string finMessage_10621a_c106_C_B = "{1:F01INGBROBUXXXX0000000000}{2:O1912000221020RZBRROBUXXXX00000000002210202000N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
+string finMessage_10621a_c106_C_B = "{1:F01INGBROBUXXXX0000000000}{2:O1911020221020RZBRROBUXXXX00000000002210201020N}{3:{121:7a562c67-ca16-48ba-b074-65581be6f001}}{4:\r\n" +
     ":20:camt106chrgid1\r\n" +
     ":21:pcs008bzmsgid-2\r\n" +
     ":32B:RON15,\r\n" +
