@@ -44,6 +44,7 @@ isolated function transformCamt106ToMtn91(camtIsoRecord:Camt106Envelope envelope
                 MT72: getField72ForCamt106(chargesRecord,
                     envelope.Document.ChrgsPmtReq.GrpHdr.ChrgsRqstr?.FinInstnId?.BICFI),
                 MT32B: chargesRecord is camtIsoRecord:ChargesPerTransactionRecord3[] ? {
+                    name: MT32B_NAME, 
                     Ccy: {content: chargesRecord[0].TtlChrgsPerRcrd?.TtlChrgsAmt?.Ccy.toString(), number: NUMBER1}, 
                     Amnt: {content: convertDecimalToSwiftDecimal(chargesRecord[0].TtlChrgsPerRcrd?.TtlChrgsAmt?.content),
                         number: NUMBER2}} : {Ccy: {content: "", number: NUMBER1}, 
