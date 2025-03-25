@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-THE MESSAGE WILL WORK �AS IS� IN THE READINESS PORTAL. IT IS ESSENTIAL THAT USERS REMOVE THE ENVELOPE AND REPLACE IT WITH THEIR OWN TRANSPORT HEADER (FOR EXAMPLE FOR ALLIANCE ACCESS YOU WOULD USE THE XML V2 HEADERS).
-=========================================================================================================================================================================================
-SWIFT � 2020. All rights reserved. 
-This publication contains SWIFT or third-party confidential information. Do not disclose this publication outside your organisation without SWIFT�s prior written consent.
-The use of this document is governed by the legal notices appearing at the end of this document. By using this document, you will be deemed to have accepted those legal notices.
-====================================================================================================================================================================
-p.2.1.2Agent D Hilltop National Bank sends a negative pacs.002 to Agent C American National
-========================================================================================================================
+<!--
+ ~ Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ ~
+ ~ This software is the property of WSO2 LLC. and its suppliers, if any.
+ ~ Dissemination of any information or reproduction of any material contained
+ ~ herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ ~ You may not alter or remove any copyright or other notice from copies of this content.
 -->
 <Envelope xmlns="urn:swift:xsd:envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:swift:xsd:envelope \\be-file02\Group\Standards\Messaging\CBPR+Schemas\Feb24Schemas_Core\Translator_envelope_core.xsd">
 	<AppHdr xmlns="urn:iso:std:iso:20022:tech:xsd:head.001.001.04">

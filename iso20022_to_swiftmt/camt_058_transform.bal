@@ -17,6 +17,11 @@
 import ballerinax/financial.iso20022.cash_management as camtIsoRecord;
 import ballerinax/financial.swift.mt as swiftmt;
 
+# This function transforms a camt.058 ISO 20022 message into an MTn92 SWIFT format message.
+#
+# + envelope - The camt.058 envelope containing the corresponding document to be transformed.
+# + messageType - The SWIFT MTn92 message type to be transformed.
+# + return - Returns an MTn92 message in the `swiftmt:MTn92Message` format if successful, otherwise returns an error.
 isolated function transformCamt058ToMtn92(camtIsoRecord:Camt058Envelope envelope, string messageType)
     returns swiftmt:MTn92Message|error =>
     let camtIsoRecord:OriginalNotificationReference14[]? orgnlNtfRef = envelope.Document.NtfctnToRcvCxlAdvc.OrgnlNtfctn
@@ -55,6 +60,10 @@ isolated function transformCamt058ToMtn92(camtIsoRecord:Camt058Envelope envelope
         }
     };
 
+# Get original item id
+#
+# + orgnlNtfRef - original notification reference
+# + return - original item id
 isolated function getOriginalItmId(camtIsoRecord:OriginalNotificationReference14[]? orgnlNtfRef) returns string? {
     if orgnlNtfRef is camtIsoRecord:OriginalNotificationReference14[] {
         return orgnlNtfRef[0].OrgnlItm[0].OrgnlItmId;
@@ -62,6 +71,10 @@ isolated function getOriginalItmId(camtIsoRecord:OriginalNotificationReference14
     return ();
 }
 
+# Get message copy field for camt058
+#
+# + orgnlNtfRef - original notification reference
+# + return - message copy with field 30 and 32B
 isolated function getMessageCopyForCamt058(camtIsoRecord:OriginalNotificationReference14[]? orgnlNtfRef)
     returns swiftmt:MessageCopy? {
 
@@ -86,6 +99,10 @@ isolated function getMessageCopyForCamt058(camtIsoRecord:OriginalNotificationRef
     return ();
 };
 
+# Build additional cancellation reason information
+#
+# + cxRsn - cancellation reason
+# + return - narratives
 isolated function buildAdditionaInfo(camtIsoRecord:NotificationCancellationReason2? cxRsn) returns swiftmt:Nrtv[] {
     swiftmt:Nrtv[] narratives = [];
     narratives[0] = {content: "/" + cxRsn?.Rsn?.Cd.toString() + "/", number: NUMBER1};
