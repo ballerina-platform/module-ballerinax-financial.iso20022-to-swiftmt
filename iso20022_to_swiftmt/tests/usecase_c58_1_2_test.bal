@@ -29,7 +29,8 @@ isolated function testC5812(xml mx, string mt) returns error? {
 
 function dataGen5812() returns map<[xml, string]>|error {
     map<[xml, string]> dataSet = {
-        "c58": [check io:fileReadXml("./tests/c_58_1_2/CBPR+ c.58.1.2 camt.058 CdtrtoC.xml"), finMessage_5812_c58_Cdtr_C]
+        "c58": [check io:fileReadXml("./tests/c_58_1_2/CBPR+ c.58.1.2 camt.058 CdtrtoC.xml"), finMessage_5812_c58_Cdtr_C],
+        "c57": [check io:fileReadXml("./tests/c_58_1_2/CBPR+ c.58.1.2 camt.057-CdtrtoC.xml"), finMessage_5812_c57_Cdtr_C]
     };
     return dataSet;
 }
@@ -41,4 +42,13 @@ string finMessage_5812_c58_Cdtr_C = "{1:F01NDEAFIHHXXXX0000000000}{2:O2920735221
     "221020\r\n" +
     ":79:/NOLE/\r\n" +
     ":32B:EUR125650,\r\n" +
+    "-}";
+
+string finMessage_5812_c57_Cdtr_C = "{1:F01NDEAFIHHXXXX0000000000}{2:O2100725221020OKOYFIHHXXXX00000000002210200725N}{4:\r\n" +
+    ":20:cmt057bizmsgidr+\r\n" +
+    ":25:25698745\r\n" +
+    ":30:221025\r\n" +
+    ":21:ITM-021\r\n" +
+    ":32B:EUR125650,\r\n" +
+    ":52A:CNORGB22\r\n" +
     "-}";

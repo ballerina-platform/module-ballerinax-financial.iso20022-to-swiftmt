@@ -44,7 +44,10 @@ isolated function generateMT103RETNBlock4(pacsIsoRecord:Pacs004Envelope envelope
     swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(transactionInfo.RtrChain?.IntrmyAgt1?.FinInstnId, transactionInfo.RtrChain?.IntrmyAgt1Acct?.Id, isOptionCPresent = true);
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(transactionInfo.RtrChain?.CdtrAgt?.FinInstnId, transactionInfo.RtrChain?.CdtrAgtAcct?.Id, true, true);
     swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? field59 = getField59aForPacs004(transactionInfo.RtrChain?.Cdtr?.Pty, transactionInfo.RtrChain?.Cdtr?.Agt?.FinInstnId);
-
+    string senderCountry = envelope.Document.PmtRtr.GrpHdr.InstdAgt?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+        envelope.Document.PmtRtr.GrpHdr.InstdAgt?.FinInstnId?.BICFI.toString().substring(4,6) : "";
+    string receiverCountry = envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI.toString().substring(4,6) : "";
     swiftmt:MT13C? MT13C = check convertTimeToMT13C(transactionInfo.SttlmTmIndctn, ());
 
     swiftmt:MT20 MT20 = {
@@ -64,7 +67,7 @@ isolated function generateMT103RETNBlock4(pacsIsoRecord:Pacs004Envelope envelope
         Amnt: {content: convertDecimalToSwiftDecimal(transactionInfo.RtrdIntrBkSttlmAmt?.content), number: NUMBER3}
     };
 
-    swiftmt:MT33B? MT33B = getField33B(transactionInfo.RtrdInstdAmt, (), true);
+    swiftmt:MT33B? MT33B = getField33B(transactionInfo.RtrdInstdAmt, (), senderCountry, receiverCountry, true);
 
     swiftmt:MT36? MT36 = getField36(transactionInfo.XchgRate);
 

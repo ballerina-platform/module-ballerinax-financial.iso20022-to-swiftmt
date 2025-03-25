@@ -20,8 +20,8 @@ import ballerinax/financial.swift.mt as swiftmt;
 isolated function transformCamt057ToMt210(camtIsoRecord:Camt057Envelope envelope, string messageType) returns swiftmt:MT210Message|error => let
     camtIsoRecord:NotificationItem9 notificationItem = envelope.Document.NtfctnToRcv.Ntfctn.Itm[0],
     swiftmt:MT50?|swiftmt:MT50C?|swiftmt:MT50F? field50 = getField50(envelope.Document.NtfctnToRcv.Ntfctn.Dbtr, notificationItem.Dbtr, true),
-    swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getField52(notificationItem.DbtrAgt?.FinInstnId),
-    swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(notificationItem.IntrmyAgt?.FinInstnId)
+    swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getField52(envelope.Document.NtfctnToRcv.Ntfctn.Dbtr?.Agt?.FinInstnId),
+    swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(envelope.Document.NtfctnToRcv.Ntfctn.IntrmyAgt?.FinInstnId)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
         block2: check generateBlock2(messageType, getSenderOrReceiver(envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI),

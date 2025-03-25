@@ -279,6 +279,10 @@ final readonly & map<string> chequeCancelReasonCode = {
     "NARR": "Narrative"
 };
 
+final readonly & string[] euCountryList = ["AD", "AT", "BE", "BG", "BV", "CH", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", 
+    "FR", "GB", "GF", "GI", "GP", "GR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MC", "MQ", "MT", "NL", "NO", 
+    "PL", "PM", "PT", "RE", "RO", "SE", "SI", "SJ", "SK", "SM", "TF", "VA"]; 
+
 # This record is used to store any type of MT message record and the type name
 #
 # + mtTypeName - The MT record type name
