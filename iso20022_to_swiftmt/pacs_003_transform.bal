@@ -416,7 +416,7 @@ isolated function getMT104Or107CreditorsBankFromPacs003Document(pacsIsoRecord:Di
         pacsIsoRecord:DirectDebitTransactionInformation31? transaxion = (), boolean isTransaction = false)
     returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D?|error {
 
-    [string?, string?, string?, string?] [iban, bban, identifierCode, partyIdentifier] = [dbtTrfTx[0].DbtrAgtAcct?.Id?.IBAN, dbtTrfTx[0].DbtrAgtAcct?.Id?.Othr?.Id, dbtTrfTx[0].DbtrAgt?.FinInstnId?.BICFI, dbtTrfTx[0].DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd];
+    [string?, string?, string?, string?] [iban, bban, identifierCode, partyIdentifier] = [dbtTrfTx[0].CdtrAgtAcct?.Id?.IBAN, dbtTrfTx[0].CdtrAgtAcct?.Id?.Othr?.Id, dbtTrfTx[0].CdtrAgt?.FinInstnId?.BICFI, dbtTrfTx[0].CdtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd];
     foreach int i in 1 ... dbtTrfTx.length() - 1 {
         if iban != dbtTrfTx[i].CdtrAgtAcct?.Id?.IBAN || bban != dbtTrfTx[i].CdtrAgtAcct?.Id?.Othr?.Id || identifierCode != dbtTrfTx[i].CdtrAgt?.FinInstnId?.BICFI || partyIdentifier != dbtTrfTx[i].CdtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd {
             return check getField52(transaxion?.CdtrAgt?.FinInstnId, transaxion?.CdtrAgtAcct?.Id, isOptionCPresent = true);
