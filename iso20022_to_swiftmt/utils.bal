@@ -876,9 +876,13 @@ isolated function getRepeatingField26T(pacsIsoRecord:DirectDebitTransactionInfor
 #
 # + instdAmt - instructed amount
 # + intrBkSttlmAmt - interbank settlement amount
+# + senderCountry - sender country
+# + receiverCountry - receiver country
 # + isUnderlyingTransaction - underlying transaction flag
 # + return - return the field 33B
-isolated function getField33B(pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount? instdAmt, pacsIsoRecord:ActiveCurrencyAndAmount? intrBkSttlmAmt, boolean isUnderlyingTransaction = false) returns swiftmt:MT33B? {
+isolated function getField33B(pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount? instdAmt,
+        pacsIsoRecord:ActiveCurrencyAndAmount? intrBkSttlmAmt, string senderCountry, string receiverCountry,
+        boolean isUnderlyingTransaction = false) returns swiftmt:MT33B? {
 
     if instdAmt is pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount {
         return {
@@ -887,7 +891,8 @@ isolated function getField33B(pacsIsoRecord:ActiveOrHistoricCurrencyAndAmount? i
             Amnt: {content: convertDecimalToSwiftDecimal(instdAmt.content), number: NUMBER2}
         };
     }
-    if intrBkSttlmAmt is pacsIsoRecord:ActiveCurrencyAndAmount {
+    if (intrBkSttlmAmt is pacsIsoRecord:ActiveCurrencyAndAmount && euCountryList.indexOf(senderCountry) >= 0 
+        && euCountryList.indexOf(receiverCountry) >= 0) { 
         return {
             name: MT33B_NAME,
             Ccy: {content: intrBkSttlmAmt.Ccy, number: NUMBER1},
@@ -1078,13 +1083,15 @@ isolated function getField50(pacsIsoRecord:Party50Choice? dbtr, pacsIsoRecord:Pa
             Nm: [{content: getMandatoryField(dbtrParty?.Nm), number: NUMBER3}, {content: NUMBER1, number: appendLineNo ? NUMBER2 : ()}],
             AdrsLine: getAddressLine(dbtrParty?.PstlAdr?.AdrLine, 5, true, dbtrParty?.PstlAdr?.TwnNm, dbtrParty?.PstlAdr?.Ctry, dbtrParty?.PstlAdr, appendLineNo)
         };
-    } else {
+    } else if dbtrParty?.Nm is string {
         return {
             name: MT50_NAME,
             PrtyIdn: {content: partyid, number: NUMBER1},
             Nm: [{content: getMandatoryField(dbtrParty?.Nm), number: NUMBER3}],
             AdrsLine: []
         };
+    } else {
+        return ();
     }
 }
 
@@ -2859,7 +2866,7 @@ isolated function convertToSwiftTimeFormat(string? content) returns string|error
     time:Utc utc = check time:utcFromCivil(civilTime);
     string utcString = time:utcToString(utc);
     return utcString.substring(11, 13) + utcString.substring(14, 16);
-    
+
 }
 
 // TODO Add the necessary functions to map the MX messages to the MT messages.

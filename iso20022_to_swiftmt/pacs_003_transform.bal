@@ -28,7 +28,11 @@ isolated function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Envelope 
     swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getMT104Or107CreditorFromPacs003Document(dbtTrfTx),
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getMT104Or107CreditorsBankFromPacs003Document(dbtTrfTx),
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(dbtTrfTx[0].IntrmyAgt1?.FinInstnId, dbtTrfTx[0].IntrmyAgt1Acct?.Id, isOptionBPresent = true),
-    swiftmt:MT104Transaction[] transactions = check generateMT104TransactionsFromPacs003(dbtTrfTx)
+    string senderCountry = envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+        envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI.toString().substring(4,6) : "",
+    string receiverCountry = envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI.toString().substring(4,6) : "",
+    swiftmt:MT104Transaction[] transactions = check generateMT104TransactionsFromPacs003(dbtTrfTx, senderCountry, receiverCountry)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
@@ -50,11 +54,15 @@ isolated function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Envelope 
                 name: MT30_NAME,
                 Dt: {content: convertToSWIFTStandardDate(dbtTrfTx[0].IntrBkSttlmDt), number: NUMBER1}
             },
-            MT32B: {
-                name: MT32B_NAME,
-                Ccy: {content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.Ccy.toString(), number: NUMBER1},
-                Amnt: {content: convertDecimalToSwiftDecimal(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.content), number: NUMBER2}
-            },
+            MT32B: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt is () ? {
+                    name: MT32B_NAME,
+                    Ccy: {content: dbtTrfTx[0].IntrBkSttlmAmt.Ccy, number: NUMBER1},
+                    Amnt: {content: getTotalInterBankSettlementAmount(dbtTrfTx), number: NUMBER2}
+                } : {
+                    name: MT32B_NAME,
+                    Ccy: {content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.Ccy.toString(), number: NUMBER1},
+                    Amnt: {content: convertDecimalToSwiftDecimal(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.content), number: NUMBER2}
+                },
             MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
             MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
             MT50A: field50a is swiftmt:MT50A ? field50a : (),
@@ -85,9 +93,11 @@ isolated function transformPacs003DocumentToMT104(pacsIsoRecord:Pacs003Envelope 
 # Creates the MT104 transactions from the Pacs003 envelope.Document's direct debit transaction information.
 #
 # + drctDbtTxInf - Array of DirectDebitTransactionInformation31 from Pacs003 envelope.Document
+# + senderCountry - The sender country
+# + receiverCountry - The receiver country
 # + return - Array of MT104 transactions or an error
 isolated function generateMT104TransactionsFromPacs003(
-        pacsIsoRecord:DirectDebitTransactionInformation31[] drctDbtTxInf
+        pacsIsoRecord:DirectDebitTransactionInformation31[] drctDbtTxInf, string senderCountry, string receiverCountry
 ) returns swiftmt:MT104Transaction[]|error {
     swiftmt:MT104Transaction[] transactions = [];
     foreach pacsIsoRecord:DirectDebitTransactionInformation31 tx in drctDbtTxInf {
@@ -114,7 +124,7 @@ isolated function generateMT104TransactionsFromPacs003(
 
         swiftmt:MT21C? MT21C = getField21C(tx.DrctDbtTx?.MndtRltdInf?.MndtId);
         swiftmt:MT26T? MT26T = getRepeatingField26T(drctDbtTxInf, tx.Purp, true);
-        swiftmt:MT33B? MT33B = getField33B(tx.InstdAmt, tx.IntrBkSttlmAmt);
+        swiftmt:MT33B? MT33B = getField33B(tx.InstdAmt, tx.IntrBkSttlmAmt, senderCountry, receiverCountry);
         swiftmt:MT36? MT36 = getField36(tx.XchgRate);
 
         swiftmt:MT50C? MT50C = instructingParty is swiftmt:MT50C ? instructingParty : ();
@@ -177,7 +187,11 @@ isolated function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Envelope 
     swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getMT104Or107CreditorFromPacs003Document(dbtTrfTx),
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getMT104Or107CreditorsBankFromPacs003Document(dbtTrfTx),
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(dbtTrfTx[0].IntrmyAgt1?.FinInstnId, dbtTrfTx[0].IntrmyAgt1Acct?.Id, isOptionBPresent = true),
-    swiftmt:MT104Transaction[] transactions = check generateMT107TransactionsFromPacs003(dbtTrfTx)
+    string senderCountry = envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+        envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI.toString().substring(4,6) : "",
+    string receiverCountry = envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI.toString().substring(4,6) : "",
+    swiftmt:MT104Transaction[] transactions = check generateMT107TransactionsFromPacs003(dbtTrfTx, senderCountry, receiverCountry)
     in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
@@ -193,20 +207,21 @@ isolated function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Envelope 
                     number: NUMBER1
                 }
             },
-            MT23E: dbtTrfTx[0].PmtTpInf?.CtgyPurp?.Cd is () ? () : {
-                    name: MT23E_NAME,
-                    InstrnCd: {content: dbtTrfTx[0].PmtTpInf?.CtgyPurp?.Cd.toString(), number: NUMBER1}
-                },
+            MT23E: getRepeatingField23EForPacs003(dbtTrfTx),
             MT26T: getRepeatingField26T(dbtTrfTx),
             MT30: {
                 name: MT30_NAME,
                 Dt: {content: convertToSWIFTStandardDate(dbtTrfTx[0].IntrBkSttlmDt), number: NUMBER1}
             },
-            MT32B: {
-                name: MT32B_NAME,
-                Ccy: {content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.Ccy.toString(), number: NUMBER1},
-                Amnt: {content: convertDecimalToSwiftDecimal(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.content), number: NUMBER2}
-            },
+            MT32B: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt is () ? {
+                    name: MT32B_NAME,
+                    Ccy: {content: dbtTrfTx[0].IntrBkSttlmAmt.Ccy, number: NUMBER1},
+                    Amnt: {content: getTotalInterBankSettlementAmount(dbtTrfTx), number: NUMBER2}
+                } : {
+                    name: MT32B_NAME,
+                    Ccy: {content: envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.Ccy.toString(), number: NUMBER1},
+                    Amnt: {content: convertDecimalToSwiftDecimal(envelope.Document.FIToFICstmrDrctDbt.GrpHdr.TtlIntrBkSttlmAmt?.content), number: NUMBER2}
+                },
             MT50C: instructingParty is swiftmt:MT50C ? instructingParty : (),
             MT50L: instructingParty is swiftmt:MT50L ? instructingParty : (),
             MT50A: field50a is swiftmt:MT50A ? field50a : (),
@@ -236,9 +251,11 @@ isolated function transformPacs003DocumentToMT107(pacsIsoRecord:Pacs003Envelope 
 
 # generate the MT107 transactions from the Pacs003 envelope.Document's direct debit transaction information.
 # + drctDbtTxInf - Array of DirectDebitTransactionInformation31 from Pacs003 envelope.Document
+# + senderCountry - The sender country
+# + receiverCountry - The receiver country
 # + return - Array of MT107 transactions or an error
 isolated function generateMT107TransactionsFromPacs003(
-        pacsIsoRecord:DirectDebitTransactionInformation31[] drctDbtTxInf
+        pacsIsoRecord:DirectDebitTransactionInformation31[] drctDbtTxInf, string senderCountry, string receiverCountry
 ) returns swiftmt:MT107Transaction[]|error {
     swiftmt:MT107Transaction[] transactions = [];
     foreach pacsIsoRecord:DirectDebitTransactionInformation31 tx in drctDbtTxInf {
@@ -255,20 +272,17 @@ isolated function generateMT107TransactionsFromPacs003(
             }
         };
 
-        swiftmt:MT23E MT23E = {
-            name: MT23E_NAME,
-            InstrnCd: {content: getEmptyStrIfNull(tx.PmtTpInf?.CtgyPurp?.Cd), number: NUMBER1}
-        };
+        swiftmt:MT23E? MT23E = getRepeatingField23EForPacs003(drctDbtTxInf, tx.PmtTpInf?.CtgyPurp?.Cd, true);
 
         swiftmt:MT32B MT32B = {
-            name: MT23B_NAME,
+            name: MT32B_NAME,
             Ccy: {content: tx.IntrBkSttlmAmt.Ccy, number: NUMBER1},
-            Amnt: {content: convertDecimalToSwiftDecimal(tx.IntrBkSttlmAmt?.content), number: NUMBER1}
+            Amnt: {content: convertDecimalToSwiftDecimal(tx.IntrBkSttlmAmt?.content), number: NUMBER2}
         };
 
         swiftmt:MT21C? MT21C = getField21C(tx.DrctDbtTx?.MndtRltdInf?.MndtId);
         swiftmt:MT26T? MT26T = getRepeatingField26T(drctDbtTxInf, tx.Purp, true);
-        swiftmt:MT33B? MT33B = getField33B(tx.InstdAmt, tx.IntrBkSttlmAmt);
+        swiftmt:MT33B? MT33B = getField33B(tx.InstdAmt, tx.IntrBkSttlmAmt, senderCountry, receiverCountry);
         swiftmt:MT36? MT36 = getField36(tx.XchgRate);
 
         swiftmt:MT50C? MT50C = instructingParty is swiftmt:MT50C ? instructingParty : ();
@@ -402,7 +416,7 @@ isolated function getMT104Or107CreditorsBankFromPacs003Document(pacsIsoRecord:Di
         pacsIsoRecord:DirectDebitTransactionInformation31? transaxion = (), boolean isTransaction = false)
     returns swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D?|error {
 
-    [string?, string?, string?, string?] [iban, bban, identifierCode, partyIdentifier] = [dbtTrfTx[0].DbtrAgtAcct?.Id?.IBAN, dbtTrfTx[0].DbtrAgtAcct?.Id?.Othr?.Id, dbtTrfTx[0].DbtrAgt?.FinInstnId?.BICFI, dbtTrfTx[0].DbtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd];
+    [string?, string?, string?, string?] [iban, bban, identifierCode, partyIdentifier] = [dbtTrfTx[0].CdtrAgtAcct?.Id?.IBAN, dbtTrfTx[0].CdtrAgtAcct?.Id?.Othr?.Id, dbtTrfTx[0].CdtrAgt?.FinInstnId?.BICFI, dbtTrfTx[0].CdtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd];
     foreach int i in 1 ... dbtTrfTx.length() - 1 {
         if iban != dbtTrfTx[i].CdtrAgtAcct?.Id?.IBAN || bban != dbtTrfTx[i].CdtrAgtAcct?.Id?.Othr?.Id || identifierCode != dbtTrfTx[i].CdtrAgt?.FinInstnId?.BICFI || partyIdentifier != dbtTrfTx[i].CdtrAgt?.FinInstnId?.ClrSysMmbId?.ClrSysId?.Cd {
             return check getField52(transaxion?.CdtrAgt?.FinInstnId, transaxion?.CdtrAgtAcct?.Id, isOptionCPresent = true);
@@ -412,4 +426,18 @@ isolated function getMT104Or107CreditorsBankFromPacs003Document(pacsIsoRecord:Di
         return ();
     }
     return check getField52(dbtTrfTx[0].CdtrAgt?.FinInstnId, dbtTrfTx[0].CdtrAgtAcct?.Id, isOptionCPresent = true);
+}
+
+isolated function getTotalInterBankSettlementAmount(pacsIsoRecord:DirectDebitTransactionInformation31[] drctDbtTxInf) returns string {
+    decimal totalAmount = 0;
+    foreach pacsIsoRecord:DirectDebitTransactionInformation31 tx in drctDbtTxInf {
+        totalAmount = totalAmount + tx.IntrBkSttlmAmt.content;
+    }
+    string totalAmountStr = convertDecimalToSwiftDecimal(totalAmount);
+
+    if (totalAmountStr.length() > 15) {
+        return "NOTPROVIDED";
+    } else {
+        return totalAmountStr;
+    }
 }

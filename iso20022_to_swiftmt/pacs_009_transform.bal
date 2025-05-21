@@ -185,6 +185,10 @@ isolated function transformPacs009ToMt202COV(pacsIsoRecord:Pacs009Envelope envel
     swiftmt:MT54A?|swiftmt:MT54B?|swiftmt:MT54D? field54 = getField54(settlementInfo.InstdRmbrsmntAgt?.FinInstnId, settlementInfo.InstdRmbrsmntAgtAcct?.Id, true),
     swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(creditTransfer.IntrmyAgt1?.FinInstnId, creditTransfer.IntrmyAgt1Acct?.Id),
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.CdtrAgt?.FinInstnId, creditTransfer.CdtrAgtAcct?.Id, true),
+    string senderCountry = envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+        envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI.toString().substring(4,6) : "",
+    string receiverCountry = envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI.toString().substring(4,6) : "",
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
@@ -238,18 +242,19 @@ isolated function transformPacs009ToMt202COV(pacsIsoRecord:Pacs009Envelope envel
             MT58A: field58 is swiftmt:MT58A ? field58 : (),
             MT58D: field58 is swiftmt:MT58D ? field58 : (),
             MT72: getField72ForPacs009(creditTransfer),
-            UndrlygCstmrCdtTrf: check getUnderlyingCustomerTransaction(creditTransfer)
+            UndrlygCstmrCdtTrf: check getUnderlyingCustomerTransaction(creditTransfer, senderCountry, receiverCountry)
         }
     };
 
-isolated function getUnderlyingCustomerTransaction(pacsIsoRecord:CreditTransferTransaction62 creditTransfer) returns swiftmt:UndrlygCstmrCdtTrf|error {
+isolated function getUnderlyingCustomerTransaction(pacsIsoRecord:CreditTransferTransaction62 creditTransfer, 
+    string senderCountry, string receiverCountry) returns swiftmt:UndrlygCstmrCdtTrf|error {
     swiftmt:MT50A?|swiftmt:MT50G?|swiftmt:MT50K?|swiftmt:MT50H?|swiftmt:MT50F? field50a = check getField50a(creditTransfer.UndrlygCstmrCdtTrf?.Dbtr, creditTransfer.UndrlygCstmrCdtTrf?.DbtrAcct?.Id);
     swiftmt:MT52A?|swiftmt:MT52B?|swiftmt:MT52C?|swiftmt:MT52D? field52 = check getField52(creditTransfer.UndrlygCstmrCdtTrf?.DbtrAgt?.FinInstnId, creditTransfer.UndrlygCstmrCdtTrf?.DbtrAgtAcct?.Id);
     swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(creditTransfer.UndrlygCstmrCdtTrf?.IntrmyAgt1?.FinInstnId, creditTransfer.UndrlygCstmrCdtTrf?.IntrmyAgt1Acct?.Id);
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.UndrlygCstmrCdtTrf?.CdtrAgt?.FinInstnId, creditTransfer.UndrlygCstmrCdtTrf?.CdtrAgtAcct?.Id, true);
     swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? field59 = getField59a(creditTransfer.UndrlygCstmrCdtTrf?.Cdtr, creditTransfer.UndrlygCstmrCdtTrf?.CdtrAcct?.Id);
     return {
-        MT33B: getField33B(creditTransfer.UndrlygCstmrCdtTrf?.InstdAmt, (), true),
+        MT33B: getField33B(creditTransfer.UndrlygCstmrCdtTrf?.InstdAmt, (), senderCountry, receiverCountry, true),
         MT50F: field50a is swiftmt:MT50F ? field50a : (),
         MT50A: field50a is swiftmt:MT50A ? field50a : (),
         MT50K: field50a is swiftmt:MT50K ? field50a : (),
@@ -407,6 +412,10 @@ isolated function transformPacs009ToMt205COV(pacsIsoRecord:Pacs009Envelope envel
     swiftmt:MT53A?|swiftmt:MT53B?|swiftmt:MT53C?|swiftmt:MT53D? field53 = getField53(settlementInfo.InstgRmbrsmntAgt?.FinInstnId, settlementInfo.InstgRmbrsmntAgtAcct?.Id, true),
     swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(creditTransfer.IntrmyAgt1?.FinInstnId, creditTransfer.IntrmyAgt1Acct?.Id),
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(creditTransfer.CdtrAgt?.FinInstnId, creditTransfer.CdtrAgtAcct?.Id, true),
+    string senderCountry = envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+        envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI.toString().substring(4,6) : "",
+    string receiverCountry = envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI.toString().substring(4,6) : "",
     swiftmt:MT58A?|swiftmt:MT58D? field58 = check getField58(creditTransfer.Cdtr?.FinInstnId, creditTransfer.CdtrAcct?.Id) in {
         block1: generateBlock1(getSenderOrReceiver(envelope.Document.FICdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI,
                         envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI)),
@@ -457,6 +466,6 @@ isolated function transformPacs009ToMt205COV(pacsIsoRecord:Pacs009Envelope envel
             MT58A: field58 is swiftmt:MT58A ? field58 : (),
             MT58D: field58 is swiftmt:MT58D ? field58 : (),
             MT72: getField72ForPacs009(creditTransfer),
-            UndrlygCstmrCdtTrf: check getUnderlyingCustomerTransaction(creditTransfer)
+            UndrlygCstmrCdtTrf: check getUnderlyingCustomerTransaction(creditTransfer, senderCountry, receiverCountry)
         }
     };
