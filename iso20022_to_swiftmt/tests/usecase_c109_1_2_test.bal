@@ -30,7 +30,10 @@ isolated function testC10912(xml mx, string mt) returns error? {
 function dataGen10912() returns map<[xml, string]>|error {
     // Other tests of Use Case c.109.1.2 need to be added
     map<[xml, string]> dataSet = {
-        "B_A": [check io:fileReadXml("./tests/c_109_1_2/CBPR+ c.109.1.2 camt.053-BtoA.xml"), finMessage_10912_B_A]
+        "B_A": [check io:fileReadXml("./tests/c_109_1_2/CBPR+ c.109.1.2 camt.053-BtoA.xml"), finMessage_10912_B_A],
+        "A_B": [check io:fileReadXml("./tests/c_109_1_2/CBPR+ c.109.1.2 camt.107-AtoB.xml"), finMessage_10912_A_B],
+        "c108A_B": [check io:fileReadXml("./tests/c_109_1_2/CBPR+ c.109.1.2 camt.108-AtoB.xml"), finMessage_10912_c108A_B],
+        "c109B_A": [check io:fileReadXml("./tests/c_109_1_2/CBPR+ c.109.1.2 camt.109-BtoA.xml"), finMessage_10912_c109B_A]
     };
     return dataSet;
 }
@@ -42,4 +45,40 @@ string finMessage_10912_B_A = "{1:F01MYMBGB2LXXXX0000000000}{2:O9401600221020RBS
     ":60F:D221020GBP6544,\r\n" +
     ":61:221020D25250,NTRFNONREF\r\n" +
     ":62F:D221020GBP31794,\r\n" +
+    "-}";
+
+string finMessage_10912_A_B = "{1:F01RBSSGBKCXXXX0000000000}{2:O1100905221020MYMBGB2LXXXX00000000002210200905N}{4:\r\n" +
+    ":20:camt107bzmsgidr1\r\n" +
+    ":21:102145\r\n" +
+    ":30:221020\r\n" +
+    ":32B:GBP25250,\r\n" +
+    ":50F:/60779854\r\n" +
+    "1/Debtor Co\r\n" +
+    "2/High Street\r\n" +
+    "3/GB/Epping\r\n" +
+    ":59F:1/Ardent Finance\r\n" +
+    "2/Main Street\r\n" +
+    "3/GB/London\r\n" +
+    "-}";
+
+string finMessage_10912_c108A_B = "{1:F01RBSSGBKCXXXX0000000000}{2:O1111005221020MYMBGB2LXXXX00000000002210201005N}{4:\r\n" +
+    ":20:camt108bzmsgidr1\r\n" +
+    ":21:102145\r\n" +
+    ":30:221020\r\n" +
+    ":32B:GBP25250,\r\n" +
+    ":59:1/Ardent Finance\r\n" +
+    "2/Main Street\r\n" +
+    "3/GB/London\r\n" +
+    ":75:/RequestedByCustomer/\r\n" +
+    "-}";
+
+string finMessage_10912_c109B_A = "{1:F01MYMBGB2LXXXX0000000000}{2:O1121005221020RBSSGBKCXXXX00000000002210201005N}{4:\r\n" +
+    ":20:camt109bzmsgidr1\r\n" +
+    ":21:102145\r\n" +
+    ":30:221020\r\n" +
+    ":32B:GBP25250,\r\n" +
+    ":59:1/Ardent Finance\r\n" +
+    "2/Main Street\r\n" +
+    "3/GB/London\r\n" +
+    ":76:/Rejected/CLEA\r\n" +
     "-}";

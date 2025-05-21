@@ -35,6 +35,7 @@ const CAMT053 = "camt.053";
 const CAMT054 = "camt.054";
 const CAMT056 = "camt.056";
 const CAMT057 = "camt.057";
+const CAMT058 = "camt.058";
 const CAMT060 = "camt.060";
 const CAMT105 = "camt.105";
 const CAMT106 = "camt.106";
@@ -278,6 +279,10 @@ final readonly & map<string> chequeCancelReasonCode = {
     "NARR": "Narrative"
 };
 
+final readonly & string[] euCountryList = ["AD", "AT", "BE", "BG", "BV", "CH", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", 
+    "FR", "GB", "GF", "GI", "GP", "GR", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MC", "MQ", "MT", "NL", "NO", 
+    "PL", "PM", "PT", "RE", "RO", "SE", "SI", "SJ", "SK", "SM", "TF", "VA"]; 
+
 # This record is used to store any type of MT message record and the type name
 #
 # + mtTypeName - The MT record type name
@@ -306,6 +311,9 @@ isolated function getTransformFunction(string isoMsgType, record {} isoData) ret
     match isoMsgType {
         PACS002 => {
             return function:call(check getTransformFunctionForPacs002(mtMsgType), isoData, mtMsgType).ensureType();
+        }
+        PACS003 => {
+            return function:call(check getTransformFunctionForPacs003(mtMsgType), isoData, mtMsgType).ensureType();
         }
         PACS004 => {
             return function:call(check getTransformFunctionForPacs004(mtMsgType), isoData, mtMsgType).ensureType();
@@ -341,6 +349,9 @@ isolated function getTransformFunction(string isoMsgType, record {} isoData) ret
         }
         CAMT057 => {
             return function:call(getTransformFunctionForCamt057(mtMsgType), isoData, mtMsgType).ensureType();
+        }
+        CAMT058 => {
+            return function:call(getTransformFunctionForCamt058(mtMsgType), isoData, mtMsgType).ensureType();
         }
         CAMT105 => {
             return function:call(getTransformFunctionForCamt105(mtMsgType), isoData, mtMsgType).ensureType();
@@ -391,8 +402,8 @@ isolated function getOutputMtType(string isoMsgType, record {} isoData) returns 
         }
 
         PACS003 => {
-            // todo: check derived mappings for 104, 107
-            return error("To be implemented");
+            // todo: no clear identificattion of mapping between 104 and 107. Mapped to 107 for now.
+            return MESSAGETYPE_107;
         }
 
         PACS004 => {
@@ -510,6 +521,9 @@ isolated function getOutputMtType(string isoMsgType, record {} isoData) returns 
 
         CAMT057 => {
             return MESSAGETYPE_210;
+        }
+        CAMT058 => {
+            return MESSAGETYPE_292;
         }
         CAMT105 => {
             camtIsoRecord:Camt105Envelope envelope = check isoData.cloneWithType(camtIsoRecord:Camt105Envelope);
@@ -675,13 +689,16 @@ isolated function getTransformFunctionForCamt057(string mtMsgType) returns isola
     return transformCamt057ToMt210;
 }
 
+isolated function getTransformFunctionForCamt058(string mtMsgType) returns isolated function {
+    return transformCamt058ToMtn92;
+}
+
 isolated function getTransformFunctionForCamt105(string mtMsgType) returns isolated function {
     return transformCamt105ToMtn90;
 }
 
 isolated function getTransformFunctionForCamt106(string mtMsgType) returns isolated function|error {
-    return error("To be implemented");
-    // return transformCamt106ToMtn91;
+    return transformCamt106ToMtn91;
 }
 
 isolated function getTransformFunctionForCamt107(string mtMsgType) returns isolated function {
@@ -729,6 +746,7 @@ final readonly & map<typedesc<record {}>> isoMessageTypes = {
     "camt.055": camtIsoRecord:Camt055Envelope,
     "camt.056": camtIsoRecord:Camt056Envelope,
     "camt.057": camtIsoRecord:Camt057Envelope,
+    "camt.058": camtIsoRecord:Camt058Envelope,
     "camt.060": camtIsoRecord:Camt060Envelope,
     "camt.105": camtIsoRecord:Camt105Envelope,
     "camt.106": camtIsoRecord:Camt106Envelope,

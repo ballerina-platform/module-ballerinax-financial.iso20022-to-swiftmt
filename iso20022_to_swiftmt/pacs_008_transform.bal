@@ -104,10 +104,14 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Envelope envelope, bo
             prvsInstgAgt3 = firstTransaction.PrvsInstgAgt3, intrmyAgt2 = firstTransaction.IntrmyAgt2,
             intrmyAgt3 = firstTransaction.IntrmyAgt3, remmitanceInfo = firstTransaction.RmtInf?.Ustrd);
     swiftmt:MT77B? MT77B = getRepeatingField77BForPacs008(envelope.Document.FIToFICstmrCdtTrf.CdtTrfTxInf);
+    string senderCountry = envelope.Document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+        envelope.Document.FIToFICstmrCdtTrf.GrpHdr.InstdAgt?.FinInstnId?.BICFI.toString().substring(4,6) : "";
+    string receiverCountry = envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI.toString().substring(4,6) : "";
 
     swiftmt:MT102STPTransaction[]|swiftmt:MT102Transaction[] Transactions = check generateMT102Transactions(
             envelope.Document.FIToFICstmrCdtTrf.CdtTrfTxInf,
-            isSTP
+            isSTP, senderCountry, receiverCountry
     );
 
     if isSTP {
@@ -166,10 +170,12 @@ isolated function generateMT102Block4(pacsIsoRecord:Pacs008Envelope envelope, bo
 #
 # + mxTransactions - The credit transfer transactions
 # + isSTP - A boolean indicating whether the message is an STP message
+# + senderCountry - The country of the sender
+# + receiverCountry - The country of the receiver
 # + return - The transactions of the MT102 message or an error if the transformation fails
 isolated function generateMT102Transactions(
         pacsIsoRecord:CreditTransferTransaction64[] mxTransactions,
-        boolean isSTP)
+        boolean isSTP, string senderCountry, string receiverCountry)
 returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
     swiftmt:MT102Transaction[] transactions = [];
     swiftmt:MT102STPTransaction[] transactionsSTP = [];
@@ -217,7 +223,7 @@ returns swiftmt:MT102Transaction[]|swiftmt:MT102STPTransaction[]|error {
 
         swiftmt:MT26T? MT26T = getRepeatingField26T(mxTransactions, transaxion.Purp, true);
 
-        swiftmt:MT33B? MT33B = getField33B(transaxion.InstdAmt, transaxion.IntrBkSttlmAmt);
+        swiftmt:MT33B? MT33B = getField33B(transaxion.InstdAmt, transaxion.IntrBkSttlmAmt, senderCountry, receiverCountry);
 
         swiftmt:MT71A? MT71A = getRepeatingField71A(mxTransactions, transaxion.ChrgBr, true);
 
@@ -310,6 +316,10 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Envelope envelope, MT
     swiftmt:MT56A?|swiftmt:MT56C?|swiftmt:MT56D? field56 = check getField56(firstTransaction.IntrmyAgt1?.FinInstnId, firstTransaction.IntrmyAgt1Acct?.Id, isOptionCPresent = true);
     swiftmt:MT57A?|swiftmt:MT57B?|swiftmt:MT57C?|swiftmt:MT57D? field57 = check getField57(firstTransaction.CdtrAgt?.FinInstnId, firstTransaction.CdtrAgtAcct?.Id, true, true);
     swiftmt:MT59?|swiftmt:MT59A?|swiftmt:MT59F? field59 = getField59a(firstTransaction.Cdtr, firstTransaction.CdtrAcct?.Id);
+    string senderCountry = envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+       envelope.AppHdr?.Fr?.FIId?.FinInstnId?.BICFI.toString().substring(4,6) : "";
+    string receiverCountry = envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI is pacsIsoRecord:BICFIDec2014Identifier ? 
+        envelope.AppHdr?.To?.FIId?.FinInstnId?.BICFI.toString().substring(4,6) : "";
 
     swiftmt:MT13C? MT13C = check convertTimeToMT13C(firstTransaction.SttlmTmIndctn, firstTransaction.SttlmTmReq);
 
@@ -338,7 +348,7 @@ isolated function generateMT103Block4(pacsIsoRecord:Pacs008Envelope envelope, MT
         Amnt: {content: convertDecimalToSwiftDecimal(firstTransaction.IntrBkSttlmAmt?.content), number: NUMBER3}
     };
 
-    swiftmt:MT33B? MT33B = getField33B(firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmAmt);
+    swiftmt:MT33B? MT33B = getField33B(firstTransaction.InstdAmt, firstTransaction.IntrBkSttlmAmt, senderCountry, receiverCountry);
 
     swiftmt:MT36? MT36 = getField36(firstTransaction.XchgRate);
 
