@@ -2,7 +2,7 @@
 org = "ballerinax"
 name = "financial.iso20022ToSwiftmt"
 version = "1.0.2"
-distribution = "2201.10.1"
+distribution = "2201.10.5"
 authors=["Ballerina"]
 keywords=["Financial", "SWIFT MT", "ISO 20022", "Conversion"]
 repository="https://github.com/ballerina-platform/module-ballerinax-financial.iso20022-to-swiftmt"
@@ -11,12 +11,3 @@ license = ["Apache-2.0"]
 [build-options]
 observabilityIncluded = true
 
-[[dependency]]
-org = "ballerinax"
-name = "financial.iso20022"
-version = "2.0.0"
-
-[[dependency]]
-org = "ballerinax"
-name = "financial.swift.mt"
-version = "3.0.0"
