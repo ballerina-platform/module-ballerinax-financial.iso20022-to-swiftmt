@@ -155,7 +155,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "financial.iso20022ToSwiftmt"
-version = "1.0.2"
+version = "1.0.3"
 dependencies = [
 	{org = "ballerina", name = "data.xmldata"},
 	{org = "ballerina", name = "io"},
