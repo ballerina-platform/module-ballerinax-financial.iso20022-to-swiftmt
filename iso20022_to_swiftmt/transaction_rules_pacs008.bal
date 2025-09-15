@@ -47,20 +47,6 @@ isolated function pacs008_tr026(pacsIsoRecord:PartyIdentification272? debtor, pa
     }
 
     if debtor?.PstlAdr?.Ctry is string {
-        // CreditTransferTransactionInformation/Debtor Translate To [MX_To_MTFATFNameAndAddress] 50F Ordering Customer Number/Name and Address
-        // swiftmt:MT50F fieldMt50F = {name: MT50F_NAME, PrtyIdn: {content: ""}};
-        
-        // fieldMt50F.AdrsLine = getAddressLine(addressLines, 5, true, twnNm, countryCode, debtor?.PstlAdr);
-        
-        // names = [{content: "1/" + debtor?.Nm.toString(), number: NUMBER2}];
-        // fieldMt50F.Nm = names;
-        // if debtorAcctPresent {
-        //     fieldMt50F.PrtyIdn = {content: mx_to_mtAccount(debtorAcct?.Id), number: NUMBER1};
-        // } else if orgIdPresent || prvtIdPresent {
-        //     // CreditTransferTransactionInformation/Debtor TranslateTo [MX_To_MTFATFIdentification] 50F Ordering Customer Party Identifier
-        // } else {
-        //     fieldMt50F.PrtyIdn = {content: "/NOTPROVIDED", number: NUMBER1};
-        // }
         swiftmt:MT50F fieldMt50F = {
             name: MT50F_NAME,
             CdTyp: getCodeType(debtor?.Nm.toString(), addressLines, twnNm, countryCode, debtor?.PstlAdr),
@@ -80,7 +66,6 @@ isolated function pacs008_tr026(pacsIsoRecord:PartyIdentification272? debtor, pa
             if privateId is pacsIsoRecord:GenericPersonIdentification2[] && privateId.length() > 0 {
                 fieldMt50F.PrtyIdn = getPartyIdentifierForField50a(privateId[0], countryCode);
             }
-            // CreditTransferTransactionInformation/Debtor TranslateTo [MX_To_MTFATFIdentification] 50F Ordering Customer Party Identifier
         } else {
             fieldMt50F.PrtyIdn = {content: "/NOTPROVIDED", number: NUMBER1};
         }
@@ -102,13 +87,8 @@ isolated function pacs008_tr026(pacsIsoRecord:PartyIdentification272? debtor, pa
                 AdrsLine: getAddressLine(addressLines, 5, true, twnNm, countryCode, debtor?.PstlAdr)
             };
 
-            // swiftmt:MT50F fieldMt50F = {name: MT50F_NAME, PrtyIdn: {content: ""}};
-            // fieldMt50F.AdrsLine = getAddressLine(addressLines, 3, postalAddr = postalAddr, isOptionF = true, countryCode = countryCode,
-            //     townName = twnNm, appendInlineLineNo = true); // CreditTransferTransactionInformation/Debtor Translate To [MX_To_MTFATFNameAndAddress2] 50F Ordering Customer Number/Name and Address
             if debtorAcctPresent {
                 fieldMt50F.PrtyIdn = {content: mx_to_mtAccount(debtorAcct?.Id, true), number: NUMBER1};
-                // } else if orgIdPresent || prvtIdPresent {
-                //     fieldMt50F.PrtyIdn = getPartyIdentifierForField50a(prvtOthrId[0], countryCode),// CreditTransferTransactionInformation/Debtor TranslateTo [MX_To_MTFATFIdentification] 50F Ordering Customer Party Identifier
             } else if orgIdPresent {
                 pacsIsoRecord:GenericOrganisationIdentification3[]? othr = debtor?.Id?.OrgId?.Othr;
                 if othr is pacsIsoRecord:GenericOrganisationIdentification3[] && othr.length() > 0 {
@@ -129,7 +109,7 @@ isolated function pacs008_tr026(pacsIsoRecord:PartyIdentification272? debtor, pa
             swiftmt:MT50K fieldMt50K = {name: MT50K_NAME, AdrsLine: [], Nm: []};
             fieldMt50K.Nm = names;
 
-            fieldMt50K.AdrsLine = getAddressLine(addressLines, 3); // CreditTransferTransactionInformation/Debtor Translate To [MX_To_MTPartyNameAndUnstructuredAddress] 50K Ordering Customer Name and Address    
+            fieldMt50K.AdrsLine = getAddressLine(addressLines, 3);
             if debtorAcctPresent {
                 fieldMt50K.Acc = {content: mx_to_mtAccount(debtorAcct?.Id), number: NUMBER1};
             }
@@ -140,7 +120,7 @@ isolated function pacs008_tr026(pacsIsoRecord:PartyIdentification272? debtor, pa
 
     if debtor?.Nm is string {
         swiftmt:MT50K fieldMt50K = {name: MT50K_NAME, AdrsLine: [], Nm: []};
-        fieldMt50K.AdrsLine = getAddressLine(addressLines, 3); // CreditTransferTransactionInformation/Debtor Translate To [MX_To_MTPartyNameAndUnstructuredAddress] 50K Ordering Customer Name and Address
+        fieldMt50K.AdrsLine = getAddressLine(addressLines, 3);
         fieldMt50K.Nm = names;
 
         if debtorAcctPresent {
@@ -177,8 +157,6 @@ isolated function pacs008_tr025(pacsIsoRecord:PartyIdentification272? creditor, 
     names.push({content: creditor?.Nm.toString(), number: NUMBER2});
     if creditor?.PstlAdr?.Ctry is string {
         swiftmt:MT59F fieldMt59F = {name: MT59F_NAME, CdTyp: []};
-        //CreditTransferTransactionInformation/CreditorTranslate To [MX_To_MTPartyNameAndAddressLEI1] 59F Beneficiary Customer Number/Name and Address
-        // fieldMt59F.AdrsLine = getAddressLine(creditor?.PstlAdr?.AdrLine, 3);
         fieldMt59F.AdrsLine = getAddressLine(addressLines, 5, true, twnNm, countryCode, creditor?.PstlAdr, appendLineNoComponent = true);
         fieldMt59F.Nm = [{content: "1", number: NUMBER2}, {content: getMandatoryField(creditor?.Nm), number: NUMBER3}];
 
@@ -193,7 +171,6 @@ isolated function pacs008_tr025(pacsIsoRecord:PartyIdentification272? creditor, 
         boolean structuredAddressIndicator = mx_to_mtAddressLineType(creditor);
         if structuredAddressIndicator {
             swiftmt:MT59F fieldMt59F = {name: MT59F_NAME, CdTyp: []};
-            // CreditTransferTransactionInformation/Creditor Translate To [MX_To_MTPartyNameAndAddressLEI2] 59F Beneficiary Customer Number/Name and Address
             fieldMt59F.AdrsLine =getAddressLine(addressLines, 5, true, twnNm, countryCode, creditor?.PstlAdr, appendLineNoComponent = true);
             fieldMt59F.Nm = [{content: "1", number: NUMBER2}, {content: getMandatoryField(creditor?.Nm), number: NUMBER3}];
             if creditorAcctPresent {
@@ -202,7 +179,6 @@ isolated function pacs008_tr025(pacsIsoRecord:PartyIdentification272? creditor, 
             return fieldMt59F;
         } else {
             swiftmt:MT59 fieldMt59 = {name: MT59_NAME, AdrsLine: [], Nm: []};
-            // CreditTransferTransactionInformation/Creditor Translate To [MX_To_MTPartyNameAndUnstructuredAddress] 59 Beneficiary Customer Name and Address
             fieldMt59.AdrsLine = getAddressLine(addressLines, 3);
             fieldMt59.Nm = names;
             if creditorAcctPresent {
@@ -213,7 +189,6 @@ isolated function pacs008_tr025(pacsIsoRecord:PartyIdentification272? creditor, 
     }
     if creditor?.Nm is string {
         swiftmt:MT59 fieldMt59 = {name: MT59_NAME, AdrsLine: [], Nm: []};
-        // CreditTransferTransactionInformation/Creditor Translate To [MX_To_MTPartyNameAndUnstructuredAddress] 59 no letter Beneficiary Customer Name and Address
         fieldMt59.Nm = names;
         fieldMt59.AdrsLine = getAddressLine(addressLines, 3);
         if creditorAcctPresent {
