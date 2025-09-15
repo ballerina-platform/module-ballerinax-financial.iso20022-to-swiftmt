@@ -129,7 +129,7 @@ isolated function generateMT101Transactions(
             MT59F: field59 is swiftmt:MT59F ? field59 : (),
 
             MT70: getField70(creditTransferTransaction.RmtInf?.Ustrd),
-            MT77B: getField77B(creditTransferTransaction.RgltryRptg),
+            MT77B: getField77B(creditTransferTransaction.RgltryRptg, creditTransferTransaction.Cdtr),
             MT71A: {
                 name: MT71A_NAME,
                 Cd: getDetailsOfChargesFromChargeBearerType1Code(creditTransferTransaction.ChrgBr)

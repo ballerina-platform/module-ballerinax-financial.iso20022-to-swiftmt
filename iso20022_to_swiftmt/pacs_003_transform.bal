@@ -342,11 +342,11 @@ isolated function generateMT107TransactionsFromPacs003(
 # + isTransaction - boolean value to check whether it is a transaction
 # + return - return the repeating field 77B or an error
 isolated function getRepeatingField77BForPacs003(pacsIsoRecord:DirectDebitTransactionInformation31[] dbtTrfTx, pacsIsoRecord:RegulatoryReporting3[]? rgltryRptg = (), boolean isTransaction = false) returns swiftmt:MT77B? {
-    swiftmt:MT77B? regulatoryReport = getField77B(dbtTrfTx[0].RgltryRptg);
+    swiftmt:MT77B? regulatoryReport = getField77B(dbtTrfTx[0].RgltryRptg, ());
     foreach int i in 1 ... dbtTrfTx.length() - 1 {
-        swiftmt:MT77B? regulatoryReport2 = getField77B(dbtTrfTx[i].RgltryRptg);
+        swiftmt:MT77B? regulatoryReport2 = getField77B(dbtTrfTx[i].RgltryRptg, ());
         if regulatoryReport?.Nrtv?.content != regulatoryReport2?.Nrtv?.content {
-            return getField77B(rgltryRptg);
+            return getField77B(rgltryRptg, ());
         }
     }
     if isTransaction {

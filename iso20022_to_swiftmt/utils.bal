@@ -44,7 +44,23 @@ isolated function convertDecimalToSwiftDecimal(decimal? number) returns string {
         return number.toString().concat(",");
     }
     string:RegExp regex = re `\.`;
-    return regex.replace(number.toString(), ",");
+    string numericString = regex.replace(number.toString(), ",");
+    if !(numericString.indexOf(",") is ()) {
+        numericString = removeTrailingCharacters(numericString, "0");
+    }
+    return numericString;
+}
+
+# Removes trailing occurrences of specified characters from the end of a string.
+#
+# + input - The input string to process
+# + charToRemove - The character(s) to remove from the end of the string
+# + return - Returns the input string with trailing occurrences of the specified character(s) removed
+isolated function removeTrailingCharacters(string input, string charToRemove) returns string {
+    log:printDebug(string `Starting removeTrailingCharacters with input: ${input}, charToRemove: ${charToRemove}`);
+    final string output = re `${charToRemove}+$`.replace(input, "");
+    log:printDebug(string `Final result after removals: ${output}`);
+    return output;
 }
 
 # Converts the given date to a Swift standard date format.
@@ -84,7 +100,7 @@ isolated function getAddressLine(pacsIsoRecord:Max70Text[]? address1, int num = 
             count += 1;
         }
     }
-    if isOptionF && (countryCode is string || townName is string) {
+    if isOptionF && (countryCode is string || townName is string || postalAddr is pacsIsoRecord:PostalAddress27) {
         // 2/StreetName, BuildingNumber, BuildingName, Floor, PostBox, Room, Department, SubDepartment
         string addressLine1Elements = getAddressLine1Elements(postalAddr);
         if (addressLine1Elements != "") {
@@ -94,6 +110,23 @@ isolated function getAddressLine(pacsIsoRecord:Max70Text[]? address1, int num = 
         address.push({content: (appendInlineLineNo ? (count - 1).toString() + "/" : "") + countryCode.toString() + "/" + townName.toString(), number: count.toString()}, {content: (count / 2).toString(), number: appendLineNoComponent ? (count - 1).toString() : ()});
     }
     return address;
+}
+
+# Checks if the address lines are present and not marked as "NOTPROVIDED".
+#
+# + addressLines - address lines to be checked
+# + return - return true if address lines are present and valid, otherwise false
+isolated function isAddressLinePresent(pacsIsoRecord:Max70Text[]? addressLines) returns boolean {
+    if addressLines is pacsIsoRecord:Max70Text[] {
+        foreach string adrsLine in addressLines {
+            if adrsLine.toString() == "NOTPROVIDED" {
+                return false;
+            }
+            // only need to check first line
+            return true;
+        }
+    }
+    return false;
 }
 
 # Constructs the Address Line 1 elements from the given postal address.
@@ -1909,9 +1942,12 @@ isolated function getField70(pacsIsoRecord:Max140Text[]? remmitanceInfoArray) re
             information += remmitanceInfoArray[i] + "\n";
             count += 1;
         }
+        // add line breaks
+        string processedInf = appendSubFieldToTextField(information, continuatuionPattern = "\r\n");
+
         return {
             name: "70",
-            Nrtv: {content: information, number: NUMBER1}
+            Nrtv: {content: processedInf, number: NUMBER1}
         };
     }
     return ();
@@ -2142,9 +2178,10 @@ isolated function getField72ForPacs004(string? instructionId, string? endToEndId
 
 # Construct field 72 for pacs 009
 #
-# + cdtTrfTxInf - credit transfer transaction information
+# + cdtTrfTxInf - credit transfer transaction information  
+# + pacsCode - pacs code (8 or 9)
 # + return - return the field 72
-isolated function getField72ForPacs009(pacsIsoRecord:CreditTransferTransaction62 cdtTrfTxInf) returns swiftmt:MT72? {
+isolated function getField72ForPacs008or009(pacsIsoRecord:CreditTransferTransaction62|pacsIsoRecord:CreditTransferTransaction64 cdtTrfTxInf, int pacsCode) returns swiftmt:MT72? {
     string output = "";
     int currentLine = 1;
 
@@ -2176,15 +2213,6 @@ isolated function getField72ForPacs009(pacsIsoRecord:CreditTransferTransaction62
     }
     [output, currentLine] = addGroupToField72(locins, output, currentLine);
 
-    // Purpose
-    string purpose = "";
-    if cdtTrfTxInf.Purp?.Cd is string {
-        purpose += cdtTrfTxInf.Purp?.Cd.toString();
-    } else if cdtTrfTxInf.Purp?.Prtry is string {
-        purpose += cdtTrfTxInf.Purp?.Prtry.toString();
-    }
-    [output, currentLine] = addGroupToField72(purpose, output, currentLine);
-
     // Category Purpose
     string cp = "";
     if currentLine != 1 {
@@ -2197,34 +2225,55 @@ isolated function getField72ForPacs009(pacsIsoRecord:CreditTransferTransaction62
     }
     [output, currentLine] = addGroupToField72(cp, output, currentLine);
 
-    // Instruction for Creditor Agent
+    // Instruction for Creditor Agent ---- todo check
     [string, string, string, string] [udlc, acc, phob, telb] = getInstructionAgentforPacs009Field72(cdtTrfTxInf);
     [output, currentLine] = addGroupToField72(udlc, output, currentLine);
     [output, currentLine] = addGroupToField72(acc, output, currentLine);
     [output, currentLine] = addGroupToField72(phob, output, currentLine);
     [output, currentLine] = addGroupToField72(telb, output, currentLine);
 
-    // Purpose
-    if cdtTrfTxInf.Purp is pacsIsoRecord:Purpose2Choice {
-        string purp = "";
+
+    // Purpose -- only for pacs 009
+    if pacsCode == 9 {
+        string purpose = "";
         if cdtTrfTxInf.Purp?.Cd is string {
-            purp = cdtTrfTxInf.Purp?.Cd.toString();
+            purpose += cdtTrfTxInf.Purp?.Cd.toString();
         } else if cdtTrfTxInf.Purp?.Prtry is string {
-            purp = cdtTrfTxInf.Purp?.Prtry.toString();
+            purpose += cdtTrfTxInf.Purp?.Prtry.toString();
         }
-        if purp != "" {
-            purp = "/PURP/" + purp;
+        [output, currentLine] = addGroupToField72(purpose, output, currentLine);
+
+        if cdtTrfTxInf.Purp is pacsIsoRecord:Purpose2Choice {
+            string purp = "";
+            if cdtTrfTxInf.Purp?.Cd is string {
+                purp = cdtTrfTxInf.Purp?.Cd.toString();
+            } else if cdtTrfTxInf.Purp?.Prtry is string {
+                purp = cdtTrfTxInf.Purp?.Prtry.toString();
+            }
+            if purp != "" {
+                purp = "/PURP/" + purp;
+            }
+            [output, currentLine] = addGroupToField72(purp, output, currentLine);
         }
-        [output, currentLine] = addGroupToField72(purp, output, currentLine);
     }
 
-    pacsIsoRecord:BranchAndFinancialInstitutionIdentification8?[] agents = [
-        cdtTrfTxInf.DbtrAgt,
+    // Instruction for Nxt Agt
+
+    
+    pacsIsoRecord:BranchAndFinancialInstitutionIdentification8?[] agents = [];
+
+    // Debtor Agent only for 009
+    if pacsCode == 9 {
+        agents.push(cdtTrfTxInf.DbtrAgt);
+    }
+    // Previous Instructing Agent 1,2,3
+    pacsIsoRecord:BranchAndFinancialInstitutionIdentification8?[] previousAgents = [
         cdtTrfTxInf.PrvsInstgAgt1,
         cdtTrfTxInf.PrvsInstgAgt2,
         cdtTrfTxInf.PrvsInstgAgt3
     ];
-    // Debtor Agent & Previous Instructing Agent 1,2,3
+    agents.push(...previousAgents);
+
     foreach pacsIsoRecord:BranchAndFinancialInstitutionIdentification8? agent in agents {
         string agt = "";
         if agent?.FinInstnId?.BICFI is string {
@@ -2241,13 +2290,15 @@ isolated function getField72ForPacs009(pacsIsoRecord:CreditTransferTransaction62
         }
     }
 
-    // Remittance Information
-    [string, string] [bnfString, tsuString] = getRemittanceInfoForField72(cdtTrfTxInf.RmtInf?.Ustrd);
-    if bnfString != "" {
-        [output, currentLine] = addGroupToField72("/BNF/" + bnfString, output, currentLine);
-    }
-    if tsuString != "" {
-        [output, currentLine] = addGroupToField72("/TSU/" + tsuString, output, currentLine);
+    // Remittance Information only for 009
+    if pacsCode == 9 {
+        [string, string] [bnfString, tsuString] = getRemittanceInfoForField72(cdtTrfTxInf.RmtInf?.Ustrd);
+        if bnfString != "" {
+            [output, currentLine] = addGroupToField72("/BNF/" + bnfString, output, currentLine);
+        }
+        if tsuString != "" {
+            [output, currentLine] = addGroupToField72("/TSU/" + tsuString, output, currentLine);
+        }
     }
     if output != "" {
         return {
@@ -2318,7 +2369,7 @@ isolated function getIntrmyAgtsForPacs009Field72(pacsIsoRecord:BranchAndFinancia
 #
 # + cdtTrfTxInf - credit transfer transaction
 # + return - return the instruction agent
-isolated function getInstructionAgentforPacs009Field72(pacsIsoRecord:CreditTransferTransaction62 cdtTrfTxInf) returns [string, string, string, string] {
+isolated function getInstructionAgentforPacs009Field72(pacsIsoRecord:CreditTransferTransaction62|pacsIsoRecord:CreditTransferTransaction64 cdtTrfTxInf) returns [string, string, string, string] {
     string instruction = "\r\n";
     string:RegExp newLine = re `\r\n`;
     pacsIsoRecord:InstructionForCreditorAgent3[]? instrForCdtrAgt = cdtTrfTxInf.InstrForCdtrAgt;
@@ -2469,50 +2520,77 @@ isolated function getCamtField77A(string status, camtIsoRecord:ResolutionOfInves
     return {Nrtv: {content: appendSubFieldToTextField(narrative, maxLineCount = 20), number: NUMBER1}, name: MT77A_NAME};
 }
 
-# Construct field 77B for Swift MT .
-#
-# + rgltryRptg - regulatory reporting
-# + return - return the field 77B
-isolated function getField77B(pacsIsoRecord:RegulatoryReporting3[]? rgltryRptg) returns swiftmt:MT77B? {
+isolated function getField77B(pacsIsoRecord:RegulatoryReporting3[]? rgltryRptg, pacsIsoRecord:PartyIdentification272? creditor) returns swiftmt:MT77B? {
+
+    string detailType = "";
+    string detailCode = "";
+    string detailInfo = "";
+
+    string regulatoryReporting = "";
     if rgltryRptg is pacsIsoRecord:RegulatoryReporting3[] {
-        pacsIsoRecord:StructuredRegulatoryReporting3[]? details = rgltryRptg[0].Dtls;
-        if details is pacsIsoRecord:StructuredRegulatoryReporting3[] {
-            pacsIsoRecord:Max10Text? code = details[0].Cd;
-            pacsIsoRecord:Max10Text? country = details[0].Ctry;
-            pacsIsoRecord:Max35Text[]? infoArray = details[0].Inf;
-            if code is pacsIsoRecord:Max10Text && country is pacsIsoRecord:Max10Text {
-                string narration = "//";
-                int lineCount = 1;
-                int charCount = 0;
-                if infoArray is pacsIsoRecord:Max35Text[] {
-                    foreach pacsIsoRecord:Max35Text information in infoArray {
-                        if lineCount > 3 {
-                            break;
+        foreach pacsIsoRecord:RegulatoryReporting3 reporting in rgltryRptg {
+            pacsIsoRecord:StructuredRegulatoryReporting3[]? dtls = reporting.Dtls;
+            if dtls is pacsIsoRecord:StructuredRegulatoryReporting3[] {
+                foreach pacsIsoRecord:StructuredRegulatoryReporting3 detail in dtls {
+                    if detail.Cd is string || detail.Inf is string[] {
+                        if detail.Tp is string {
+                            detailType = "/" + detail.Tp.toString() + "/";
                         }
-                        foreach int i in 0 ... information.length() - 1 {
-                            if lineCount > 3 {
-                                break;
+                        if detail.Cd is string {
+                            detailCode = detail.Cd.toString();
+                        }
+                        string[]? info = detail.Inf;
+                        if info is string[] {
+                            foreach string information in info {
+                                detailInfo += appendSubFieldToTextField(information, continuatuionPattern = "\r\n");
                             }
-                            if (lineCount == 1 && narration.length() == 23) || charCount == 35 {
-                                narration += "\n//".concat(information.substring(i, i + 1));
-                                lineCount += 1;
-                                charCount = 3;
-                                continue;
-                            }
-                            narration += information.substring(i, i + 1);
-                            charCount += 1;
                         }
                     }
-                    return {name: MT77B_NAME, Nrtv: {content: "/" + code + "/" + country + narration, number: NUMBER1}};
                 }
-                return {name: MT77B_NAME, Nrtv: {content: "/" + code + "/" + country, number: NUMBER1}};
             }
-            return ();
         }
-        return ();
     }
-    return ();
+    boolean beneffound = detailInfo.matches(re `.*/BENEFRES/[A-Z]{2}.*`);
+    boolean orderfound = detailInfo.matches(re `.*/ORDERRES/[A-Z]{2}.*`);
+    if creditor?.CtryOfRes is string && !beneffound {
+        regulatoryReporting = "/BENEFRES/" + appendSubFieldToTextField(creditor?.CtryOfRes.toString(), continuatuionPattern = "\r\n");
+    }
+    if creditor?.CtryOfRes is string && !orderfound {
+        regulatoryReporting += "/ORDERRES/" + appendSubFieldToTextField(creditor?.CtryOfRes.toString(), continuatuionPattern = "\r\n");
+    }
+    if (beneffound || orderfound) && detailType == "" && detailCode == "" {
+        regulatoryReporting = appendSubFieldToTextField(detailInfo, continuatuionPattern = "\r\n");
+    }
+    if detailCode != "" || detailInfo != "" {
+        string localType;
+        string codeInfo = "//";
+        if detailType == "" {
+            localType = "/PURP/";
+        } else {
+            localType = detailType;
+        }
+        if detailType == "" && detailCode == "" && detailInfo.matches(re `^/.{1,35}/.*`) {
+            localType = "";
+        }
+        codeInfo += localType;
+        if detailCode != "" {
+            if detailInfo != "" {
+                codeInfo = detailCode.concat(detailInfo);
+            } else {
+                codeInfo = detailCode;
+            }
+        } else {
+            codeInfo += detailInfo;
+        }
+        if regulatoryReporting == "" {
+            codeInfo = codeInfo.substring(2);
+        }
+        regulatoryReporting += appendSubFieldToTextField(codeInfo, continuatuionPattern = "\r\n");
+    }
+    return regulatoryReporting != "" ? {name: MT77B_NAME, Nrtv: {content: regulatoryReporting, number: NUMBER1}} : ();
+
 }
+
 
 # Constructs MT77B field
 #
@@ -2771,20 +2849,21 @@ isolated function appendSubFieldToTextField(string text, int startline = 1, int 
 
     string result = "";
     int line = startline;
+    int continuationPattenLength = continuatuionPattern.length() - 2; // length without \r\n
     string[] lines = [];
     if text.length() <= maxLineLength {
         return text;
     }
     lines.push(text.substring(0, maxLineLength));
     while line <= maxLineCount {
-        if text.length() <= maxLineLength + (maxLineLength - 2 * line) {
-            lines.push(text.substring(maxLineLength + (maxLineLength - 2) * (line - 1)));
+        if text.length() <= maxLineLength + (maxLineLength - continuationPattenLength) * line {
+            lines.push(text.substring(maxLineLength + (maxLineLength - continuationPattenLength) * (line - 1)));
             foreach string lineText in lines {
                 result += lineText.concat(continuatuionPattern);
             }
             return result.substring(0, result.length() - continuatuionPattern.length());
         } else {
-            lines.push(text.substring(maxLineLength + (maxLineLength - 2) * (line - 1), maxLineLength + (maxLineLength - 2) * line));
+            lines.push(text.substring(maxLineLength + (maxLineLength - continuationPattenLength) * (line - 1), maxLineLength + (maxLineLength - continuationPattenLength) * line));
             line += 1;
         }
     }
@@ -2874,27 +2953,36 @@ isolated function convertToSwiftTimeFormat(string? content) returns string|error
 # generate the block 3 of the MT message from the supplementary data of the MX message
 # Currently, this function is empty, but if we decide to add any logic to generate the block 3 from the supplementary data,
 #
-# + uetr - The unique end-to-end transaction reference
-# + validationFlag - The validation flag
+# + uetr - The unique end-to-end transaction reference  
+# + validationFlag - The validation flag  
+# + serviceLevel - The service level
 # + return - The block 3 of the MT message or an error if the block 3 cannot be created
-isolated function createMtBlock3(painIsoRecord:UUIDv4Identifier? uetr, string? validationFlag = ()) returns swiftmt:Block3? {
-    if uetr !is string && validationFlag !is string {
+isolated function createMtBlock3(painIsoRecord:UUIDv4Identifier? uetr, string? validationFlag = (), 
+    pacsIsoRecord:ServiceLevel8Choice[]? serviceLevel = ()) returns swiftmt:Block3? {
+    string serviceLevelCode = "";
+    if serviceLevel is pacsIsoRecord:ServiceLevel8Choice[] && serviceLevel.length() > 0 {
+        if serviceLevel[0].Cd is string {
+            serviceLevelCode = serviceLevel[0].Cd.toString();
+            if serviceLevelCode.startsWith("G") {
+                serviceLevelCode = serviceLevelCode.substring(1);
+            }
+        }
+    }
+
+    if uetr !is string && validationFlag !is string && serviceLevelCode != "" {
         return ();
     }
-    if uetr is string && validationFlag is string {
-        return {
-            ValidationFlag: {name: "119", value: validationFlag},
-            NdToNdTxRef: {name: "121", value: uetr}
-        };
+    swiftmt:Block3 block3 = {};
+    if serviceLevelCode != "" {
+        block3.ServiceTypeIdentifier = {name: "111", value: serviceLevelCode};
+    }
+    if uetr is string {
+        block3.NdToNdTxRef = {name: "121", value: uetr};
     }
     if validationFlag is string {
-        return {
-            ValidationFlag: {name: "119", value: validationFlag}
-        };
+        block3.ValidationFlag = {name: "119", value: validationFlag};
     }
-    return {
-        NdToNdTxRef: {name: "121", value: uetr}
-    };
+    return block3;
 }
 
 // TODO Add the necessary functions to map the MX messages to the MT messages.
