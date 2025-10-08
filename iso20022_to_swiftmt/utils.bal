@@ -2225,7 +2225,6 @@ isolated function getField72ForPacs008or009(pacsIsoRecord:CreditTransferTransact
     }
     [output, currentLine] = addGroupToField72(cp, output, currentLine);
 
-    // Instruction for Creditor Agent ---- todo check
     [string, string, string, string] [udlc, acc, phob, telb] = getInstructionAgentforPacs009Field72(cdtTrfTxInf);
     [output, currentLine] = addGroupToField72(udlc, output, currentLine);
     [output, currentLine] = addGroupToField72(acc, output, currentLine);
@@ -2256,9 +2255,6 @@ isolated function getField72ForPacs008or009(pacsIsoRecord:CreditTransferTransact
             [output, currentLine] = addGroupToField72(purp, output, currentLine);
         }
     }
-
-    // Instruction for Nxt Agt
-
     
     pacsIsoRecord:BranchAndFinancialInstitutionIdentification8?[] agents = [];
 
