@@ -57,7 +57,7 @@ isolated function transformPacs009ToMt200(pacsIsoRecord:Pacs009Envelope envelope
             MT57A: field57 is swiftmt:MT57A ? field57 : (),
             MT57B: field57 is swiftmt:MT57B ? field57 : (),
             MT57D: field57 is swiftmt:MT57D ? field57 : (),
-            MT72: getField72ForPacs009(creditTransfer)
+            MT72: getField72ForPacs008or009(creditTransfer, 9)
         }
     };
 
@@ -72,7 +72,7 @@ isolated function transformPacs009ToMt201(pacsIsoRecord:Pacs009Envelope envelope
         block4: {
             MT30: {name: MT30_NAME, Dt: {content: convertToSWIFTStandardDate(creditTransfer.IntrBkSttlmDt), number: NUMBER1}},
             MT53B: field53 is swiftmt:MT53B ? field53 : (),
-            MT72: getField72ForPacs009(creditTransfer),
+            MT72: getField72ForPacs008or009(creditTransfer, 9),
             Transaction: check getMT201Transaction(envelope.Document.FICdtTrf.CdtTrfTxInf),
             MT19: {name: MT19_NAME, Amnt: {content: convertDecimalToSwiftDecimal(envelope.Document.FICdtTrf.GrpHdr.CtrlSum), number: NUMBER1}}
         }
@@ -107,7 +107,7 @@ isolated function getMT201Transaction(pacsIsoRecord:CreditTransferTransaction62[
             MT57A: field57 is swiftmt:MT57A ? field57 : (),
             MT57B: field57 is swiftmt:MT57B ? field57 : (),
             MT57D: field57 is swiftmt:MT57D ? field57 : (),
-            MT72: getField72ForPacs009(transaxion)
+            MT72: getField72ForPacs008or009(transaxion, 9)
         });
     }
     return transactionArray;
@@ -173,7 +173,7 @@ isolated function transformPacs009ToMt202(pacsIsoRecord:Pacs009Envelope envelope
             MT57D: field57 is swiftmt:MT57D ? field57 : (),
             MT58A: field58 is swiftmt:MT58A ? field58 : (),
             MT58D: field58 is swiftmt:MT58D ? field58 : (),
-            MT72: getField72ForPacs009(creditTransfer)
+            MT72: getField72ForPacs008or009(creditTransfer, 9)
         }
     };
 
@@ -241,7 +241,7 @@ isolated function transformPacs009ToMt202COV(pacsIsoRecord:Pacs009Envelope envel
             MT57D: field57 is swiftmt:MT57D ? field57 : (),
             MT58A: field58 is swiftmt:MT58A ? field58 : (),
             MT58D: field58 is swiftmt:MT58D ? field58 : (),
-            MT72: getField72ForPacs009(creditTransfer),
+            MT72: getField72ForPacs008or009(creditTransfer, 9),
             UndrlygCstmrCdtTrf: check getUnderlyingCustomerTransaction(creditTransfer, senderCountry, receiverCountry)
         }
     };
@@ -302,7 +302,7 @@ isolated function transformPacs009ToMt203(pacsIsoRecord:Pacs009Envelope envelope
             MT53D: field53 is swiftmt:MT53D ? field53 : (),
             MT54A: field54 is swiftmt:MT54A ? field54 : (),
             MT54B: field54 is swiftmt:MT54B ? field54 : (),
-            MT72: getField72ForPacs009(creditTransfer),
+            MT72: getField72ForPacs008or009(creditTransfer, 9),
             Transaction: check getMT203Transaction(envelope.Document.FICdtTrf.CdtTrfTxInf)
         }
     };
@@ -340,7 +340,7 @@ isolated function getMT203Transaction(pacsIsoRecord:CreditTransferTransaction62[
             MT57D: field57 is swiftmt:MT57D ? field57 : (),
             MT58A: field58 is swiftmt:MT58A ? field58 : (),
             MT58D: field58 is swiftmt:MT58D ? field58 : (),
-            MT72: getField72ForPacs009(transaxion)
+            MT72: getField72ForPacs008or009(transaxion, 9)
         });
     }
     return transactionArray;
@@ -401,7 +401,7 @@ isolated function transformPacs009ToMt205(pacsIsoRecord:Pacs009Envelope envelope
             MT57D: field57 is swiftmt:MT57D ? field57 : (),
             MT58A: field58 is swiftmt:MT58A ? field58 : (),
             MT58D: field58 is swiftmt:MT58D ? field58 : (),
-            MT72: getField72ForPacs009(creditTransfer)
+            MT72: getField72ForPacs008or009(creditTransfer, 9)
         }
     };
 
@@ -465,7 +465,7 @@ isolated function transformPacs009ToMt205COV(pacsIsoRecord:Pacs009Envelope envel
             MT57D: field57 is swiftmt:MT57D ? field57 : (),
             MT58A: field58 is swiftmt:MT58A ? field58 : (),
             MT58D: field58 is swiftmt:MT58D ? field58 : (),
-            MT72: getField72ForPacs009(creditTransfer),
+            MT72: getField72ForPacs008or009(creditTransfer, 9),
             UndrlygCstmrCdtTrf: check getUnderlyingCustomerTransaction(creditTransfer, senderCountry, receiverCountry)
         }
     };
