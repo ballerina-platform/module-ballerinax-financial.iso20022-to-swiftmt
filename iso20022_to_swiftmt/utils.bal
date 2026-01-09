@@ -2262,6 +2262,18 @@ isolated function getField72ForPacs008or009(pacsIsoRecord:CreditTransferTransact
     if pacsCode == 9 {
         agents.push(cdtTrfTxInf.DbtrAgt);
     }
+
+    // Instruction for Next Agent
+    pacsIsoRecord:InstructionForNextAgent1[]? instrForNxtAgt = cdtTrfTxInf.InstrForNxtAgt;
+    if instrForNxtAgt is pacsIsoRecord:InstructionForNextAgent1[] {
+        string instrInf = "/REC/";
+        foreach pacsIsoRecord:InstructionForNextAgent1 instruction in instrForNxtAgt {
+            instrInf += (instrInf == "/REC/" ? "": " ") + instruction.InstrInf.toString();
+            
+        }
+        [output, currentLine] = addGroupToField72(instrInf, output, currentLine);
+    }
+    
     // Previous Instructing Agent 1,2,3
     pacsIsoRecord:BranchAndFinancialInstitutionIdentification8?[] previousAgents = [
         cdtTrfTxInf.PrvsInstgAgt1,
@@ -2845,6 +2857,7 @@ isolated function appendSubFieldToTextField(string text, int startline = 1, int 
 
     string result = "";
     int line = startline;
+    int currentTextLine = 1;
     int continuationPattenLength = continuatuionPattern.length() - 2; // length without \r\n
     string[] lines = [];
     if text.length() <= maxLineLength {
@@ -2852,15 +2865,16 @@ isolated function appendSubFieldToTextField(string text, int startline = 1, int 
     }
     lines.push(text.substring(0, maxLineLength));
     while line <= maxLineCount {
-        if text.length() <= maxLineLength + (maxLineLength - continuationPattenLength) * line {
-            lines.push(text.substring(maxLineLength + (maxLineLength - continuationPattenLength) * (line - 1)));
+        if text.length() <= maxLineLength + (maxLineLength - continuationPattenLength) * currentTextLine {
+            lines.push(text.substring(maxLineLength + (maxLineLength - continuationPattenLength) * (currentTextLine - 1)));
             foreach string lineText in lines {
                 result += lineText.concat(continuatuionPattern);
             }
             return result.substring(0, result.length() - continuatuionPattern.length());
         } else {
-            lines.push(text.substring(maxLineLength + (maxLineLength - continuationPattenLength) * (line - 1), maxLineLength + (maxLineLength - continuationPattenLength) * line));
+            lines.push(text.substring(maxLineLength + (maxLineLength - continuationPattenLength) * (currentTextLine - 1), maxLineLength + (maxLineLength - continuationPattenLength) * currentTextLine));
             line += 1;
+            currentTextLine += 1;
         }
     }
     foreach string lineText in lines {
